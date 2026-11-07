@@ -8,6 +8,10 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 near-sdk = "5"
+base64 = "0.22"
+hex = "0.4"
+courtroom-rules = { path = "../rules" }
+
 
 [profile.release]
 codegen-units = 1
