@@ -65,3 +65,14 @@ mod tests {
         assert!(!verify("m:a:b", &s[..64], &standin::address()));
     }
 }
+
+#[cfg(test)]
+mod addr_print {
+    #[test]
+    fn standin_address_is_stable() {
+        let a = super::standin::address();
+        println!("STANDIN_ADDRESS 0x{}", hex::encode(a));
+        let s = super::standin::sign("hello");
+        println!("STANDIN_SIG_HELLO 0x{}", hex::encode(s));
+    }
+}

@@ -54,9 +54,9 @@ fn json_path<'a>(v: &'a Value, path: &str) -> Option<&'a Value> {
 
 /// A window of at most `width` characters around the first key term found.
 pub fn window(body: &str, terms: &[String], width: usize) -> Option<String> {
-    let lower = body.to_lowercase();
+    let lower = body.to_ascii_lowercase();
     for t in terms {
-        if let Some(pos) = lower.find(&t.to_lowercase()) {
+        if let Some(pos) = lower.find(&t.to_ascii_lowercase()) {
             let half = width / 2;
             let mut s = pos.saturating_sub(half);
             let mut e = (pos + t.len() + half).min(body.len());
