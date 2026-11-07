@@ -1,0 +1,1202 @@
+[
+ {
+  "id": "T0",
+  "label": "T",
+  "claim": "The capital of Afghanistan is Kabul.",
+  "excerpt": "is predominantly mountainous with plains in the north and the southwest, which are separated by the Hindu Kush mountain range. Kabul is the country's capital and largest city. Afghanistan's population is estimated to be between 35 and 50 million."
+ },
+ {
+  "id": "F0",
+  "label": "F",
+  "claim": "The capital of Afghanistan is Addis Ababa.",
+  "excerpt": "is predominantly mountainous with plains in the north and the southwest, which are separated by the Hindu Kush mountain range. Kabul is the country's capital and largest city. Afghanistan's population is estimated to be between 35 and 50 million."
+ },
+ {
+  "id": "T1",
+  "label": "T",
+  "claim": "The capital of Albania is Tirana.",
+  "excerpt": "and the Korab, Skanderbeg, Pindus and Ceraunian Mountains, to fertile lowland plains extending from the Adriatic and Ionian sea coasts. Tirana is the capital and largest city, followed by Durrës, Vlorë, and Shkodër."
+ },
+ {
+  "id": "F1",
+  "label": "F",
+  "claim": "The capital of Albania is Suva.",
+  "excerpt": "and the Korab, Skanderbeg, Pindus and Ceraunian Mountains, to fertile lowland plains extending from the Adriatic and Ionian sea coasts. Tirana is the capital and largest city, followed by Durrës, Vlorë, and Shkodër."
+ },
+ {
+  "id": "T2",
+  "label": "T",
+  "claim": "The capital of Algeria is Algiers.",
+  "excerpt": " southeast by Niger; to the southwest by Mali, Mauritania, and Western Sahara; to the west by Morocco; and to the north by the Mediterranean Sea. Its capital and largest city is Algiers."
+ },
+ {
+  "id": "F2",
+  "label": "F",
+  "claim": "The capital of Algeria is Paris.",
+  "excerpt": " southeast by Niger; to the southwest by Mali, Mauritania, and Western Sahara; to the west by Morocco; and to the north by the Mediterranean Sea. Its capital and largest city is Algiers."
+ },
+ {
+  "id": "T3",
+  "label": "T",
+  "claim": "The capital of Andorra is Andorra la Vella.",
+  "excerpt": "ipality of Catalonia until 1715. It is currently headed by two co-princes: the Bishop of Urgell in Catalonia, Spain, and the president of France. Its capital and largest city is Andorra la Vella."
+ },
+ {
+  "id": "F3",
+  "label": "F",
+  "claim": "The capital of Andorra is Accra.",
+  "excerpt": "ipality of Catalonia until 1715. It is currently headed by two co-princes: the Bishop of Urgell in Catalonia, Spain, and the president of France. Its capital and largest city is Andorra la Vella."
+ },
+ {
+  "id": "T4",
+  "label": "T",
+  "claim": "The capital of Angola is Luanda.",
+  "excerpt": "he Angolan province of Cabinda is an exclave on the Atlantic coast, bordering the Republic of the Congo and the Democratic Republic of the Congo. The capital and most populous city is Luanda."
+ },
+ {
+  "id": "F4",
+  "label": "F",
+  "claim": "The capital of Angola is Athens.",
+  "excerpt": "he Angolan province of Cabinda is an exclave on the Atlantic coast, bordering the Republic of the Congo and the Democratic Republic of the Congo. The capital and most populous city is Luanda."
+ },
+ {
+  "id": "T5",
+  "label": "T",
+  "claim": "The capital of Argentina is Buenos Aires.",
+  "excerpt": ", and the Drake Passage to the south. Argentina is a federal state divided into twenty-three provinces, and one autonomous city, which is the federal capital and largest city of the nation, Buenos Aires. The provinces and the capital have their own constitutions but exist under a federal system. Argentina "
+ },
+ {
+  "id": "F5",
+  "label": "F",
+  "claim": "The capital of Argentina is Georgetown.",
+  "excerpt": ", and the Drake Passage to the south. Argentina is a federal state divided into twenty-three provinces, and one autonomous city, which is the federal capital and largest city of the nation, Buenos Aires. The provinces and the capital have their own constitutions but exist under a federal system. Argentina "
+ },
+ {
+  "id": "T6",
+  "label": "T",
+  "claim": "The capital of Armenia is Yerevan.",
+  "excerpt": " by Turkey to the west, Georgia to the north, Azerbaijan to the east, and Iran and the Azerbaijani exclave of Nakhchivan to the south. Yerevan is the capital, largest city and financial center."
+ },
+ {
+  "id": "F6",
+  "label": "F",
+  "claim": "The capital of Armenia is Port-au-Prince.",
+  "excerpt": " by Turkey to the west, Georgia to the north, Azerbaijan to the east, and Iran and the Azerbaijani exclave of Nakhchivan to the south. Yerevan is the capital, largest city and financial center."
+ },
+ {
+  "id": "T7",
+  "label": "T",
+  "claim": "The capital of Austria is Vienna.",
+  "excerpt": "rmally the Republic of Austria, is a landlocked country in Central Europe, lying in the Eastern Alps. It is a federation of nine states, of which the capital Vienna is the most populous city and state. Austria is bordered by Germany to the northwest, the Czech Republic to the north, Slovakia to the northea"
+ },
+ {
+  "id": "F7",
+  "label": "F",
+  "claim": "The capital of Austria is Budapest.",
+  "excerpt": "rmally the Republic of Austria, is a landlocked country in Central Europe, lying in the Eastern Alps. It is a federation of nine states, of which the capital Vienna is the most populous city and state. Austria is bordered by Germany to the northwest, the Czech Republic to the north, Slovakia to the northea"
+ },
+ {
+  "id": "T8",
+  "label": "T",
+  "claim": "The capital of Azerbaijan is Baku.",
+  "excerpt": "to the east, Russia's republic of Dagestan to the north, Georgia to the northwest, Turkey and Armenia to the west, and Iran to the south. Baku is the capital and largest city."
+ },
+ {
+  "id": "F8",
+  "label": "F",
+  "claim": "The capital of Azerbaijan is Tehran.",
+  "excerpt": "to the east, Russia's republic of Dagestan to the north, Georgia to the northwest, Turkey and Armenia to the west, and Iran to the south. Baku is the capital and largest city."
+ },
+ {
+  "id": "T9",
+  "label": "T",
+  "claim": "The capital of Bahrain is Manama.",
+  "excerpt": "re expatriates. Bahrain spans some 760 square kilometres (290 sq mi) and is the third-smallest nation in Asia after the Maldives and Singapore. The capital and largest city is Manama."
+ },
+ {
+  "id": "F9",
+  "label": "F",
+  "claim": "The capital of Bahrain is Baghdad.",
+  "excerpt": "re expatriates. Bahrain spans some 760 square kilometres (290 sq mi) and is the third-smallest nation in Asia after the Maldives and Singapore. The capital and largest city is Manama."
+ },
+ {
+  "id": "T10",
+  "label": "T",
+  "claim": "The capital of Bangladesh is Dhaka.",
+  "excerpt": "d is separated from Bhutan and Nepal by the Siliguri Corridor, and from China by the Indian states of West Bengal and Sikkim to its north. Dhaka, the capital and largest city, is the nation's political, financial, and cultural centre. Chittagong is the second-largest city and the busiest port of the countr"
+ },
+ {
+  "id": "F10",
+  "label": "F",
+  "claim": "The capital of Bangladesh is Jerusalem.",
+  "excerpt": "d is separated from Bhutan and Nepal by the Siliguri Corridor, and from China by the Indian states of West Bengal and Sikkim to its north. Dhaka, the capital and largest city, is the nation's political, financial, and cultural centre. Chittagong is the second-largest city and the busiest port of the countr"
+ },
+ {
+  "id": "T11",
+  "label": "T",
+  "claim": "The capital of Barbados is Bridgetown.",
+  "excerpt": " is the southernmost and easternmost island of the Caribbean region. It lies on the boundary of the South American and Caribbean tectonic plates. Its capital and largest city is Bridgetown."
+ },
+ {
+  "id": "F11",
+  "label": "F",
+  "claim": "The capital of Barbados is Kingston.",
+  "excerpt": " is the southernmost and easternmost island of the Caribbean region. It lies on the boundary of the South American and Caribbean tectonic plates. Its capital and largest city is Bridgetown."
+ },
+ {
+  "id": "T12",
+  "label": "T",
+  "claim": "The capital of Belarus is Minsk.",
+  "excerpt": "80,200 sq mi) with a population of 9.1 million. The country has a hemiboreal climate and is administratively divided into six regions. Minsk is the capital and largest city; it is administered separately as a city with special status."
+ },
+ {
+  "id": "F12",
+  "label": "F",
+  "claim": "The capital of Belarus is Tokyo.",
+  "excerpt": "80,200 sq mi) with a population of 9.1 million. The country has a hemiboreal climate and is administratively divided into six regions. Minsk is the capital and largest city; it is administered separately as a city with special status."
+ },
+ {
+  "id": "T13",
+  "label": "T",
+  "claim": "The capital of Belgium is Brussels.",
+  "excerpt": " mi) and has a population of more than 11.8 million; its population density of 383/km2 (990/sq mi) ranks 22nd in the world and sixth in Europe. The capital and largest metropolitan region is Brussels; other major cities are Antwerp, Ghent, Charleroi, Liège, Bruges, Namur, and Leuven."
+ },
+ {
+  "id": "F13",
+  "label": "F",
+  "claim": "The capital of Belgium is Amman.",
+  "excerpt": " mi) and has a population of more than 11.8 million; its population density of 383/km2 (990/sq mi) ranks 22nd in the world and sixth in Europe. The capital and largest metropolitan region is Brussels; other major cities are Antwerp, Ghent, Charleroi, Liège, Bruges, Namur, and Leuven."
+ },
+ {
+  "id": "T14",
+  "label": "T",
+  "claim": "The capital of Benin is Porto-Novo.",
+  "excerpt": "ion lives on the southern coastline of the Bight of Benin, part of the Gulf of Guinea in the northernmost tropical portion of the Atlantic Ocean. The capital is Porto-Novo, and the seat of government is in Cotonou, the most populous city and economic capital. Benin covers an area of 112,622 km2 (43,484 s"
+ },
+ {
+  "id": "F14",
+  "label": "F",
+  "claim": "The capital of Benin is Nairobi.",
+  "excerpt": "ion lives on the southern coastline of the Bight of Benin, part of the Gulf of Guinea in the northernmost tropical portion of the Atlantic Ocean. The capital is Porto-Novo, and the seat of government is in Cotonou, the most populous city and economic capital. Benin covers an area of 112,622 km2 (43,484 s"
+ },
+ {
+  "id": "T15",
+  "label": "T",
+  "claim": "The capital of Bosnia and Herzegovina is Sarajevo.",
+  "excerpt": " are dominated by the Dinaric Alps. Herzegovina, the smaller, southern region, has a Mediterranean climate and is mostly mountainous. Sarajevo is the capital and the largest city."
+ },
+ {
+  "id": "F15",
+  "label": "F",
+  "claim": "The capital of Bosnia and Herzegovina is Riga.",
+  "excerpt": " are dominated by the Dinaric Alps. Herzegovina, the smaller, southern region, has a Mediterranean climate and is mostly mountainous. Sarajevo is the capital and the largest city."
+ },
+ {
+  "id": "T16",
+  "label": "T",
+  "claim": "The capital of Botswana is Gaborone.",
+  "excerpt": " and Zimbabwe to the northeast. Its total area is 581,730 square kilometres (224,610 sq mi). Gaborone, in the South-East District, is the country's capital and largest city."
+ },
+ {
+  "id": "F16",
+  "label": "F",
+  "claim": "The capital of Botswana is Beirut.",
+  "excerpt": " and Zimbabwe to the northeast. Its total area is 581,730 square kilometres (224,610 sq mi). Gaborone, in the South-East District, is the country's capital and largest city."
+ },
+ {
+  "id": "T17",
+  "label": "T",
+  "claim": "The capital of Brazil is Brasília.",
+  "excerpt": "the seventh-largest by population, with over 214 million people. Brazil is a federation composed of 26 states and a Federal District, which hosts the capital, Brasília. Its most populous city is São Paulo, followed by Rio de Janeiro. Brazil has the largest Lusophone population in the world and is the onl"
+ },
+ {
+  "id": "F17",
+  "label": "F",
+  "claim": "The capital of Brazil is Monrovia.",
+  "excerpt": "the seventh-largest by population, with over 214 million people. Brazil is a federation composed of 26 states and a Federal District, which hosts the capital, Brasília. Its most populous city is São Paulo, followed by Rio de Janeiro. Brazil has the largest Lusophone population in the world and is the onl"
+ },
+ {
+  "id": "T18",
+  "label": "T",
+  "claim": "The capital of Brunei is Bandar Seri Begawan.",
+  "excerpt": "Indonesia. As of 2025, the country had a population of 466,330, being the least populated country in Asia of whom approximately 64,409 resided in the capital and largest city of Bandar Seri Begawan. Its official language is Malay, and Sunni Islam is the state religion of the country, although other religio"
+ },
+ {
+  "id": "F18",
+  "label": "F",
+  "claim": "The capital of Brunei is Tripoli.",
+  "excerpt": "Indonesia. As of 2025, the country had a population of 466,330, being the least populated country in Asia of whom approximately 64,409 resided in the capital and largest city of Bandar Seri Begawan. Its official language is Malay, and Sunni Islam is the state religion of the country, although other religio"
+ },
+ {
+  "id": "T19",
+  "label": "T",
+  "claim": "The capital of Burundi is Gitega.",
+  "excerpt": "ia to the east and southeast, and the Democratic Republic of the Congo to the west; Lake Tanganyika lies along its southwestern border. The political capital city is Gitega and the economic capital and largest city is Bujumbura."
+ },
+ {
+  "id": "F19",
+  "label": "F",
+  "claim": "The capital of Burundi is Vilnius.",
+  "excerpt": "ia to the east and southeast, and the Democratic Republic of the Congo to the west; Lake Tanganyika lies along its southwestern border. The political capital city is Gitega and the economic capital and largest city is Bujumbura."
+ },
+ {
+  "id": "T20",
+  "label": "T",
+  "claim": "The capital of Cameroon is Yaoundé.",
+  "excerpt": "cations. Cameroon's population of nearly 31 million people speak 250 native languages, in addition to the national tongues of English and French. The capital city of the country is Yaoundé."
+ },
+ {
+  "id": "F20",
+  "label": "F",
+  "claim": "The capital of Cameroon is Antananarivo.",
+  "excerpt": "cations. Cameroon's population of nearly 31 million people speak 250 native languages, in addition to the national tongues of English and French. The capital city of the country is Yaoundé."
+ },
+ {
+  "id": "T21",
+  "label": "T",
+  "claim": "The capital of Canada is Ottawa.",
+  "excerpt": " 41 million, it has widely varying population densities, with the majority residing in its urban areas and large areas being sparsely populated. Its capital is Ottawa and its three largest metropolitan areas are Toronto, Montreal, and Vancouver."
+ },
+ {
+  "id": "F21",
+  "label": "F",
+  "claim": "The capital of Canada is Lilongwe.",
+  "excerpt": " 41 million, it has widely varying population densities, with the majority residing in its urban areas and large areas being sparsely populated. Its capital is Ottawa and its three largest metropolitan areas are Toronto, Montreal, and Vancouver."
+ },
+ {
+  "id": "T22",
+  "label": "T",
+  "claim": "The capital of Chad is N'Djamena.",
+  "excerpt": ", Cameroon to the southwest, Nigeria to the southwest, and Niger to the west. Chad has a population of 20 million, of which 1.6 million live in the capital and largest city of N'Djamena. With a total area of around 1,300,000 km2 (500,000 sq mi), Chad is the fifth-largest country in Africa and the twen"
+ },
+ {
+  "id": "F22",
+  "label": "F",
+  "claim": "The capital of Chad is Nouakchott.",
+  "excerpt": ", Cameroon to the southwest, Nigeria to the southwest, and Niger to the west. Chad has a population of 20 million, of which 1.6 million live in the capital and largest city of N'Djamena. With a total area of around 1,300,000 km2 (500,000 sq mi), Chad is the fifth-largest country in Africa and the twen"
+ },
+ {
+  "id": "T23",
+  "label": "T",
+  "claim": "The capital of Chile is Santiago.",
+  "excerpt": "esventuradas, and Easter Island, and claims about 1,250,000 square kilometers (480,000 sq mi) of Antarctica as the Chilean Antarctic Territory. The capital and largest city is Santiago, and the official and national language is Spanish."
+ },
+ {
+  "id": "F23",
+  "label": "F",
+  "claim": "The capital of Chile is Port Louis.",
+  "excerpt": "esventuradas, and Easter Island, and claims about 1,250,000 square kilometers (480,000 sq mi) of Antarctica as the Chilean Antarctic Territory. The capital and largest city is Santiago, and the official and national language is Spanish."
+ },
+ {
+  "id": "T24",
+  "label": "T",
+  "claim": "The capital of Colombia is Bogotá.",
+  "excerpt": "Peru and Ecuador to the south and southwest, the Pacific Ocean to the west, and Panama to the northwest. Colombia is divided into 32 departments. The Capital District of Bogotá is the country's largest city hosting the main financial and cultural hub. Other urban areas include Medellín, Cali, Barranquill"
+ },
+ {
+  "id": "F24",
+  "label": "F",
+  "claim": "The capital of Colombia is Mexico City.",
+  "excerpt": "Peru and Ecuador to the south and southwest, the Pacific Ocean to the west, and Panama to the northwest. Colombia is divided into 32 departments. The Capital District of Bogotá is the country's largest city hosting the main financial and cultural hub. Other urban areas include Medellín, Cali, Barranquill"
+ },
+ {
+  "id": "T25",
+  "label": "T",
+  "claim": "The capital of Costa Rica is San José.",
+  "excerpt": "rder with Ecuador to the south of Cocos Island. It has a population of around five million in a land area of nearly 51,180 km2 (19,760 sq mi); the capital and largest city is San José, home to around 350,000 residents and two million people in the surrounding metropolitan area."
+ },
+ {
+  "id": "F25",
+  "label": "F",
+  "claim": "The capital of Costa Rica is Ulaanbaatar.",
+  "excerpt": "rder with Ecuador to the south of Cocos Island. It has a population of around five million in a land area of nearly 51,180 km2 (19,760 sq mi); the capital and largest city is San José, home to around 350,000 residents and two million people in the surrounding metropolitan area."
+ },
+ {
+  "id": "T26",
+  "label": "T",
+  "claim": "The capital of Croatia is Zagreb.",
+  "excerpt": "rder with Italy to the west. The Croatian archipelago contains over 1,000 islands and islets, the largest overseas territory on the Adriatic Sea. Its capital, largest city and main cultural and economic centre is Zagreb. Major urban centres include Split, Rijeka, and Osijek. The country is composed of twen"
+ },
+ {
+  "id": "F26",
+  "label": "F",
+  "claim": "The capital of Croatia is Naypyidaw.",
+  "excerpt": "rder with Italy to the west. The Croatian archipelago contains over 1,000 islands and islets, the largest overseas territory on the Adriatic Sea. Its capital, largest city and main cultural and economic centre is Zagreb. Major urban centres include Split, Rijeka, and Osijek. The country is composed of twen"
+ },
+ {
+  "id": "T27",
+  "label": "T",
+  "claim": "The capital of Cuba is Havana.",
+  "excerpt": " by area and the third-largest by population, after Haiti and the Dominican Republic. Culturally, Cuba is considered to be part of Latin America. Its capital and largest city is Havana."
+ },
+ {
+  "id": "F27",
+  "label": "F",
+  "claim": "The capital of Cuba is Kathmandu.",
+  "excerpt": " by area and the third-largest by population, after Haiti and the Dominican Republic. Culturally, Cuba is considered to be part of Latin America. Its capital and largest city is Havana."
+ },
+ {
+  "id": "T28",
+  "label": "T",
+  "claim": "The capital of Cyprus is Nicosia.",
+  "excerpt": "ern Cyprus, which is recognised only by Turkey. The south of the island also hosts the British sovereign military bases of Akrotiri and Dhekelia. The capital and largest city of Cyprus is Nicosia."
+ },
+ {
+  "id": "F28",
+  "label": "F",
+  "claim": "The capital of Cyprus is Wellington.",
+  "excerpt": "ern Cyprus, which is recognised only by Turkey. The south of the island also hosts the British sovereign military bases of Akrotiri and Dhekelia. The capital and largest city of Cyprus is Nicosia."
+ },
+ {
+  "id": "T29",
+  "label": "T",
+  "claim": "The capital of Democratic Republic of the Congo is Kinshasa.",
+  "excerpt": "rld. French is the official and most widely spoken language. There are over 200 indigenous languages, of which Lingala is the most widely spoken. The capital, largest city, and economic center is Kinshasa. The DRC is bordered by the Republic of the Congo, the Cabinda exclave of Angola, and the South Atlant"
+ },
+ {
+  "id": "F29",
+  "label": "F",
+  "claim": "The capital of Democratic Republic of the Congo is Niamey.",
+  "excerpt": "rld. French is the official and most widely spoken language. There are over 200 indigenous languages, of which Lingala is the most widely spoken. The capital, largest city, and economic center is Kinshasa. The DRC is bordered by the Republic of the Congo, the Cabinda exclave of Angola, and the South Atlant"
+ },
+ {
+  "id": "T30",
+  "label": "T",
+  "claim": "The capital of Dominica is Roseau.",
+  "excerpt": "ominica, is an island country in the Caribbean. It is part of the Windward Islands chain in the Lesser Antilles archipelago in the Caribbean Sea. The capital, Roseau, is located on the western side of the island. Dominica's closest neighbours are two constituent territories of the European Union, both over"
+ },
+ {
+  "id": "F30",
+  "label": "F",
+  "claim": "The capital of Dominica is Abuja.",
+  "excerpt": "ominica, is an island country in the Caribbean. It is part of the Windward Islands chain in the Lesser Antilles archipelago in the Caribbean Sea. The capital, Roseau, is located on the western side of the island. Dominica's closest neighbours are two constituent territories of the European Union, both over"
+ },
+ {
+  "id": "T31",
+  "label": "T",
+  "claim": "The capital of Dominican Republic is Santo Domingo.",
+  "excerpt": "d most populous after Haiti with approximately 11.4 million people in 2024, of whom 3.6 million reside in the metropolitan area of Santo Domingo, the capital city."
+ },
+ {
+  "id": "F31",
+  "label": "F",
+  "claim": "The capital of Dominican Republic is Pyongyang.",
+  "excerpt": "d most populous after Haiti with approximately 11.4 million people in 2024, of whom 3.6 million reside in the metropolitan area of Santo Domingo, the capital city."
+ },
+ {
+  "id": "T32",
+  "label": "T",
+  "claim": "The capital of Ecuador is Quito.",
+  "excerpt": "lso includes the Galápagos Province which contains the Galápagos Islands in the Pacific, about 1,000 kilometers west of the mainland. The country's capital is Quito, and the largest city is Guayaquil."
+ },
+ {
+  "id": "F32",
+  "label": "F",
+  "claim": "The capital of Ecuador is Skopje.",
+  "excerpt": "lso includes the Galápagos Province which contains the Galápagos Islands in the Pacific, about 1,000 kilometers west of the mainland. The country's capital is Quito, and the largest city is Guayaquil."
+ },
+ {
+  "id": "T33",
+  "label": "T",
+  "claim": "The capital of Egypt is Cairo.",
+  "excerpt": "dan and the Sahara to the south, and Libya to the west. The Gulf of Aqaba in the northeast separates Egypt from Jordan and Saudi Arabia. Cairo is the capital, largest city, and leading cultural centre, while Alexandria is the second-largest city and an important hub of industry and tourism. With over 107 m"
+ },
+ {
+  "id": "F33",
+  "label": "F",
+  "claim": "The capital of Egypt is Oslo.",
+  "excerpt": "dan and the Sahara to the south, and Libya to the west. The Gulf of Aqaba in the northeast separates Egypt from Jordan and Saudi Arabia. Cairo is the capital, largest city, and leading cultural centre, while Alexandria is the second-largest city and an important hub of industry and tourism. With over 107 m"
+ },
+ {
+  "id": "T34",
+  "label": "T",
+  "claim": "The capital of El Salvador is San Salvador.",
+  "excerpt": "cific coast, it is bounded by Guatemala to the northwest and Honduras to the northeast. The country's political, economic, and cultural center is its capital and largest municipality, San Salvador. As of 2024, El Salvador's population was estimated at approximately 6 million inhabitants."
+ },
+ {
+  "id": "F34",
+  "label": "F",
+  "claim": "The capital of El Salvador is Panama City.",
+  "excerpt": "cific coast, it is bounded by Guatemala to the northwest and Honduras to the northeast. The country's political, economic, and cultural center is its capital and largest municipality, San Salvador. As of 2024, El Salvador's population was estimated at approximately 6 million inhabitants."
+ },
+ {
+  "id": "T35",
+  "label": "T",
+  "claim": "The capital of Eritrea is Asmara.",
+  "excerpt": "Eritrea, officially the State of Eritrea, is a country in the Horn of Africa region of East Africa. Its capital and largest city is Asmara. The country is bordered by Ethiopia to the south, Sudan to the west, and Djibouti to the southeast. The northeastern and "
+ },
+ {
+  "id": "F35",
+  "label": "F",
+  "claim": "The capital of Eritrea is Asunción.",
+  "excerpt": "Eritrea, officially the State of Eritrea, is a country in the Horn of Africa region of East Africa. Its capital and largest city is Asmara. The country is bordered by Ethiopia to the south, Sudan to the west, and Djibouti to the southeast. The northeastern and "
+ },
+ {
+  "id": "T36",
+  "label": "T",
+  "claim": "The capital of Estonia is Tallinn.",
+  "excerpt": "onsists of the mainland, the larger islands of Saaremaa and Hiiumaa, and over 2,300 other islands and islets on the east coast of the Baltic Sea. Its capital city of Tallinn, along with the city of Tartu, are the country's two largest urban areas. The Estonian language, of the Finnic family, is the officia"
+ },
+ {
+  "id": "F36",
+  "label": "F",
+  "claim": "The capital of Estonia is Beijing.",
+  "excerpt": "onsists of the mainland, the larger islands of Saaremaa and Hiiumaa, and over 2,300 other islands and islets on the east coast of the Baltic Sea. Its capital city of Tallinn, along with the city of Tartu, are the country's two largest urban areas. The Estonian language, of the Finnic family, is the officia"
+ },
+ {
+  "id": "T37",
+  "label": "T",
+  "claim": "The capital of Ethiopia is Addis Ababa.",
+  "excerpt": "6, it has around 138 million inhabitants, making it the 10th-most populous country in the world and 2nd most populous country in Africa. The national capital and largest city, Addis Ababa, lies several kilometres west of the East African Rift that splits the country into the African and Somali tectonic pla"
+ },
+ {
+  "id": "F37",
+  "label": "F",
+  "claim": "The capital of Ethiopia is Lima.",
+  "excerpt": "6, it has around 138 million inhabitants, making it the 10th-most populous country in the world and 2nd most populous country in Africa. The national capital and largest city, Addis Ababa, lies several kilometres west of the East African Rift that splits the country into the African and Somali tectonic pla"
+ },
+ {
+  "id": "T38",
+  "label": "T",
+  "claim": "The capital of Fiji is Suva.",
+  "excerpt": "e total population live on the two major islands, Viti Levu and Vanua Levu. About three-quarters of Fijians live on Viti Levu's coasts, either in the capital city of Suva, or in smaller urban centres such as Nadi or Lautoka. The interior of Viti Levu is sparsely inhabited because of its terrain."
+ },
+ {
+  "id": "F38",
+  "label": "F",
+  "claim": "The capital of Fiji is Warsaw.",
+  "excerpt": "e total population live on the two major islands, Viti Levu and Vanua Levu. About three-quarters of Fijians live on Viti Levu's coasts, either in the capital city of Suva, or in smaller urban centres such as Nadi or Lautoka. The interior of Viti Levu is sparsely inhabited because of its terrain."
+ },
+ {
+  "id": "T39",
+  "label": "T",
+  "claim": "The capital of France is Paris.",
+  "excerpt": "e of which are overseas—span a combined area of 632,702 km2 (244,288 sq mi), with a total population estimated at over 69.1 million in 2026. Its capital, largest city and main cultural and economic centre is Paris, with a metropolitan population of over 13 million."
+ },
+ {
+  "id": "F39",
+  "label": "F",
+  "claim": "The capital of France is Lisbon.",
+  "excerpt": "e of which are overseas—span a combined area of 632,702 km2 (244,288 sq mi), with a total population estimated at over 69.1 million in 2026. Its capital, largest city and main cultural and economic centre is Paris, with a metropolitan population of over 13 million."
+ },
+ {
+  "id": "T40",
+  "label": "T",
+  "claim": "The capital of Ghana is Accra.",
+  "excerpt": ". With over 35 million inhabitants, Ghana is the thirteenth-most populous country in Africa, and the second-most populous country in West Africa. The capital and most populous city is Accra."
+ },
+ {
+  "id": "F40",
+  "label": "F",
+  "claim": "The capital of Ghana is Doha.",
+  "excerpt": ". With over 35 million inhabitants, Ghana is the thirteenth-most populous country in Africa, and the second-most populous country in West Africa. The capital and most populous city is Accra."
+ },
+ {
+  "id": "T41",
+  "label": "T",
+  "claim": "The capital of Greece is Athens.",
+  "excerpt": "he Ionian Sea is west of the mainland, Albania northwest, and North Macedonia and Bulgaria north. Turkey is east both by land and the Aegean Sea. The capital, Athens, is the largest Greek city, followed by Thessaloniki and Patras."
+ },
+ {
+  "id": "F41",
+  "label": "F",
+  "claim": "The capital of Greece is Bucharest.",
+  "excerpt": "he Ionian Sea is west of the mainland, Albania northwest, and North Macedonia and Bulgaria north. Turkey is east both by land and the Aegean Sea. The capital, Athens, is the largest Greek city, followed by Thessaloniki and Patras."
+ },
+ {
+  "id": "T42",
+  "label": "T",
+  "claim": "The capital of Guyana is Georgetown.",
+  "excerpt": "y the Atlantic Ocean to the north, Suriname to the east, Brazil to the south and southwest, and Venezuela to the west. It is part of the Guianas. The capital and largest city is Georgetown."
+ },
+ {
+  "id": "F42",
+  "label": "F",
+  "claim": "The capital of Guyana is Moscow.",
+  "excerpt": "y the Atlantic Ocean to the north, Suriname to the east, Brazil to the south and southwest, and Venezuela to the west. It is part of the Guianas. The capital and largest city is Georgetown."
+ },
+ {
+  "id": "T43",
+  "label": "T",
+  "claim": "The capital of Haiti is Port-au-Prince.",
+  "excerpt": " the third largest country in the Caribbean by area, and with an estimated population of 11.4 million, it is the most populous Caribbean country. The capital and largest city is Port-au-Prince."
+ },
+ {
+  "id": "F43",
+  "label": "F",
+  "claim": "The capital of Haiti is Kigali.",
+  "excerpt": " the third largest country in the Caribbean by area, and with an estimated population of 11.4 million, it is the most populous Caribbean country. The capital and largest city is Port-au-Prince."
+ },
+ {
+  "id": "T44",
+  "label": "T",
+  "claim": "The capital of Hungary is Budapest.",
+  "excerpt": "gnificant Romani minority. Hungarian is the official language and among the few in Europe outside the Indo-European family. Budapest is the country's capital, largest city, and cultural and economic centre."
+ },
+ {
+  "id": "F44",
+  "label": "F",
+  "claim": "The capital of Hungary is Castries.",
+  "excerpt": "gnificant Romani minority. Hungarian is the official language and among the few in Europe outside the Indo-European family. Budapest is the country's capital, largest city, and cultural and economic centre."
+ },
+ {
+  "id": "T45",
+  "label": "T",
+  "claim": "The capital of Iran is Tehran.",
+  "excerpt": "2 million, Iran ranks 17th globally in both geographic size and population. It is divided into five regions with 31 provinces. Tehran is the nation's capital and largest city and serves as its primary economic center."
+ },
+ {
+  "id": "F45",
+  "label": "F",
+  "claim": "The capital of Iran is Apia.",
+  "excerpt": "2 million, Iran ranks 17th globally in both geographic size and population. It is divided into five regions with 31 provinces. Tehran is the nation's capital and largest city and serves as its primary economic center."
+ },
+ {
+  "id": "T46",
+  "label": "T",
+  "claim": "The capital of Iraq is Baghdad.",
+  "excerpt": "f over 46 million, making it the 58th largest country by area and the 31st most populous in the world. Baghdad, home to over 8 million people, is the capital city and the largest in the country."
+ },
+ {
+  "id": "F46",
+  "label": "F",
+  "claim": "The capital of Iraq is San Marino.",
+  "excerpt": "f over 46 million, making it the 58th largest country by area and the 31st most populous in the world. Baghdad, home to over 8 million people, is the capital city and the largest in the country."
+ },
+ {
+  "id": "T47",
+  "label": "T",
+  "claim": "The capital of Israel is Jerusalem.",
+  "excerpt": "Sea, its southern tip reaches the Red Sea, and to the east is Earth's lowest point near the Dead Sea. Jerusalem is the government seat and proclaimed capital, while Tel Aviv is Israel's largest urban area and economic centre."
+ },
+ {
+  "id": "F47",
+  "label": "F",
+  "claim": "The capital of Israel is Riyadh.",
+  "excerpt": "Sea, its southern tip reaches the Red Sea, and to the east is Earth's lowest point near the Dead Sea. Jerusalem is the government seat and proclaimed capital, while Tel Aviv is Israel's largest urban area and economic centre."
+ },
+ {
+  "id": "T48",
+  "label": "T",
+  "claim": "The capital of Jamaica is Kingston.",
+  "excerpt": " people, Jamaica is the third-most populous Anglophone country in the Americas and the fourth-most populous country in the Caribbean. Kingston is the capital and largest city."
+ },
+ {
+  "id": "F48",
+  "label": "F",
+  "claim": "The capital of Jamaica is Dakar.",
+  "excerpt": " people, Jamaica is the third-most populous Anglophone country in the Americas and the fourth-most populous country in the Caribbean. Kingston is the capital and largest city."
+ },
+ {
+  "id": "T49",
+  "label": "T",
+  "claim": "The capital of Japan is Tokyo.",
+  "excerpt": "its eastern coastal plains. With a population of almost 123 million as of 2026, it is the world's 11th most populous country. Tokyo is the country's capital and largest city."
+ },
+ {
+  "id": "F49",
+  "label": "F",
+  "claim": "The capital of Japan is Belgrade.",
+  "excerpt": "its eastern coastal plains. With a population of almost 123 million as of 2026, it is the world's 11th most populous country. Tokyo is the country's capital and largest city."
+ },
+ {
+  "id": "T50",
+  "label": "T",
+  "claim": "The capital of Jordan is Amman.",
+  "excerpt": "ordan Rift Valley. Jordan has a small coastline along the Red Sea in its southwest, separated by the Gulf of Aqaba from Egypt. Amman is the country's capital and largest city, as well as the most populous city in the Levant."
+ },
+ {
+  "id": "F50",
+  "label": "F",
+  "claim": "The capital of Jordan is Victoria.",
+  "excerpt": "ordan Rift Valley. Jordan has a small coastline along the Red Sea in its southwest, separated by the Gulf of Aqaba from Egypt. Amman is the country's capital and largest city, as well as the most populous city in the Levant."
+ },
+ {
+  "id": "T51",
+  "label": "T",
+  "claim": "The capital of Kenya is Nairobi.",
+  "excerpt": "ulation of more than 54.2 million as of mid-2026, it is the 26th-most populous country in the world and the seventh-most populous in Africa. Kenya's capital and largest city is Nairobi. The second-largest and oldest city is Mombasa, a port city located on Mombasa Island. Other major cities within the coun"
+ },
+ {
+  "id": "F51",
+  "label": "F",
+  "claim": "The capital of Kenya is Freetown.",
+  "excerpt": "ulation of more than 54.2 million as of mid-2026, it is the 26th-most populous country in the world and the seventh-most populous in Africa. Kenya's capital and largest city is Nairobi. The second-largest and oldest city is Mombasa, a port city located on Mombasa Island. Other major cities within the coun"
+ },
+ {
+  "id": "T52",
+  "label": "T",
+  "claim": "The capital of Latvia is Riga.",
+  "excerpt": "he west. Latvia covers an area of 64,573 km2 (24,932 sq mi), with a population of 1.83 million. The country has a temperate seasonal climate. Its capital and largest city is Riga. Latvians, who are the titular nation and comprise 65.5% of the country's population, belong to the ethnolinguistic group of"
+ },
+ {
+  "id": "F52",
+  "label": "F",
+  "claim": "The capital of Latvia is Bratislava.",
+  "excerpt": "he west. Latvia covers an area of 64,573 km2 (24,932 sq mi), with a population of 1.83 million. The country has a temperate seasonal climate. Its capital and largest city is Riga. Latvians, who are the titular nation and comprise 65.5% of the country's population, belong to the ethnolinguistic group of"
+ },
+ {
+  "id": "T53",
+  "label": "T",
+  "claim": "The capital of Lebanon is Beirut.",
+  "excerpt": "om the coastline. Lebanon has a population of more than five million and an area of 10,452 square kilometres (4,036 sq mi). Beirut is the country's capital and largest city."
+ },
+ {
+  "id": "F53",
+  "label": "F",
+  "claim": "The capital of Lebanon is Ljubljana.",
+  "excerpt": "om the coastline. Lebanon has a population of more than five million and an area of 10,452 square kilometres (4,036 sq mi). Beirut is the country's capital and largest city."
+ },
+ {
+  "id": "T54",
+  "label": "T",
+  "claim": "The capital of Liberia is Monrovia.",
+  "excerpt": " km2). The official language is English, though over 20 indigenous languages are spoken, reflecting the country's ethnic and cultural diversity. The capital and largest city is Monrovia."
+ },
+ {
+  "id": "F54",
+  "label": "F",
+  "claim": "The capital of Liberia is Juba.",
+  "excerpt": " km2). The official language is English, though over 20 indigenous languages are spoken, reflecting the country's ethnic and cultural diversity. The capital and largest city is Monrovia."
+ },
+ {
+  "id": "T55",
+  "label": "T",
+  "claim": "The capital of Libya is Tripoli.",
+  "excerpt": " world, and the 16th-largest in the world. The country claims 32,000 square kilometres of southeastern Algeria, south of the Libyan town of Ghat. The capital and largest city is Tripoli, located in the northwest and containing over a million of Libya's seven million people."
+ },
+ {
+  "id": "F55",
+  "label": "F",
+  "claim": "The capital of Libya is Madrid.",
+  "excerpt": " world, and the 16th-largest in the world. The country claims 32,000 square kilometres of southeastern Algeria, south of the Libyan town of Ghat. The capital and largest city is Tripoli, located in the northwest and containing over a million of Libya's seven million people."
+ },
+ {
+  "id": "T56",
+  "label": "T",
+  "claim": "The capital of Lithuania is Vilnius.",
+  "excerpt": "t, with a maritime border with Sweden to the west. Lithuania covers an area of 65,300 km2 (25,200 sq mi), and has a population of 2.9 million. Its capital and largest city is Vilnius; other major cities include Kaunas, Klaipėda, Šiauliai and Panevėžys. Lithuanians are the titular nation, belong to t"
+ },
+ {
+  "id": "F56",
+  "label": "F",
+  "claim": "The capital of Lithuania is Khartoum.",
+  "excerpt": "t, with a maritime border with Sweden to the west. Lithuania covers an area of 65,300 km2 (25,200 sq mi), and has a population of 2.9 million. Its capital and largest city is Vilnius; other major cities include Kaunas, Klaipėda, Šiauliai and Panevėžys. Lithuanians are the titular nation, belong to t"
+ },
+ {
+  "id": "T57",
+  "label": "T",
+  "claim": "The capital of Madagascar is Antananarivo.",
+  "excerpt": "e southeastern coast of Africa, it is the world's fourth-largest island, the second-largest island country, and the 46th-largest country overall. Its capital and largest city is Antananarivo."
+ },
+ {
+  "id": "F57",
+  "label": "F",
+  "claim": "The capital of Madagascar is Damascus.",
+  "excerpt": "e southeastern coast of Africa, it is the world's fourth-largest island, the second-largest island country, and the 46th-largest country overall. Its capital and largest city is Antananarivo."
+ },
+ {
+  "id": "T58",
+  "label": "T",
+  "claim": "The capital of Malawi is Lilongwe.",
+  "excerpt": "and Mozambique to the east, south, and southwest. Malawi spans over 118,484 km2 (45,747 sq mi) and has a population of 22,224,282. Lilongwe is its capital and largest city."
+ },
+ {
+  "id": "F58",
+  "label": "F",
+  "claim": "The capital of Malawi is Nassau.",
+  "excerpt": "and Mozambique to the east, south, and southwest. Malawi spans over 118,484 km2 (45,747 sq mi) and has a population of 22,224,282. Lilongwe is its capital and largest city."
+ },
+ {
+  "id": "T59",
+  "label": "T",
+  "claim": "The capital of Mauritania is Nouakchott.",
+  "excerpt": "ra desert. Most of its population of 5.4 million live in the temperate south of the country; roughly a third of the population is concentrated in the capital and largest city, Nouakchott, on the Atlantic coast."
+ },
+ {
+  "id": "F59",
+  "label": "F",
+  "claim": "The capital of Mauritania is Dili.",
+  "excerpt": "ra desert. Most of its population of 5.4 million live in the temperate south of the country; roughly a third of the population is concentrated in the capital and largest city, Nouakchott, on the Atlantic coast."
+ },
+ {
+  "id": "T60",
+  "label": "T",
+  "claim": "The capital of Mauritius is Port Louis.",
+  "excerpt": "drigues, along with nearby Réunion, are part of the Mascarene Islands. The main island of Mauritius, where the population is concentrated, hosts the capital and largest city, Port Louis. The country spans 2,040 square kilometres (790 sq mi) and has an exclusive economic zone covering approximately 580,0"
+ },
+ {
+  "id": "F60",
+  "label": "F",
+  "claim": "The capital of Mauritius is Tunis.",
+  "excerpt": "drigues, along with nearby Réunion, are part of the Mascarene Islands. The main island of Mauritius, where the population is concentrated, hosts the capital and largest city, Port Louis. The country spans 2,040 square kilometres (790 sq mi) and has an exclusive economic zone covering approximately 580,0"
+ },
+ {
+  "id": "T61",
+  "label": "T",
+  "claim": "The capital of Mexico is Mexico City.",
+  "excerpt": "n as of 2025, Mexico is the tenth-most populous country in the world and is home to the largest number of native Spanish speakers. Mexico City is the capital and largest city in Mexico, which ranks among the most populous metropolitan areas in the world."
+ },
+ {
+  "id": "F61",
+  "label": "F",
+  "claim": "The capital of Mexico is Ankara.",
+  "excerpt": "n as of 2025, Mexico is the tenth-most populous country in the world and is home to the largest number of native Spanish speakers. Mexico City is the capital and largest city in Mexico, which ranks among the most populous metropolitan areas in the world."
+ },
+ {
+  "id": "T62",
+  "label": "T",
+  "claim": "The capital of Mongolia is Ulaanbaatar.",
+  "excerpt": "u, and its natural environment is characterized by grassy steppe, mountains to the north and west, and the Gobi Desert to the south. Ulaanbaatar, the capital and largest city, is home to roughly half of the country's population."
+ },
+ {
+  "id": "F62",
+  "label": "F",
+  "claim": "The capital of Mongolia is Kampala.",
+  "excerpt": "u, and its natural environment is characterized by grassy steppe, mountains to the north and west, and the Gobi Desert to the south. Ulaanbaatar, the capital and largest city, is home to roughly half of the country's population."
+ },
+ {
+  "id": "T63",
+  "label": "T",
+  "claim": "The capital of Myanmar is Naypyidaw.",
+  "excerpt": "na to the northeast, Laos and Thailand to the east and southeast, and the Andaman Sea and the Bay of Bengal to the south and southwest. The country's capital city is Naypyidaw, while its largest city is Yangon."
+ },
+ {
+  "id": "F63",
+  "label": "F",
+  "claim": "The capital of Myanmar is Kabul.",
+  "excerpt": "na to the northeast, Laos and Thailand to the east and southeast, and the Andaman Sea and the Bay of Bengal to the south and southwest. The country's capital city is Naypyidaw, while its largest city is Yangon."
+ },
+ {
+  "id": "T64",
+  "label": "T",
+  "claim": "The capital of Nepal is Kathmandu.",
+  "excerpt": ", and eight of the world's ten highest mountains, including Mount Everest, the highest point above mean sea level on Earth. Kathmandu is the nation's capital and its largest city. Nepal is a multi-ethnic, multi-lingual, multi-religious, and multi-cultural sovereign state, with Nepali as the official langua"
+ },
+ {
+  "id": "F64",
+  "label": "F",
+  "claim": "The capital of Nepal is Tirana.",
+  "excerpt": ", and eight of the world's ten highest mountains, including Mount Everest, the highest point above mean sea level on Earth. Kathmandu is the nation's capital and its largest city. Nepal is a multi-ethnic, multi-lingual, multi-religious, and multi-cultural sovereign state, with Nepali as the official langua"
+ },
+ {
+  "id": "T65",
+  "label": "T",
+  "claim": "The capital of New Zealand is Wellington.",
+  "excerpt": " country's varied topography and sharp mountain peaks, including the Southern Alps, owe much to tectonic uplift and volcanic eruptions. New Zealand's capital city is Wellington, and its most populous city is Auckland."
+ },
+ {
+  "id": "F65",
+  "label": "F",
+  "claim": "The capital of New Zealand is Algiers.",
+  "excerpt": " country's varied topography and sharp mountain peaks, including the Southern Alps, owe much to tectonic uplift and volcanic eruptions. New Zealand's capital city is Wellington, and its most populous city is Auckland."
+ },
+ {
+  "id": "T66",
+  "label": "T",
+  "claim": "The capital of Niger is Niamey.",
+  "excerpt": " area lies in the Sahara. Its predominantly Muslim population of about 29 million lives mostly in clusters in the south and west of the country. The capital Niamey is located in the southwest corner along the namesake Niger River."
+ },
+ {
+  "id": "F66",
+  "label": "F",
+  "claim": "The capital of Niger is Andorra la Vella.",
+  "excerpt": " area lies in the Sahara. Its predominantly Muslim population of about 29 million lives mostly in clusters in the south and west of the country. The capital Niamey is located in the southwest corner along the namesake Niger River."
+ },
+ {
+  "id": "T67",
+  "label": "T",
+  "claim": "The capital of Nigeria is Abuja.",
+  "excerpt": " in the north, Chad in the northeast, Cameroon in the east, and Benin in the west. Nigeria is a federal republic comprising 36 states and the Federal Capital Territory, where its capital, Abuja, is located. The largest city in Nigeria by population is Lagos, one of the largest metropolitan areas in the wor"
+ },
+ {
+  "id": "F67",
+  "label": "F",
+  "claim": "The capital of Nigeria is Luanda.",
+  "excerpt": " in the north, Chad in the northeast, Cameroon in the east, and Benin in the west. Nigeria is a federal republic comprising 36 states and the Federal Capital Territory, where its capital, Abuja, is located. The largest city in Nigeria by population is Lagos, one of the largest metropolitan areas in the wor"
+ },
+ {
+  "id": "T68",
+  "label": "T",
+  "claim": "The capital of North Korea is Pyongyang.",
+  "excerpt": "rized Zone (DMZ). The country's western border is formed by the Yellow Sea, while its eastern border is defined by the Sea of Japan. Pyongyang is the capital and largest city."
+ },
+ {
+  "id": "F68",
+  "label": "F",
+  "claim": "The capital of North Korea is Buenos Aires.",
+  "excerpt": "rized Zone (DMZ). The country's western border is formed by the Yellow Sea, while its eastern border is defined by the Sea of Japan. Pyongyang is the capital and largest city."
+ },
+ {
+  "id": "T69",
+  "label": "T",
+  "claim": "The capital of North Macedonia is Skopje.",
+  "excerpt": "to the northwest and Serbia to the north. It constitutes approximately the northern third of the larger geographical region of Macedonia. Skopje, the capital and largest city, is home to a quarter of the country's population of over 1.83 million. The majority of the residents are ethnic Macedonians, a Sou"
+ },
+ {
+  "id": "F69",
+  "label": "F",
+  "claim": "The capital of North Macedonia is Yerevan.",
+  "excerpt": "to the northwest and Serbia to the north. It constitutes approximately the northern third of the larger geographical region of Macedonia. Skopje, the capital and largest city, is home to a quarter of the country's population of over 1.83 million. The majority of the residents are ethnic Macedonians, a Sou"
+ },
+ {
+  "id": "T70",
+  "label": "T",
+  "claim": "The capital of Norway is Oslo.",
+  "excerpt": "sland and Queen Maud Land. Norway has a population of approximately 5.6 million, and a total area of 385,207 square kilometres (148,729 sq mi). Its capital and largest city is Oslo. The country shares a long eastern border with Sweden, and is bordered by Finland and Russia to the northeast. Norway has an"
+ },
+ {
+  "id": "F70",
+  "label": "F",
+  "claim": "The capital of Norway is Vienna.",
+  "excerpt": "sland and Queen Maud Land. Norway has a population of approximately 5.6 million, and a total area of 385,207 square kilometres (148,729 sq mi). Its capital and largest city is Oslo. The country shares a long eastern border with Sweden, and is bordered by Finland and Russia to the northeast. Norway has an"
+ },
+ {
+  "id": "T71",
+  "label": "T",
+  "claim": "The capital of Panama is Panama City.",
+  "excerpt": "America. It is bordered by Costa Rica to the west, Colombia to the southeast, the Caribbean Sea to the north, and the Pacific Ocean to the south. Its capital and largest city is Panama City, whose metropolitan area is home to nearly half of the country's over 4 million inhabitants. Located on a narrow ist"
+ },
+ {
+  "id": "F71",
+  "label": "F",
+  "claim": "The capital of Panama is Baku.",
+  "excerpt": "America. It is bordered by Costa Rica to the west, Colombia to the southeast, the Caribbean Sea to the north, and the Pacific Ocean to the south. Its capital and largest city is Panama City, whose metropolitan area is home to nearly half of the country's over 4 million inhabitants. Located on a narrow ist"
+ },
+ {
+  "id": "T72",
+  "label": "T",
+  "claim": "The capital of Paraguay is Asunción.",
+  "excerpt": "–Paraguay Waterway, a system of navigable channels shared by five countries. The country is governed as a unitary presidential republic composed of a capital district and seventeen departments. Its capital and largest city is Asunción. It dates its independence from Spain to 1811."
+ },
+ {
+  "id": "F72",
+  "label": "F",
+  "claim": "The capital of Paraguay is Manama.",
+  "excerpt": "–Paraguay Waterway, a system of navigable channels shared by five countries. The country is governed as a unitary presidential republic composed of a capital district and seventeen departments. Its capital and largest city is Asunción. It dates its independence from Spain to 1811."
+ },
+ {
+  "id": "T73",
+  "label": "T",
+  "claim": "The capital of People's Republic of China is Beijing.",
+  "excerpt": " China (PRC), is a country in East Asia. It is divided into 33 province-level divisions, including two special administrative regions. Beijing is the capital, while Shanghai is the most populous city by urban area. Its geography features the Central Plain, major rivers such as the Yangtze and Yellow River,"
+ },
+ {
+  "id": "F73",
+  "label": "F",
+  "claim": "The capital of People's Republic of China is Dhaka.",
+  "excerpt": " China (PRC), is a country in East Asia. It is divided into 33 province-level divisions, including two special administrative regions. Beijing is the capital, while Shanghai is the most populous city by urban area. Its geography features the Central Plain, major rivers such as the Yangtze and Yellow River,"
+ },
+ {
+  "id": "T74",
+  "label": "T",
+  "claim": "The capital of Peru is Lima.",
+  "excerpt": "outheast of the country, to the tropical Amazon basin rainforest in the east with the Amazon River. Peru has a population of over 32 million, and its capital and largest city is Lima. At 1,285,216 km2 (496,225 sq mi), Peru is the 19th largest country in the world, and the third largest in South America."
+ },
+ {
+  "id": "F74",
+  "label": "F",
+  "claim": "The capital of Peru is Bridgetown.",
+  "excerpt": "outheast of the country, to the tropical Amazon basin rainforest in the east with the Amazon River. Peru has a population of over 32 million, and its capital and largest city is Lima. At 1,285,216 km2 (496,225 sq mi), Peru is the 19th largest country in the world, and the third largest in South America."
+ },
+ {
+  "id": "T75",
+  "label": "T",
+  "claim": "The capital of Poland is Warsaw.",
+  "excerpt": " of the European Union (EU), with over 37 million people, and the fifth largest EU country by land area, covering 312,696 km2 (120,733 sq mi). The capital and largest city is Warsaw; other major cities include Kraków, Wrocław, Łódź, Poznań, and Gdańsk."
+ },
+ {
+  "id": "F75",
+  "label": "F",
+  "claim": "The capital of Poland is Minsk.",
+  "excerpt": " of the European Union (EU), with over 37 million people, and the fifth largest EU country by land area, covering 312,696 km2 (120,733 sq mi). The capital and largest city is Warsaw; other major cities include Kraków, Wrocław, Łódź, Poznań, and Gdańsk."
+ },
+ {
+  "id": "T76",
+  "label": "T",
+  "claim": "The capital of Portugal is Lisbon.",
+  "excerpt": "rtugal also includes the archipelagos of Madeira and the Azores in the Atlantic Ocean. The country has a population of 11.4 million, and Lisbon, its capital, is the largest city. Portugal's internal waters and territorial sea together account for two-fifths of its territory, and its exclusive economic zon"
+ },
+ {
+  "id": "F76",
+  "label": "F",
+  "claim": "The capital of Portugal is Brussels.",
+  "excerpt": "rtugal also includes the archipelagos of Madeira and the Azores in the Atlantic Ocean. The country has a population of 11.4 million, and Lisbon, its capital, is the largest city. Portugal's internal waters and territorial sea together account for two-fifths of its territory, and its exclusive economic zon"
+ },
+ {
+  "id": "T77",
+  "label": "T",
+  "claim": "The capital of Qatar is Doha.",
+  "excerpt": "the rest of its territory surrounded by the Persian Gulf. The Gulf of Bahrain, an inlet of the Persian Gulf, separates Qatar from nearby Bahrain. The capital is Doha, home to over 80% of the country's inhabitants. Most of the land area is made up of flat, low-lying desert."
+ },
+ {
+  "id": "F77",
+  "label": "F",
+  "claim": "The capital of Qatar is Porto-Novo.",
+  "excerpt": "the rest of its territory surrounded by the Persian Gulf. The Gulf of Bahrain, an inlet of the Persian Gulf, separates Qatar from nearby Bahrain. The capital is Doha, home to over 80% of the country's inhabitants. Most of the land area is made up of flat, low-lying desert."
+ },
+ {
+  "id": "T78",
+  "label": "T",
+  "claim": "The capital of Romania is Bucharest.",
+  "excerpt": "Europe by area, covering 238,397 km2 (92,046 mi2), and the sixth-most populous member state of the European Union, with 19 million inhabitants. The capital, largest city and economic centre is Bucharest. Other major cities include Cluj-Napoca, Iași, Constanța, Timișoara, Brașov and Craiova."
+ },
+ {
+  "id": "F78",
+  "label": "F",
+  "claim": "The capital of Romania is Sarajevo.",
+  "excerpt": "Europe by area, covering 238,397 km2 (92,046 mi2), and the sixth-most populous member state of the European Union, with 19 million inhabitants. The capital, largest city and economic centre is Bucharest. Other major cities include Cluj-Napoca, Iași, Constanța, Timișoara, Brașov and Craiova."
+ },
+ {
+  "id": "T79",
+  "label": "T",
+  "claim": "The capital of Russia is Moscow.",
+  "excerpt": "a highly urbanised country, with three-fourths of its population living in urban areas. Moscow, the most populous metropolitan area in Europe, is the capital and largest city of Russia, while Saint Petersburg is its second-largest city and a major cultural centre."
+ },
+ {
+  "id": "F79",
+  "label": "F",
+  "claim": "The capital of Russia is Gaborone.",
+  "excerpt": "a highly urbanised country, with three-fourths of its population living in urban areas. Moscow, the most populous metropolitan area in Europe, is the capital and largest city of Russia, while Saint Petersburg is its second-largest city and a major cultural centre."
+ },
+ {
+  "id": "T80",
+  "label": "T",
+  "claim": "The capital of Rwanda is Kigali.",
+  "excerpt": "volcanic chain are primarily in the northwest. The climate is considered tropical highland, with two rainy seasons and two dry seasons each year. Its capital and largest city is Kigali, located at the centre of the country, at 1,567 metres above sea level. Rwanda lies a few degrees south of the Equator in "
+ },
+ {
+  "id": "F80",
+  "label": "F",
+  "claim": "The capital of Rwanda is Brasília.",
+  "excerpt": "volcanic chain are primarily in the northwest. The climate is considered tropical highland, with two rainy seasons and two dry seasons each year. Its capital and largest city is Kigali, located at the centre of the country, at 1,567 metres above sea level. Rwanda lies a few degrees south of the Equator in "
+ },
+ {
+  "id": "T81",
+  "label": "T",
+  "claim": "The capital of Saint Lucia is Castries.",
+  "excerpt": "rtinique. It covers a land area of 617 km2 (238 sq mi) with an officially estimated population of over 184,100 people as of mid 2023. The nation's capital and largest city is Castries."
+ },
+ {
+  "id": "F81",
+  "label": "F",
+  "claim": "The capital of Saint Lucia is Bandar Seri Begawan.",
+  "excerpt": "rtinique. It covers a land area of 617 km2 (238 sq mi) with an officially estimated population of over 184,100 people as of mid 2023. The nation's capital and largest city is Castries."
+ },
+ {
+  "id": "T82",
+  "label": "T",
+  "claim": "The capital of Samoa is Apia.",
+  "excerpt": "east of Wallis and Futuna, 1,151 km southeast of Tuvalu, 519 km south of Tokelau, 4,190 km southwest of Hawaii, and 610 km northwest of Niue. The capital and largest city is Apia."
+ },
+ {
+  "id": "F82",
+  "label": "F",
+  "claim": "The capital of Samoa is Gitega.",
+  "excerpt": "east of Wallis and Futuna, 1,151 km southeast of Tuvalu, 519 km south of Tokelau, 4,190 km southwest of Hawaii, and 610 km northwest of Niue. The capital and largest city is Apia."
+ },
+ {
+  "id": "T83",
+  "label": "T",
+  "claim": "The capital of San Marino is San Marino.",
+  "excerpt": "the world, with a land area of just over 61 square kilometres (24 sq mi) and a population of 34,042 as of 2025 which in 2026 dropped to 33,559. Its capital, the City of San Marino, sits atop Monte Titano, while its largest settlement is Dogana, in the municipality of Serravalle. San Marino claims to have"
+ },
+ {
+  "id": "F83",
+  "label": "F",
+  "claim": "The capital of San Marino is Yaoundé.",
+  "excerpt": "the world, with a land area of just over 61 square kilometres (24 sq mi) and a population of 34,042 as of 2025 which in 2026 dropped to 33,559. Its capital, the City of San Marino, sits atop Monte Titano, while its largest settlement is Dogana, in the municipality of Serravalle. San Marino claims to have"
+ },
+ {
+  "id": "T84",
+  "label": "T",
+  "claim": "The capital of Saudi Arabia is Riyadh.",
+  "excerpt": "ates to the east, Oman to the southeast, and Yemen to the south. The Gulf of Aqaba in the northwest separates it from Egypt and Israel. Riyadh is the capital and largest city, while other major centers include Jeddah and the two holiest cities in Islam, Mecca and Medina."
+ },
+ {
+  "id": "F84",
+  "label": "F",
+  "claim": "The capital of Saudi Arabia is Ottawa.",
+  "excerpt": "ates to the east, Oman to the southeast, and Yemen to the south. The Gulf of Aqaba in the northwest separates it from Egypt and Israel. Riyadh is the capital and largest city, while other major centers include Jeddah and the two holiest cities in Islam, Mecca and Medina."
+ },
+ {
+  "id": "T85",
+  "label": "T",
+  "claim": "The capital of Senegal is Dakar.",
+  "excerpt": "bia River, which separates Senegal's southern region of Casamance from the rest of the country. It also shares a maritime border with Cape Verde. The capital and largest city of Senegal is Dakar."
+ },
+ {
+  "id": "F85",
+  "label": "F",
+  "claim": "The capital of Senegal is N'Djamena.",
+  "excerpt": "bia River, which separates Senegal's southern region of Casamance from the rest of the country. It also shares a maritime border with Cape Verde. The capital and largest city of Senegal is Dakar."
+ },
+ {
+  "id": "T86",
+  "label": "T",
+  "claim": "The capital of Serbia is Belgrade.",
+  "excerpt": "the southwest, and it also claims a border with Albania through the disputed territory of Kosovo. \nSerbia has about 6.5 million inhabitants, with its capital, Belgrade, being its largest city."
+ },
+ {
+  "id": "F86",
+  "label": "F",
+  "claim": "The capital of Serbia is Santiago.",
+  "excerpt": "the southwest, and it also claims a border with Albania through the disputed territory of Kosovo. \nSerbia has about 6.5 million inhabitants, with its capital, Belgrade, being its largest city."
+ },
+ {
+  "id": "T87",
+  "label": "T",
+  "claim": "The capital of Seychelles is Victoria.",
+  "excerpt": "Seychelles, officially the Republic of Seychelles, is an archipelagic country consisting of 115 islands in the Indian Ocean. Its capital and largest city, Victoria, is 1,500 kilometres east of mainland Africa. Nearby island countries and territories include the Maldives, Comoros, Madag"
+ },
+ {
+  "id": "F87",
+  "label": "F",
+  "claim": "The capital of Seychelles is Bogotá.",
+  "excerpt": "Seychelles, officially the Republic of Seychelles, is an archipelagic country consisting of 115 islands in the Indian Ocean. Its capital and largest city, Victoria, is 1,500 kilometres east of mainland Africa. Nearby island countries and territories include the Maldives, Comoros, Madag"
+ },
+ {
+  "id": "T88",
+  "label": "T",
+  "claim": "The capital of Sierra Leone is Freetown.",
+  "excerpt": "al climate and environments ranging from savannahs to rainforests. As of the 2023 census, Sierra Leone had a population of 8,460,512. Freetown is its capital and largest city."
+ },
+ {
+  "id": "F88",
+  "label": "F",
+  "claim": "The capital of Sierra Leone is San José.",
+  "excerpt": "al climate and environments ranging from savannahs to rainforests. As of the 2023 census, Sierra Leone had a population of 8,460,512. Freetown is its capital and largest city."
+ },
+ {
+  "id": "T89",
+  "label": "T",
+  "claim": "The capital of Slovakia is Bratislava.",
+  "excerpt": "c to the northwest. Slovakia's mostly mountainous territory spans about 49,000 km2 (19,000 sq mi), hosting a population exceeding 5.4 million. The capital and largest city is Bratislava, while the second largest city is Košice."
+ },
+ {
+  "id": "F89",
+  "label": "F",
+  "claim": "The capital of Slovakia is Zagreb.",
+  "excerpt": "c to the northwest. Slovakia's mostly mountainous territory spans about 49,000 km2 (19,000 sq mi), hosting a population exceeding 5.4 million. The capital and largest city is Bratislava, while the second largest city is Košice."
+ },
+ {
+  "id": "T90",
+  "label": "T",
+  "claim": "The capital of Slovenia is Ljubljana.",
+  "excerpt": " language. Slovenia has a predominantly temperate continental climate, with the exception of the Slovene Littoral and the Julian Alps. Ljubljana, the capital and largest city, is geographically situated near the centre of the country. Other urban centers include Maribor, Ptuj, Kranj, Celje, Koper, Novo Mes"
+ },
+ {
+  "id": "F90",
+  "label": "F",
+  "claim": "The capital of Slovenia is Havana.",
+  "excerpt": " language. Slovenia has a predominantly temperate continental climate, with the exception of the Slovene Littoral and the Julian Alps. Ljubljana, the capital and largest city, is geographically situated near the centre of the country. Other urban centers include Maribor, Ptuj, Kranj, Celje, Koper, Novo Mes"
+ },
+ {
+  "id": "T91",
+  "label": "T",
+  "claim": "The capital of South Sudan is Juba.",
+  "excerpt": "entre, which is dominated by a large swamp known as the Sudd. South Sudan has an estimated population of just over 12.7 million in 2024. Juba is the capital and largest city."
+ },
+ {
+  "id": "F91",
+  "label": "F",
+  "claim": "The capital of South Sudan is Nicosia.",
+  "excerpt": "entre, which is dominated by a large swamp known as the Sudd. South Sudan has an estimated population of just over 12.7 million in 2024. Juba is the capital and largest city."
+ },
+ {
+  "id": "T92",
+  "label": "T",
+  "claim": "The capital of Spain is Madrid.",
+  "excerpt": "he Bay of Biscay; to the east and south by the Mediterranean Sea, Gibraltar and Morocco ; and to the west by Portugal and the Atlantic Ocean. Spain's capital and largest city is Madrid; other major urban areas include Barcelona, Valencia, Zaragoza, Seville, Bilbao, Málaga, Murcia, Palma de Mallorca and La"
+ },
+ {
+  "id": "F92",
+  "label": "F",
+  "claim": "The capital of Spain is Kinshasa.",
+  "excerpt": "he Bay of Biscay; to the east and south by the Mediterranean Sea, Gibraltar and Morocco ; and to the west by Portugal and the Atlantic Ocean. Spain's capital and largest city is Madrid; other major urban areas include Barcelona, Valencia, Zaragoza, Seville, Bilbao, Málaga, Murcia, Palma de Mallorca and La"
+ },
+ {
+  "id": "T93",
+  "label": "T",
+  "claim": "The capital of Sudan is Khartoum.",
+  "excerpt": "as a population of 51.8 million people as of 2025 and occupies 1,886,068 square kilometres, making it Africa's third-largest country by area. Sudan's capital and most populous city is Khartoum."
+ },
+ {
+  "id": "F93",
+  "label": "F",
+  "claim": "The capital of Sudan is Roseau.",
+  "excerpt": "as a population of 51.8 million people as of 2025 and occupies 1,886,068 square kilometres, making it Africa's third-largest country by area. Sudan's capital and most populous city is Khartoum."
+ },
+ {
+  "id": "T94",
+  "label": "T",
+  "claim": "The capital of Syria is Damascus.",
+  "excerpt": "he south, and Israel and Lebanon to the southwest. It is a republic under a provisional government and comprises 14 governorates. Damascus is Syria's capital and largest city. With a population of 26 million across an area of 185,180 square kilometres (71,500 sq mi), it is the 56th-most populous and 87th"
+ },
+ {
+  "id": "F94",
+  "label": "F",
+  "claim": "The capital of Syria is Santo Domingo.",
+  "excerpt": "he south, and Israel and Lebanon to the southwest. It is a republic under a provisional government and comprises 14 governorates. Damascus is Syria's capital and largest city. With a population of 26 million across an area of 185,180 square kilometres (71,500 sq mi), it is the 56th-most populous and 87th"
+ },
+ {
+  "id": "T95",
+  "label": "T",
+  "claim": "The capital of The Bahamas is Nassau.",
+  "excerpt": "a and north-west of the island of Hispaniola and the Turks and Caicos Islands, southeast of the US state of Florida and east of the Florida Keys. The capital and largest city is Nassau on the island of New Providence. The Royal Bahamas Defence Force describes the Bahamas' territory as encompassing 470,000 "
+ },
+ {
+  "id": "F95",
+  "label": "F",
+  "claim": "The capital of The Bahamas is Quito.",
+  "excerpt": "a and north-west of the island of Hispaniola and the Turks and Caicos Islands, southeast of the US state of Florida and east of the Florida Keys. The capital and largest city is Nassau on the island of New Providence. The Royal Bahamas Defence Force describes the Bahamas' territory as encompassing 470,000 "
+ },
+ {
+  "id": "T96",
+  "label": "T",
+  "claim": "The capital of Timor-Leste is Dili.",
+  "excerpt": "and border with Indonesia to the west; Australia is the country's southern neighbour, across the Timor Sea. Dili, on the north coast of Timor, is its capital and largest city."
+ },
+ {
+  "id": "F96",
+  "label": "F",
+  "claim": "The capital of Timor-Leste is Cairo.",
+  "excerpt": "and border with Indonesia to the west; Australia is the country's southern neighbour, across the Timor Sea. Dili, on the north coast of Timor, is its capital and largest city."
+ },
+ {
+  "id": "T97",
+  "label": "T",
+  "claim": "The capital of Tunisia is Tunis.",
+  "excerpt": "astern parts of the Mediterranean Basin. Tunisia is home to Africa's northernmost point, Cape Angela. Located on the northeastern coast, Tunis is the capital of the country, which is itself named after Tunis. The official language of Tunisia is Arabic. The vast majority of Tunisia's population is Arab and "
+ },
+ {
+  "id": "F97",
+  "label": "F",
+  "claim": "The capital of Tunisia is San Salvador.",
+  "excerpt": "astern parts of the Mediterranean Basin. Tunisia is home to Africa's northernmost point, Cape Angela. Located on the northeastern coast, Tunis is the capital of the country, which is itself named after Tunis. The official language of Tunisia is Arabic. The vast majority of Tunisia's population is Arab and "
+ },
+ {
+  "id": "T98",
+  "label": "T",
+  "claim": "The capital of Turkey is Ankara.",
+  "excerpt": "re ethnic Turks, while Kurds are the largest ethnic minority. Officially a secular state, Turkey has a Muslim-majority population. Ankara is Turkey's capital and second-largest city. Istanbul is its largest city and economic center. Other major cities include İzmir, Bursa, and Antalya."
+ },
+ {
+  "id": "F98",
+  "label": "F",
+  "claim": "The capital of Turkey is Asmara.",
+  "excerpt": "re ethnic Turks, while Kurds are the largest ethnic minority. Officially a secular state, Turkey has a Muslim-majority population. Ankara is Turkey's capital and second-largest city. Istanbul is its largest city and economic center. Other major cities include İzmir, Bursa, and Antalya."
+ },
+ {
+  "id": "T99",
+  "label": "T",
+  "claim": "The capital of Uganda is Kampala.",
+  "excerpt": "on, lies within the Nile basin, and has a varied equatorial climate. As of 2024, it had a population of 45.9 million, of whom 1.8 million live in the capital and largest city, Kampala."
+ },
+ {
+  "id": "F99",
+  "label": "F",
+  "claim": "The capital of Uganda is Tallinn.",
+  "excerpt": "on, lies within the Nile basin, and has a varied equatorial climate. As of 2024, it had a population of 45.9 million, of whom 1.8 million live in the capital and largest city, Kampala."
+ }
+]
