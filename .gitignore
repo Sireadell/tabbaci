@@ -1,0 +1,4 @@
+notes/
+target/
+*.env
+.secrets/
