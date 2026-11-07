@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Page</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<nav><a href="index.html">Try to lie</a><a class="on" href="pages.html">Pages</a><a href="ledger.html">Ledger</a></nav>
+<main>
+<h1 id="title">Loading...</h1>
+<p class="lead" id="intro"></p>
+<p class="mute" id="by"></p>
+<div id="list"></div>
+</main>
+<script src="config.js"></script><script src="app.js"></script>
+<script>
+const slug = new URLSearchParams(location.search).get('p') || 'near-chain';
+fetch(`pages/${slug}.json`).then((r) => r.json()).then(async (p) => {
+  document.title = p.title;
+  document.getElementById('title').textContent = p.title;
+  document.getElementById('intro').textContent = p.intro;
+  document.getElementById('by').textContent = 'Written by: ' + p.written_by + '. Network: ' + Site.CFG.network + '.';
+  const box = document.getElementById('list');
+  for (const s of p.sentences) {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.innerHTML = `<div class="mute">${Site.esc(s.word)} (${Site.esc(s.writer)})</div><div style="font-size:1.1rem;margin:4px 0">${Site.esc(s.claim)}</div><div class="mute">Asking the chain...</div>`;
+    box.appendChild(el);
+    Site.view('get_round', { round: s.round }).then((r) => {
+      const [label, cls] = Site.outcomeOf(r);
+      const bond = r.bonds.map((b) => `${Site.esc(b.word)}: ${b.payout ? (BigInt(b.payout) === BigInt(b.stake) ? 'stake back ' : BigInt(b.payout) > BigInt(b.stake) ? 'gained ' : 'lost ') + (BigInt(b.payout) === BigInt(b.stake) ? '' : Site.CFGnear(BigInt(b.payout) > BigInt(b.stake) ? BigInt(b.payout) - BigInt(b.stake) : BigInt(b.stake) - BigInt(b.payout))) : 'bonded'}`).join(' · ');
+      el.lastElementChild.outerHTML = `<div>Ruling: <b class="${cls}">${label}</b> <span class="mute">· round ${s.round} · ${bond}</span></div><details><summary>check it yourself</summary><pre>${Site.esc(Site.verifyCmd(s.round))}</pre></details>`;
+    }).catch(() => {});
+  }
+});
+</script>
+</body></html>

@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pages</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<nav><a href="index.html">Try to lie</a><a class="on" href="pages.html">Pages</a><a href="ledger.html">Ledger</a></nav>
+<main>
+<h1>Pages where every sentence can be wrong</h1>
+<p class="lead">A writer picks a word for each checkable sentence and puts a fixed stake behind it. The courtroom rules, and the stake pays out by one fixed public rule. Honest words earn the most.</p>
+<div id="list"></div>
+</main>
+<script>
+fetch('pages/index.json').then((r) => r.json()).then((l) => {
+  document.getElementById('list').innerHTML = l.map((p) => `<div class="card"><a href="page.html?p=${p.slug}"><b>${p.title}</b></a><div class="mute">${p.count} checkable sentences</div></div>`).join('');
+});
+</script>
+</body></html>

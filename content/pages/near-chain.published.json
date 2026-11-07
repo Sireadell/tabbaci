@@ -1,0 +1,18 @@
+{
+  "slug": "near-chain",
+  "contract": "court4.sireadell.testnet",
+  "rounds": [
+    {
+      "round": 3,
+      "claim": "On 7 November 2026, NEAR mainnet runs protocol version 88."
+    },
+    {
+      "round": 4,
+      "claim": "On 7 November 2026, NEAR mainnet runs protocol version 87."
+    },
+    {
+      "round": 5,
+      "claim": "NEAR is a blockchain platform."
+    }
+  ]
+}

@@ -43,4 +43,5 @@ function roundRow(r) {
   </details></td></tr>`;
 }
 
-window.Site = { view, allRounds, roundRow, outcomeOf, verifyCmd, esc, CFG };
+const CFGnear = (y) => near(y);
+window.Site = { CFGnear, view, allRounds, roundRow, outcomeOf, verifyCmd, esc, CFG };

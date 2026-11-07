@@ -11,6 +11,8 @@ impl Fetcher for WasiFetcher {
         let resp = Client::new()
             .get(url)
             .connect_timeout(Duration::from_secs(timeout_s))
+            .header("User-Agent", "courtroom-fetch/0.1")
+            .header("Accept", "application/json, text/html, text/plain")
             .send()
             .map_err(|e| format!("send: {e}"))?;
         let status = resp.status();
