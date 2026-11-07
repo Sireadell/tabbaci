@@ -1,0 +1,12 @@
+[package]
+name = "sealcli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sealcore = { path = "../sealcore" }
+substrate-bn = { version = "0.6", default-features = false }
+getrandom = "0.2"
+hex = "0.4"
+
+[workspace]

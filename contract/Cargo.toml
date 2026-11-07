@@ -8,7 +8,6 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 near-sdk = { version = "5", features = ["unstable"] }
-hex = "0.4"
 
 [dev-dependencies]
 sealcore = { path = "../sealcore" }

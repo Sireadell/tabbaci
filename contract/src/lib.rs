@@ -4,10 +4,8 @@
 //! out only the public lock `k*G` when the batch opens. Traders seal orders to that lock.
 //! After the close block the contract asks the chip for `k`, checks `k*G == lock` with
 //! NEAR's built-in curve maths, and opens every order itself.
-use near_sdk::store::IterableMap;
-use near_sdk::{
-    env, ext_contract, near, serde_json, AccountId, Gas, NearToken, PanicOnDefault, Promise, PromiseError,
-};
+use near_sdk::borsh;
+use near_sdk::{env, ext_contract, near, AccountId, Gas, GasWeight, NearToken, PanicOnDefault, Promise, PromiseError};
 
 const OUTLAYER: &str = "outlayer.testnet";
 const MAX_ORDERS: usize = 100;
@@ -23,27 +21,14 @@ const G_LE: [u8; 64] = {
     g
 };
 
-#[ext_contract(ext_outlayer)]
-trait OutLayer {
-    fn request_execution(
-        &mut self,
-        source: serde_json::Value,
-        resource_limits: serde_json::Value,
-        input_data: String,
-        secrets_ref: Option<serde_json::Value>,
-        response_format: String,
-        payer_account_id: Option<AccountId>,
-    );
-}
-
 #[ext_contract(ext_self)]
 trait SelfCallback {
     fn on_lock(&mut self, batch_id: u64);
     fn on_key(&mut self, batch_id: u64);
 }
 
-#[near(serializers = [json, borsh])]
-#[derive(Clone, PartialEq, Debug)]
+#[near(serializers = [borsh])]
+#[derive(Clone, PartialEq)]
 pub enum State {
     WaitingForLock,
     Open,
@@ -51,7 +36,7 @@ pub enum State {
     Void,
 }
 
-#[near(serializers = [json, borsh])]
+#[near(serializers = [borsh])]
 #[derive(Clone)]
 pub struct Sealed {
     pub from: AccountId,
@@ -62,7 +47,7 @@ pub struct Sealed {
     pub deposit: NearToken,
 }
 
-#[near(serializers = [json, borsh])]
+#[near(serializers = [borsh])]
 #[derive(Clone)]
 pub struct Opened {
     pub from: AccountId,
@@ -73,7 +58,7 @@ pub struct Opened {
     pub amount: NearToken,
 }
 
-#[near(serializers = [json, borsh])]
+#[near(serializers = [borsh])]
 #[derive(Clone)]
 pub struct Batch {
     pub close_height: u64,
@@ -91,14 +76,77 @@ pub struct Sealbox {
     pub program_hash: String,
     pub secrets_account: AccountId,
     pub secrets_profile: String,
-    pub batches: IterableMap<u64, Batch>,
 }
 
-fn event(name: &str, data: serde_json::Value) {
+/// Same output as the old json!() version (keys sorted), built by hand to keep the wasm small.
+fn event(name: &str, data: String) {
     env::log_str(&format!(
-        "EVENT_JSON:{}",
-        serde_json::json!({"standard": "sealbox", "version": "1.0.0", "event": name, "data": data})
+        "EVENT_JSON:{{\"data\":{},\"event\":\"{}\",\"standard\":\"sealbox\",\"version\":\"1.0.0\"}}",
+        data, name
     ));
+}
+
+const HEX: &[u8; 16] = b"0123456789abcdef";
+
+/// JSON string literal with quotes, escaped like serde_json does.
+fn jstr(s: &str) -> String {
+    let mut o = String::with_capacity(s.len() + 2);
+    o.push('"');
+    for c in s.chars() {
+        match c {
+            '"' => o.push_str("\\\""),
+            '\\' => o.push_str("\\\\"),
+            '\n' => o.push_str("\\n"),
+            '\r' => o.push_str("\\r"),
+            '\t' => o.push_str("\\t"),
+            c if (c as u32) < 0x20 => {
+                o.push_str("\\u00");
+                o.push(HEX[(c as usize) >> 4] as char);
+                o.push(HEX[(c as usize) & 15] as char);
+            }
+            c => o.push(c),
+        }
+    }
+    o.push('"');
+    o
+}
+
+fn hex_encode(b: &[u8]) -> String {
+    let mut o = String::with_capacity(b.len() * 2);
+    for x in b {
+        o.push(HEX[(x >> 4) as usize] as char);
+        o.push(HEX[(x & 15) as usize] as char);
+    }
+    o
+}
+
+fn nib(c: u8) -> Option<u8> {
+    match c {
+        b'0'..=b'9' => Some(c - b'0'),
+        b'a'..=b'f' => Some(c - b'a' + 10),
+        b'A'..=b'F' => Some(c - b'A' + 10),
+        _ => None,
+    }
+}
+
+fn hex_decode(s: &str) -> Option<Vec<u8>> {
+    let b = s.as_bytes();
+    if b.len() % 2 != 0 {
+        return None;
+    }
+    let mut o = Vec::with_capacity(b.len() / 2);
+    for p in b.chunks(2) {
+        o.push((nib(p[0])? << 4) | nib(p[1])?);
+    }
+    Some(o)
+}
+
+/// Pull a string field out of a flat JSON object like {"lock":"ab12..."}.
+fn json_str_field(s: &str, name: &str) -> Option<String> {
+    let pat = format!("\"{}\"", name);
+    let mut rest = &s[s.find(&pat)? + pat.len()..];
+    rest = rest.trim_start().strip_prefix(':')?.trim_start().strip_prefix('"')?;
+    Some(rest[..rest.find('"')?].to_string())
 }
 
 /// Is k*G equal to the lock? One built-in curve call.
@@ -147,41 +195,118 @@ fn field(result: Result<Option<String>, PromiseError>, name: &str) -> Option<Vec
     result
         .ok()
         .flatten()
-        .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
-        .and_then(|v| v.get(name).and_then(|x| x.as_str().map(String::from)))
-        .and_then(|h| hex::decode(h).ok())
+        .and_then(|s| json_str_field(&s, name))
+        .and_then(|h| hex_decode(&h))
+}
+
+fn bytes_json(b: &[u8]) -> String {
+    let mut o = String::from("[");
+    for (i, x) in b.iter().enumerate() {
+        if i > 0 {
+            o.push(',');
+        }
+        o.push_str(&x.to_string());
+    }
+    o.push(']');
+    o
+}
+
+fn batch_json(b: &Batch) -> String {
+    let state = match b.state {
+        State::WaitingForLock => "WaitingForLock",
+        State::Open => "Open",
+        State::Opened => "Opened",
+        State::Void => "Void",
+    };
+    let mut orders = String::from("[");
+    for (i, o) in b.orders.iter().enumerate() {
+        if i > 0 {
+            orders.push(',');
+        }
+        orders.push_str(&format!(
+            "{{\"from\":{},\"c1\":{},\"ct\":{},\"deposit\":\"{}\"}}",
+            jstr(o.from.as_str()),
+            bytes_json(&o.c1),
+            bytes_json(&o.ct),
+            o.deposit.as_yoctonear()
+        ));
+    }
+    orders.push(']');
+    let mut opened = String::from("[");
+    for (i, o) in b.opened.iter().enumerate() {
+        if i > 0 {
+            opened.push(',');
+        }
+        opened.push_str(&format!(
+            "{{\"from\":{},\"status\":{},\"side\":{},\"price_bp\":{},\"amount\":\"{}\"}}",
+            jstr(o.from.as_str()),
+            o.status,
+            o.side,
+            o.price_bp,
+            o.amount.as_yoctonear()
+        ));
+    }
+    opened.push(']');
+    format!(
+        "{{\"close_height\":{},\"state\":\"{}\",\"lock\":{},\"key_attempts\":{},\"orders\":{},\"opened\":{}}}",
+        b.close_height,
+        state,
+        bytes_json(&b.lock),
+        b.key_attempts,
+        orders,
+        opened
+    )
+}
+
+fn bkey(id: u64) -> Vec<u8> {
+    let mut k = b"b".to_vec();
+    k.extend_from_slice(&id.to_le_bytes());
+    k
+}
+
+fn load(id: u64) -> Option<Batch> {
+    env::storage_read(&bkey(id)).map(|v| borsh::from_slice(&v).expect("bad batch"))
+}
+
+fn save(id: u64, b: &Batch) {
+    env::storage_write(&bkey(id), &borsh::to_vec(b).unwrap());
 }
 
 #[near]
 impl Sealbox {
     #[init]
     pub fn new(program_url: String, program_hash: String, secrets_account: AccountId, secrets_profile: String) -> Self {
-        Self { program_url, program_hash, secrets_account, secrets_profile, batches: IterableMap::new(b"b") }
+        Self { program_url, program_hash, secrets_account, secrets_profile, }
     }
 
     fn request_run(&self, input: String, deposit: NearToken) -> Promise {
-        let secrets_ref =
-            Some(serde_json::json!({"profile": self.secrets_profile, "account_id": self.secrets_account}));
-        let source = serde_json::json!({"WasmUrl": {
-            "url": self.program_url, "hash": self.program_hash, "build_target": "wasm32-wasip2"}});
-        let limits =
-            serde_json::json!({"max_instructions": 1_000_000_000u64, "max_memory_mb": 128, "max_execution_seconds": 60});
+        let args = format!(
+            "{{\"input_data\":{},\"payer_account_id\":{},\"resource_limits\":{{\"max_execution_seconds\":60,\"max_instructions\":1000000000,\"max_memory_mb\":128}},\"response_format\":\"Text\",\"secrets_ref\":{{\"account_id\":{},\"profile\":{}}},\"source\":{{\"WasmUrl\":{{\"build_target\":\"wasm32-wasip2\",\"hash\":{},\"url\":{}}}}}}}",
+            jstr(&input),
+            jstr(env::predecessor_account_id().as_str()),
+            jstr(self.secrets_account.as_str()),
+            jstr(&self.secrets_profile),
+            jstr(&self.program_hash),
+            jstr(&self.program_url),
+        );
         let gas = env::prepaid_gas().saturating_sub(CALLBACK_GAS).saturating_sub(OVERHEAD_GAS);
-        ext_outlayer::ext(OUTLAYER.parse().unwrap())
-            .with_attached_deposit(deposit)
-            .with_static_gas(gas)
-            .with_unused_gas_weight(1)
-            .request_execution(source, limits, input, secrets_ref, "Text".into(), Some(env::predecessor_account_id()))
+        Promise::new(OUTLAYER.parse().unwrap()).function_call_weight(
+            "request_execution".to_string(),
+            args.into_bytes(),
+            deposit,
+            gas,
+            GasWeight(1),
+        )
     }
 
     /// Start a batch: ask the chip for the public lock.
     #[payable]
     pub fn open_batch(&mut self, batch_id: u64, close_height: u64) -> Promise {
-        assert!(self.batches.get(&batch_id).is_none(), "batch id already used");
+        assert!(load(batch_id).is_none(), "batch id already used");
         assert!(close_height > env::block_height() + 5, "close height too soon");
-        self.batches.insert(
+        save(
             batch_id,
-            Batch {
+            &Batch {
                 close_height,
                 state: State::WaitingForLock,
                 lock: vec![],
@@ -190,78 +315,87 @@ impl Sealbox {
                 opened: vec![],
             },
         );
-        let input = serde_json::json!({"mode": "lock", "batch_id": batch_id}).to_string();
+        let input = format!("{{\"batch_id\":{},\"mode\":\"lock\"}}", batch_id);
         self.request_run(input, env::attached_deposit())
             .then(ext_self::ext(env::current_account_id()).with_static_gas(CALLBACK_GAS).on_lock(batch_id))
     }
 
     #[private]
     pub fn on_lock(&mut self, batch_id: u64, #[callback_result] result: Result<Option<String>, PromiseError>) {
-        let mut b = self.batches.get(&batch_id).cloned().expect("unknown batch");
+        let mut b = load(batch_id).expect("unknown batch");
         match field(result, "lock").filter(|l| l.len() == 64) {
             Some(l) => {
                 b.lock = l.clone();
                 b.state = State::Open;
                 event(
                     "batch_open",
-                    serde_json::json!({"batch": batch_id, "lock": hex::encode(l), "close_height": b.close_height}),
+                    format!(
+                        "{{\"batch\":{},\"close_height\":{},\"lock\":\"{}\"}}",
+                        batch_id,
+                        b.close_height,
+                        hex_encode(&l)
+                    ),
                 );
             }
             None => {
                 b.state = State::Void;
-                event("batch_void", serde_json::json!({"batch": batch_id, "why": "no lock"}));
+                event("batch_void", format!("{{\"batch\":{},\"why\":\"no lock\"}}", batch_id));
             }
         }
-        self.batches.insert(batch_id, b);
+        save(batch_id, &b);
     }
 
     /// Seal one order. `c1` and `ct` are hex. The deposit must cover the amount inside the order.
     #[payable]
     pub fn seal(&mut self, batch_id: u64, c1: String, ct: String) {
-        let mut b = self.batches.get(&batch_id).cloned().expect("unknown batch");
+        let mut b = load(batch_id).expect("unknown batch");
         assert!(b.state == State::Open, "batch not open");
         assert!(env::block_height() < b.close_height, "batch closed");
         assert!(b.orders.len() < MAX_ORDERS, "batch full");
-        let c1 = hex::decode(c1).expect("c1 hex");
-        let ct = hex::decode(ct).expect("ct hex");
+        let c1 = hex_decode(&c1).expect("c1 hex");
+        let ct = hex_decode(&ct).expect("ct hex");
         assert!(c1.len() == 64 && ct.len() == 32, "bad sizes");
         b.orders.push(Sealed { from: env::predecessor_account_id(), c1, ct, deposit: env::attached_deposit() });
         let n = b.orders.len();
-        self.batches.insert(batch_id, b);
-        event("sealed", serde_json::json!({"batch": batch_id, "n": n}));
+        save(batch_id, &b);
+        event("sealed", format!("{{\"batch\":{},\"n\":{}}}", batch_id, n));
     }
 
     /// After the close block: ask the chip for the key. Anyone may call.
     #[payable]
     pub fn release(&mut self, batch_id: u64) -> Promise {
-        let b = self.batches.get(&batch_id).expect("unknown batch");
+        let b = load(batch_id).expect("unknown batch");
         assert!(b.state == State::Open, "batch not open");
         assert!(env::block_height() >= b.close_height, "batch not closed yet");
-        let input = serde_json::json!({
-            "mode": "key", "batch_id": batch_id, "contract": env::current_account_id(),
-        })
-        .to_string();
+        let input = format!(
+            "{{\"batch_id\":{},\"contract\":\"{}\",\"mode\":\"key\"}}",
+            batch_id,
+            env::current_account_id()
+        );
         self.request_run(input, env::attached_deposit())
             .then(ext_self::ext(env::current_account_id()).with_static_gas(CALLBACK_GAS).on_key(batch_id))
     }
 
     #[private]
     pub fn on_key(&mut self, batch_id: u64, #[callback_result] result: Result<Option<String>, PromiseError>) {
-        let mut b = self.batches.get(&batch_id).cloned().expect("unknown batch");
+        let mut b = load(batch_id).expect("unknown batch");
         let start = env::used_gas();
         let key = field(result, "key").filter(|k| k.len() == 32 && key_matches_lock(k, &b.lock));
         let Some(key) = key else {
             b.key_attempts += 1;
             if b.key_attempts >= MAX_KEY_ATTEMPTS {
                 b.state = State::Void;
-                event("batch_void", serde_json::json!({"batch": batch_id, "why": "key withheld or wrong 3 times"}));
+                event(
+                    "batch_void",
+                    format!("{{\"batch\":{},\"why\":\"key withheld or wrong 3 times\"}}", batch_id),
+                );
                 for o in &b.orders {
                     let _ = Promise::new(o.from.clone()).transfer(o.deposit);
                 }
             } else {
-                event("key_failed", serde_json::json!({"batch": batch_id, "attempt": b.key_attempts}));
+                event("key_failed", format!("{{\"attempt\":{},\"batch\":{}}}", b.key_attempts, batch_id));
             }
-            self.batches.insert(batch_id, b);
+            save(batch_id, &b);
             return;
         };
         let after_check = env::used_gas();
@@ -296,22 +430,30 @@ impl Sealbox {
         b.opened = opened;
         event(
             "batch_opened",
-            serde_json::json!({
-                "batch": batch_id, "orders": b.orders.len(), "key": hex::encode(&key),
-                "gas_key_check": after_check.as_gas() - start.as_gas(),
-                "gas_open_all": end.as_gas() - after_check.as_gas(),
-            }),
+            format!(
+                "{{\"batch\":{},\"gas_key_check\":{},\"gas_open_all\":{},\"key\":\"{}\",\"orders\":{}}}",
+                batch_id,
+                after_check.as_gas() - start.as_gas(),
+                end.as_gas() - after_check.as_gas(),
+                hex_encode(&key),
+                b.orders.len()
+            ),
         );
-        self.batches.insert(batch_id, b);
+        save(batch_id, &b);
     }
 
-    pub fn get_batch(&self, batch_id: u64) -> Option<Batch> {
-        self.batches.get(&batch_id).cloned()
+    /// Returns the batch as JSON (or null), written by hand so the wasm needs no serde derives.
+    pub fn get_batch(&self, batch_id: u64) {
+        let out = match load(batch_id) {
+            None => "null".to_string(),
+            Some(b) => batch_json(&b),
+        };
+        env::value_return(out.as_bytes());
     }
 
     /// Used by the chip to double-check that a batch has really closed. Public data only.
     pub fn close_height(&self, batch_id: u64) -> Option<u64> {
-        self.batches.get(&batch_id).map(|b| b.close_height)
+        load(batch_id).map(|b| b.close_height)
     }
 }
 
