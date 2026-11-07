@@ -1,0 +1,10 @@
+[package]
+name = "bond-payout"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sha2 = "0.10"
+serde_json = "1.0"
+
+[dev-dependencies]
