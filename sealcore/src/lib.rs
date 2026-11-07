@@ -49,8 +49,9 @@ pub fn batch_scalar(master: &[u8], batch_id: u64) -> Fr {
 }
 
 pub fn scalar_to_be(k: &Fr) -> [u8; 32] {
+    // into_u256 gives the plain number (to_big_endian would give the internal form)
     let mut o = [0u8; 32];
-    k.to_big_endian(&mut o).unwrap();
+    k.into_u256().to_big_endian(&mut o).unwrap();
     o
 }
 
@@ -59,7 +60,8 @@ pub fn scalar_to_le(k: &Fr) -> [u8; 32] {
 }
 
 pub fn scalar_from_le(b: &[u8; 32]) -> Option<Fr> {
-    Fr::from_slice(&rev32(b)).ok()
+    let u = substrate_bn::arith::U256::from_slice(&rev32(b)).ok()?;
+    Fr::new(u)
 }
 
 fn affine_to_be(p: G1) -> Option<Point> {
@@ -150,5 +152,25 @@ mod tests {
     fn same_batch_same_lock() {
         assert_eq!(lock_be(&batch_scalar(b"m", 3)), lock_be(&batch_scalar(b"m", 3)));
         assert_ne!(lock_be(&batch_scalar(b"m", 3)), lock_be(&batch_scalar(b"m", 4)));
+    }
+}
+
+#[cfg(test)]
+mod scalar_tests {
+    use super::*;
+    #[test]
+    fn five_is_five() {
+        let five = Fr::from_str("5").unwrap();
+        let le = scalar_to_le(&five);
+        assert_eq!(le[0], 5, "low byte");
+        assert!(le[1..].iter().all(|b| *b == 0));
+    }
+    #[test]
+    fn scalar_round_trip() {
+        let k = batch_scalar(b"m", 11);
+        let back = scalar_from_le(&scalar_to_le(&k)).unwrap();
+        assert!(k == back);
+        // key times G must equal the lock the same way the contract computes it
+        assert_eq!(lock_be(&k), lock_be(&back));
     }
 }

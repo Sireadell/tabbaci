@@ -5,7 +5,7 @@
 //! After the close block the contract asks the chip for `k`, checks `k*G == lock` with
 //! NEAR's built-in curve maths, and opens every order itself.
 use near_sdk::borsh;
-use near_sdk::{env, ext_contract, near, AccountId, Gas, GasWeight, NearToken, PanicOnDefault, Promise, PromiseError};
+use near_sdk::{env, near, AccountId, Gas, GasWeight, NearToken, PanicOnDefault};
 
 const OUTLAYER: &str = "outlayer.testnet";
 const MAX_ORDERS: usize = 100;
@@ -20,12 +20,6 @@ const G_LE: [u8; 64] = {
     g[32] = 2;
     g
 };
-
-#[ext_contract(ext_self)]
-trait SelfCallback {
-    fn on_lock(&mut self, batch_id: u64);
-    fn on_key(&mut self, batch_id: u64);
-}
 
 #[near(serializers = [borsh])]
 #[derive(Clone, PartialEq)]
@@ -191,13 +185,6 @@ fn parse_order(o: &[u8; 32]) -> Option<(u8, u16, u128)> {
     Some((o[1], price, u128::from_be_bytes(a)))
 }
 
-fn field(result: Result<Option<String>, PromiseError>, name: &str) -> Option<Vec<u8>> {
-    result
-        .ok()
-        .flatten()
-        .and_then(|s| json_str_field(&s, name))
-        .and_then(|h| hex_decode(&h))
-}
 
 fn bytes_json(b: &[u8]) -> String {
     let mut o = String::from("[");
@@ -272,14 +259,180 @@ fn save(id: u64, b: &Batch) {
     env::storage_write(&bkey(id), &borsh::to_vec(b).unwrap());
 }
 
-#[near]
-impl Sealbox {
-    #[init]
-    pub fn new(program_url: String, program_hash: String, secrets_account: AccountId, secrets_profile: String) -> Self {
-        Self { program_url, program_hash, secrets_account, secrets_profile, }
+fn die(m: &str) -> ! {
+    env::panic_str(m)
+}
+
+fn must<T>(o: Option<T>, m: &str) -> T {
+    match o {
+        Some(v) => v,
+        None => die(m),
+    }
+}
+
+fn nodeposit(name: &str) {
+    if env::attached_deposit().as_yoctonear() != 0 {
+        die(&format!("Method {} doesn't accept deposit", name));
+    }
+}
+
+fn private(name: &str) {
+    if env::current_account_id() != env::predecessor_account_id() {
+        die(&format!("Method {} is private", name));
+    }
+}
+
+fn state() -> Sealbox {
+    must(env::state_read::<Sealbox>(), "The contract has not been initialized")
+}
+
+/// Decode a JSON string body (after the opening quote). Returns the text and the index after the closing quote.
+fn json_unescape(b: &[u8], mut i: usize) -> Option<(String, usize)> {
+    let mut out: Vec<u8> = Vec::new();
+    loop {
+        let c = *b.get(i)?;
+        i += 1;
+        match c {
+            0x22 => return Some((String::from_utf8(out).ok()?, i)),
+            0x5c => {
+                let e = *b.get(i)?;
+                i += 1;
+                let ch = match e {
+                    0x22 => '"',
+                    0x5c => '\\',
+                    0x2f => '/',
+                    0x62 => '\u{8}',
+                    0x66 => '\u{c}',
+                    0x6e => '\n',
+                    0x72 => '\r',
+                    0x74 => '\t',
+                    0x75 => {
+                        let mut u = 0u32;
+                        for _ in 0..4 {
+                            u = (u << 4) | nib(*b.get(i)?)? as u32;
+                            i += 1;
+                        }
+                        if (0xD800..0xDC00).contains(&u) {
+                            if b.get(i) != Some(&0x5c) || b.get(i + 1) != Some(&0x75) {
+                                return None;
+                            }
+                            i += 2;
+                            let mut l = 0u32;
+                            for _ in 0..4 {
+                                l = (l << 4) | nib(*b.get(i)?)? as u32;
+                                i += 1;
+                            }
+                            if !(0xDC00..0xE000).contains(&l) {
+                                return None;
+                            }
+                            u = 0x10000 + ((u - 0xD800) << 10) + (l - 0xDC00);
+                        }
+                        char::from_u32(u)?
+                    }
+                    _ => return None,
+                };
+                let mut buf = [0u8; 4];
+                out.extend_from_slice(ch.encode_utf8(&mut buf).as_bytes());
+            }
+            c if c < 0x20 => return None,
+            c => out.push(c),
+        }
+    }
+}
+
+fn skip_ws(b: &[u8], mut i: usize) -> usize {
+    while i < b.len() && matches!(b[i], 0x20 | 0x0a | 0x0d | 0x09) {
+        i += 1;
+    }
+    i
+}
+
+/// Flat JSON object of method arguments: (key, value text, value was a string).
+struct Args(Vec<(String, String, bool)>);
+
+impl Args {
+    fn read() -> Args {
+        let raw = must(env::input(), "Expected input since method has arguments.");
+        let b = &raw[..];
+        let bad = "Failed to deserialize input from JSON.";
+        let mut i = skip_ws(b, 0);
+        if b.get(i) != Some(&0x7b) {
+            die(bad);
+        }
+        i = skip_ws(b, i + 1);
+        let mut v = Vec::new();
+        if b.get(i) == Some(&0x7d) {
+            return Args(v);
+        }
+        loop {
+            if b.get(i) != Some(&0x22) {
+                die(bad);
+            }
+            let (k, j) = must(json_unescape(b, i + 1), bad);
+            i = skip_ws(b, j);
+            if b.get(i) != Some(&0x3a) {
+                die(bad);
+            }
+            i = skip_ws(b, i + 1);
+            if b.get(i) == Some(&0x22) {
+                let (s, j) = must(json_unescape(b, i + 1), bad);
+                v.push((k, s, true));
+                i = j;
+            } else {
+                let st = i;
+                while i < b.len() && !matches!(b[i], 0x2c | 0x7d | 0x20 | 0x0a | 0x0d | 0x09) {
+                    i += 1;
+                }
+                v.push((k, String::from_utf8_lossy(&b[st..i]).into_owned(), false));
+            }
+            i = skip_ws(b, i);
+            match b.get(i) {
+                Some(0x2c) => i = skip_ws(b, i + 1),
+                Some(0x7d) => return Args(v),
+                _ => die(bad),
+            }
+        }
     }
 
-    fn request_run(&self, input: String, deposit: NearToken) -> Promise {
+    fn str(&self, name: &str) -> String {
+        match self.0.iter().find(|(k, _, _)| k == name) {
+            Some((_, v, true)) => v.clone(),
+            _ => die(&format!("Failed to deserialize input from JSON: missing string field `{}`", name)),
+        }
+    }
+
+    fn u64(&self, name: &str) -> u64 {
+        match self.0.iter().find(|(k, _, _)| k == name) {
+            Some((_, v, false)) => must(v.parse::<u64>().ok(), "Failed to deserialize input from JSON: bad number"),
+            _ => die(&format!("Failed to deserialize input from JSON: missing number field `{}`", name)),
+        }
+    }
+}
+
+/// Result of the promise this callback waits on: Some(text) only when it succeeded with a JSON string.
+fn callback_text() -> Option<String> {
+    let data = env::promise_result_checked(0, usize::MAX).ok()?;
+    let i = skip_ws(&data, 0);
+    if data[i..].starts_with(b"null") {
+        return None;
+    }
+    if data.get(i) != Some(&0x22) {
+        die("Failed to deserialize callback using JSON");
+    }
+    Some(must(json_unescape(&data, i + 1), "Failed to deserialize callback using JSON").0)
+}
+
+fn field(result: Option<String>, name: &str) -> Option<Vec<u8>> {
+    result.and_then(|s| json_str_field(&s, name)).and_then(|h| hex_decode(&h))
+}
+
+fn refund(o: &Sealed) {
+    let p = env::promise_batch_create(&o.from);
+    env::promise_batch_action_transfer(p, o.deposit);
+}
+
+impl Sealbox {
+    fn request_run(&self, input: String, deposit: NearToken) -> u64 {
         let args = format!(
             "{{\"input_data\":{},\"payer_account_id\":{},\"resource_limits\":{{\"max_execution_seconds\":60,\"max_instructions\":1000000000,\"max_memory_mb\":128}},\"response_format\":\"Text\",\"secrets_ref\":{{\"account_id\":{},\"profile\":{}}},\"source\":{{\"WasmUrl\":{{\"build_target\":\"wasm32-wasip2\",\"hash\":{},\"url\":{}}}}}}}",
             jstr(&input),
@@ -290,20 +443,41 @@ impl Sealbox {
             jstr(&self.program_url),
         );
         let gas = env::prepaid_gas().saturating_sub(CALLBACK_GAS).saturating_sub(OVERHEAD_GAS);
-        Promise::new(OUTLAYER.parse().unwrap()).function_call_weight(
-            "request_execution".to_string(),
-            args.into_bytes(),
+        let p = env::promise_batch_create(&OUTLAYER.parse::<AccountId>().unwrap());
+        env::promise_batch_action_function_call_weight(
+            p,
+            "request_execution",
+            args.as_bytes(),
             deposit,
             gas,
             GasWeight(1),
-        )
+        );
+        p
+    }
+
+    /// Run the chip request, then call `method` on this contract with the batch id, and return that promise.
+    fn run_then(&self, input: String, deposit: NearToken, method: &str, batch_id: u64) {
+        let p = self.request_run(input, deposit);
+        let me = env::current_account_id();
+        let q = env::promise_batch_then(p, &me);
+        env::promise_batch_action_function_call(
+            q,
+            method,
+            format!("{{\"batch_id\":{}}}", batch_id).as_bytes(),
+            NearToken::from_yoctonear(0),
+            CALLBACK_GAS,
+        );
+        env::promise_return(q);
     }
 
     /// Start a batch: ask the chip for the public lock.
-    #[payable]
-    pub fn open_batch(&mut self, batch_id: u64, close_height: u64) -> Promise {
-        assert!(load(batch_id).is_none(), "batch id already used");
-        assert!(close_height > env::block_height() + 5, "close height too soon");
+    fn open_batch(&mut self, batch_id: u64, close_height: u64) {
+        if load(batch_id).is_some() {
+            die("batch id already used");
+        }
+        if close_height <= env::block_height() + 5 {
+            die("close height too soon");
+        }
         save(
             batch_id,
             &Batch {
@@ -316,13 +490,11 @@ impl Sealbox {
             },
         );
         let input = format!("{{\"batch_id\":{},\"mode\":\"lock\"}}", batch_id);
-        self.request_run(input, env::attached_deposit())
-            .then(ext_self::ext(env::current_account_id()).with_static_gas(CALLBACK_GAS).on_lock(batch_id))
+        self.run_then(input, env::attached_deposit(), "on_lock", batch_id);
     }
 
-    #[private]
-    pub fn on_lock(&mut self, batch_id: u64, #[callback_result] result: Result<Option<String>, PromiseError>) {
-        let mut b = load(batch_id).expect("unknown batch");
+    fn on_lock(&mut self, batch_id: u64, result: Option<String>) {
+        let mut b = must(load(batch_id), "unknown batch");
         match field(result, "lock").filter(|l| l.len() == 64) {
             Some(l) => {
                 b.lock = l.clone();
@@ -346,15 +518,22 @@ impl Sealbox {
     }
 
     /// Seal one order. `c1` and `ct` are hex. The deposit must cover the amount inside the order.
-    #[payable]
-    pub fn seal(&mut self, batch_id: u64, c1: String, ct: String) {
-        let mut b = load(batch_id).expect("unknown batch");
-        assert!(b.state == State::Open, "batch not open");
-        assert!(env::block_height() < b.close_height, "batch closed");
-        assert!(b.orders.len() < MAX_ORDERS, "batch full");
-        let c1 = hex_decode(&c1).expect("c1 hex");
-        let ct = hex_decode(&ct).expect("ct hex");
-        assert!(c1.len() == 64 && ct.len() == 32, "bad sizes");
+    fn seal(&mut self, batch_id: u64, c1: String, ct: String) {
+        let mut b = must(load(batch_id), "unknown batch");
+        if b.state != State::Open {
+            die("batch not open");
+        }
+        if env::block_height() >= b.close_height {
+            die("batch closed");
+        }
+        if b.orders.len() >= MAX_ORDERS {
+            die("batch full");
+        }
+        let c1 = must(hex_decode(&c1), "c1 hex");
+        let ct = must(hex_decode(&ct), "ct hex");
+        if !(c1.len() == 64 && ct.len() == 32) {
+            die("bad sizes");
+        }
         b.orders.push(Sealed { from: env::predecessor_account_id(), c1, ct, deposit: env::attached_deposit() });
         let n = b.orders.len();
         save(batch_id, &b);
@@ -362,23 +541,24 @@ impl Sealbox {
     }
 
     /// After the close block: ask the chip for the key. Anyone may call.
-    #[payable]
-    pub fn release(&mut self, batch_id: u64) -> Promise {
-        let b = load(batch_id).expect("unknown batch");
-        assert!(b.state == State::Open, "batch not open");
-        assert!(env::block_height() >= b.close_height, "batch not closed yet");
+    fn release(&mut self, batch_id: u64) {
+        let b = must(load(batch_id), "unknown batch");
+        if b.state != State::Open {
+            die("batch not open");
+        }
+        if env::block_height() < b.close_height {
+            die("batch not closed yet");
+        }
         let input = format!(
             "{{\"batch_id\":{},\"contract\":\"{}\",\"mode\":\"key\"}}",
             batch_id,
             env::current_account_id()
         );
-        self.request_run(input, env::attached_deposit())
-            .then(ext_self::ext(env::current_account_id()).with_static_gas(CALLBACK_GAS).on_key(batch_id))
+        self.run_then(input, env::attached_deposit(), "on_key", batch_id);
     }
 
-    #[private]
-    pub fn on_key(&mut self, batch_id: u64, #[callback_result] result: Result<Option<String>, PromiseError>) {
-        let mut b = load(batch_id).expect("unknown batch");
+    fn on_key(&mut self, batch_id: u64, result: Option<String>) {
+        let mut b = must(load(batch_id), "unknown batch");
         let start = env::used_gas();
         let key = field(result, "key").filter(|k| k.len() == 32 && key_matches_lock(k, &b.lock));
         let Some(key) = key else {
@@ -390,7 +570,7 @@ impl Sealbox {
                     format!("{{\"batch\":{},\"why\":\"key withheld or wrong 3 times\"}}", batch_id),
                 );
                 for o in &b.orders {
-                    let _ = Promise::new(o.from.clone()).transfer(o.deposit);
+                    refund(o);
                 }
             } else {
                 event("key_failed", format!("{{\"attempt\":{},\"batch\":{}}}", b.key_attempts, batch_id));
@@ -414,7 +594,7 @@ impl Sealbox {
                 }
                 _ => {
                     // bad format or amount above deposit: refund the whole deposit
-                    let _ = Promise::new(o.from.clone()).transfer(o.deposit);
+                    refund(o);
                     opened.push(Opened {
                         from: o.from.clone(),
                         status: 1,
@@ -441,10 +621,77 @@ impl Sealbox {
         );
         save(batch_id, &b);
     }
+}
 
-    /// Returns the batch as JSON (or null), written by hand so the wasm needs no serde derives.
-    pub fn get_batch(&self, batch_id: u64) {
-        let out = match load(batch_id) {
+/// Contract entry points, written by hand (no serde) to keep the wasm small. Method names and
+/// JSON shapes are the same as before.
+#[cfg(target_arch = "wasm32")]
+mod exports {
+    use super::*;
+
+    #[no_mangle]
+    pub extern "C" fn new() {
+        nodeposit("new");
+        if env::state_exists() {
+            die("The contract has already been initialized");
+        }
+        let a = Args::read();
+        let secrets_account = must(a.str("secrets_account").parse::<AccountId>().ok(), "bad secrets_account");
+        let s = Sealbox {
+            program_url: a.str("program_url"),
+            program_hash: a.str("program_hash"),
+            secrets_account,
+            secrets_profile: a.str("secrets_profile"),
+        };
+        env::state_write(&s);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn open_batch() {
+        let a = Args::read();
+        let (id, ch) = (a.u64("batch_id"), a.u64("close_height"));
+        state().open_batch(id, ch);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn on_lock() {
+        nodeposit("on_lock");
+        private("on_lock");
+        let a = Args::read();
+        let id = a.u64("batch_id");
+        state().on_lock(id, callback_text());
+    }
+
+    #[no_mangle]
+    pub extern "C" fn seal() {
+        let a = Args::read();
+        let (id, c1, ct) = (a.u64("batch_id"), a.str("c1"), a.str("ct"));
+        state().seal(id, c1, ct);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn release() {
+        let a = Args::read();
+        let id = a.u64("batch_id");
+        state().release(id);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn on_key() {
+        nodeposit("on_key");
+        private("on_key");
+        let a = Args::read();
+        let id = a.u64("batch_id");
+        state().on_key(id, callback_text());
+    }
+
+    #[no_mangle]
+    pub extern "C" fn get_batch() {
+        nodeposit("get_batch");
+        let a = Args::read();
+        let id = a.u64("batch_id");
+        let _ = state();
+        let out = match load(id) {
             None => "null".to_string(),
             Some(b) => batch_json(&b),
         };
@@ -452,8 +699,17 @@ impl Sealbox {
     }
 
     /// Used by the chip to double-check that a batch has really closed. Public data only.
-    pub fn close_height(&self, batch_id: u64) -> Option<u64> {
-        load(batch_id).map(|b| b.close_height)
+    #[no_mangle]
+    pub extern "C" fn close_height() {
+        nodeposit("close_height");
+        let a = Args::read();
+        let id = a.u64("batch_id");
+        let _ = state();
+        let out = match load(id) {
+            None => "null".to_string(),
+            Some(b) => b.close_height.to_string(),
+        };
+        env::value_return(out.as_bytes());
     }
 }
 
