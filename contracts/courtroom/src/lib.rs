@@ -86,6 +86,8 @@ pub struct Round {
     /// short label such as lie_attempt, set by whoever opens the round
     pub tag: String,
     pub bonds: Vec<Bond>,
+    /// the reserve at the moment the bonds were settled, so anyone can recompute the payouts
+    pub reserve_before: Option<U128>,
     pub claim: String,
     /// the exact bytes every attempt sends
     pub input: String,
@@ -283,6 +285,7 @@ impl Courtroom {
             Round {
                 tag,
                 bonds: vec![],
+                reserve_before: None,
                 claim,
                 input,
                 ih,
@@ -429,6 +432,7 @@ impl Courtroom {
             return;
         }
         let entries: Vec<Entry> = r.bonds.iter().map(|b| Entry { stake: b.stake.0, chance_bps: b.chance_bps }).collect();
+        r.reserve_before = Some(U128(self.reserve));
         let s = settle(&entries, outcome, self.reserve);
         self.reserve = s.reserve_after;
         for (b, p) in r.bonds.iter_mut().zip(s.payouts.iter()) {

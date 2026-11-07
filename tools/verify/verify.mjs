@@ -6,7 +6,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { sha256, sha256hex, b64url, recoverAddress } from './crypto.mjs';
-import { net, settleBatchCheck } from './payout.mjs';
+import { net, settle, settleBatchCheck } from './payout.mjs';
 import { dataUser, proseUser, requestBody, canon, extract, windowOf, proseOutcome, dataOutcome } from './frames.mjs';
 
 const args = Object.fromEntries(
@@ -114,6 +114,20 @@ async function main() {
   let okShape = n <= 3 && (r.status !== 'void' || r.void_reason === 'SRC_DISAGREE' || fails === 3) && (r.status !== 'settled' || r.attempts.some((a) => a.result === 'ok'));
   add(okShape ? M : X, 'attempt list is consistent', `${n} attempt(s) published: ${r.attempts.map((a) => `#${a.n} ${a.result} in ${a.end_block ? a.end_block - a.start_block : '?'} blocks`).join(', ')}; round is ${r.status}${r.void_reason ? ' (' + r.void_reason + ')' : ''}`);
 
+  // bonds: recompute every payout with the fixed rule
+  if (r.bonds && r.bonds.length) {
+    const WORDS = { is: 9500, 'very likely': 8000, likely: 6500, disputed: 5000 };
+    const outcome = r.outcome === 'T' || r.outcome === 'F' ? r.outcome : null;
+    if (r.status === 'open') add(C, 'bond payouts follow the rule', 'round is still open');
+    else if (r.reserve_before == null) add(C, 'bond payouts follow the rule', 'this contract did not record the reserve at settlement');
+    else {
+      const entries = r.bonds.map((b) => ({ stake: BigInt(b.stake), chance: WORDS[b.word] }));
+      const want = settle(entries, outcome, BigInt(r.reserve_before));
+      const got = r.bonds.map((b) => b.payout == null ? null : BigInt(b.payout));
+      const same = got.every((g, i) => g === want.payouts[i]);
+      add(same ? M : X, 'bond payouts follow the rule', r.bonds.map((b, i) => `${b.word} ${(want.payouts[i] >= entries[i].stake ? '+' : '-')}${(want.payouts[i] > entries[i].stake ? want.payouts[i] - entries[i].stake : entries[i].stake - want.payouts[i]) * 10000n / entries[i].stake}bp`).join(', '));
+    }
+  }
   if (r.status === 'open') { add(C, 'ruling', 'round is still open, nothing to check yet'); return finish(); }
   if (!r.verdict) { add(r.status === 'void' && r.void_reason === '3_FAILED_RUNS' ? M : X, 'verdict present', r.status === 'void' ? 'void after failed runs, no verdict expected' : 'settled round has no verdict'); return finish(); }
 

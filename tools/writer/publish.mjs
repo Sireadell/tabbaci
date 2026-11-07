@@ -18,9 +18,14 @@ function call(method, args, signer, deposit = '0', gas = '300 Tgas') {
   return { ok: r.status === 0, out: out.replace(/\x1b\[[0-9;]*m/g, '') };
 }
 
+// Source ids are looked up by address on the contract, so a page never depends on how the list was filled.
+const viewRes = await (await fetch('https://rpc.testnet.near.org', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'query', params: { request_type: 'call_function', finality: 'final', account_id: contract, method_name: 'sources', args_base64: Buffer.from('{}').toString('base64') } }) })).json();
+const sourceList = JSON.parse(Buffer.from(viewRes.result.result).toString());
+const idFor = (url) => { const s = sourceList.find((x) => url.startsWith(x.prefix)); if (!s) throw new Error("no approved source for " + url); return s.id; };
+
 const published = [];
 for (const s of page.sentences) {
-  const open = call('open_round', { claim: s.claim, kind: s.kind, cv: s.cv, picks: s.picks, terms: s.terms, tag: 'page' }, s.writer, '0', '100 Tgas');
+  const open = call('open_round', { claim: s.claim, kind: s.kind, cv: s.cv, picks: s.picks.map((k) => ({ ...k, id: idFor(k.url) })), terms: s.terms, tag: 'page' }, s.writer, '0', '100 Tgas');
   const m = open.out.match(/"round":(\d+)/);
   if (!open.ok || !m) { console.error('open failed:', open.out.slice(-300)); process.exit(1); }
   const round = Number(m[1]);

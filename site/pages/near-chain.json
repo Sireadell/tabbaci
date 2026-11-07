@@ -3,28 +3,28 @@
   "title": "NEAR mainnet, checked sentence by sentence",
   "intro": "Each sentence below is a question the courtroom can answer from public evidence. The word before it is the chance its writer bonded on it.",
   "written_by": "hand-seeded for the test network",
-  "contract": "court4.sireadell.testnet",
+  "contract": "court5.sireadell.testnet",
   "sentences": [
     {
       "claim": "On 7 November 2026, NEAR mainnet runs protocol version 88.",
       "word": "is",
       "writer": "w1.sireadell.testnet",
       "kind": "data",
-      "round": 3
+      "round": 4
     },
     {
       "claim": "On 7 November 2026, NEAR mainnet runs protocol version 87.",
       "word": "likely",
       "writer": "w2.sireadell.testnet",
       "kind": "data",
-      "round": 4
+      "round": 5
     },
     {
       "claim": "NEAR is a blockchain platform.",
       "word": "very likely",
       "writer": "w1.sireadell.testnet",
       "kind": "prose",
-      "round": 5
+      "round": 6
     }
   ]
 }
