@@ -5,8 +5,10 @@ use courtroom_rules as logic;
 
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
 use logic::{judge_output, Judged, State, Status};
+use bond_payout::{settle, word_bps, Entry, Outcome};
+use near_sdk::json_types::U128;
 use near_sdk::store::{IterableMap, LookupMap};
-use near_sdk::{env, ext_contract, near, serde_json, AccountId, Gas, PanicOnDefault, Promise, PromiseError};
+use near_sdk::{env, ext_contract, near, serde_json, AccountId, Gas, NearToken, PanicOnDefault, Promise, PromiseError};
 
 const OUTLAYER: &str = "outlayer.testnet";
 const CALLBACK_GAS: Gas = Gas::from_tgas(15);
@@ -14,6 +16,8 @@ const OVERHEAD_GAS: Gas = Gas::from_tgas(10);
 /// A removed source stops working 72 hours after the DAO asks.
 const REMOVE_DELAY_NS: u64 = 72 * 3600 * 1_000_000_000;
 const MAX_CLAIM: usize = 400;
+const MAX_BONDS: usize = 20;
+const MAX_TAG: usize = 32;
 
 #[ext_contract(ext_outlayer)]
 trait OutLayer {
@@ -67,7 +71,21 @@ pub struct Attempt {
 
 #[near(serializers = [json, borsh])]
 #[derive(Clone)]
+pub struct Bond {
+    pub writer: AccountId,
+    pub word: String,
+    pub chance_bps: u16,
+    pub stake: U128,
+    /// filled when the round settles
+    pub payout: Option<U128>,
+}
+
+#[near(serializers = [json, borsh])]
+#[derive(Clone)]
 pub struct Round {
+    /// short label such as lie_attempt, set by whoever opens the round
+    pub tag: String,
+    pub bonds: Vec<Bond>,
     pub claim: String,
     /// the exact bytes every attempt sends
     pub input: String,
@@ -124,6 +142,10 @@ pub struct Courtroom {
     models: Vec<String>,
     secrets_account: Option<AccountId>,
     secrets_profile: Option<String>,
+    /// the fixed stake every bond uses, in yoctoNEAR
+    stake: u128,
+    reserve: u128,
+    balances: LookupMap<AccountId, u128>,
     next_round: u64,
     next_source: u32,
     sources: IterableMap<u32, Source>,
@@ -147,6 +169,7 @@ impl Courtroom {
         models: Vec<String>,
         secrets_account: Option<AccountId>,
         secrets_profile: Option<String>,
+        stake: U128,
     ) -> Self {
         assert!(logic::is_hex_sha256(&courtroom_hash), "courtroom_hash must be a sha256 in hex");
         assert!(models.len() == 3, "exactly 3 judge models");
@@ -157,6 +180,9 @@ impl Courtroom {
             models,
             secrets_account,
             secrets_profile,
+            stake: stake.0,
+            reserve: 0,
+            balances: LookupMap::new(b"b"),
             next_round: 1,
             next_source: 1,
             sources: IterableMap::new(b"s"),
@@ -207,7 +233,10 @@ impl Courtroom {
         cv: Option<String>,
         picks: Vec<Pick>,
         terms: Vec<String>,
+        tag: Option<String>,
     ) -> u64 {
+        let tag = tag.unwrap_or_default();
+        assert!(tag.len() <= MAX_TAG, "tag is at most 32 characters");
         assert!(!claim.is_empty() && claim.len() <= MAX_CLAIM, "claim must be 1 to 400 characters");
         assert!(kind == "data" || kind == "prose", "kind must be data or prose");
         if kind == "data" {
@@ -252,6 +281,8 @@ impl Courtroom {
         self.rounds.insert(
             rd,
             Round {
+                tag,
+                bonds: vec![],
                 claim,
                 input,
                 ih,
@@ -335,6 +366,15 @@ impl Courtroom {
         if was_open && matches!(judged, Judged::Final(_) | Judged::SourcesDisagree) {
             r.verdict = out;
         }
+        // Money: when the round closes, pay or return every bond with the fixed rule.
+        if was_open && r.status != "open" {
+            let outcome = match r.outcome.as_deref() {
+                Some("T") => Some(Outcome::True),
+                Some("F") => Some(Outcome::False),
+                _ => None,
+            };
+            self.settle_bonds(&mut r, outcome);
+        }
         event(
             "attempt_done",
             serde_json::json!({"round": round, "n": n, "result": label, "status": r.status, "block": env::block_height()}),
@@ -342,7 +382,76 @@ impl Courtroom {
         self.rounds.insert(round, r);
     }
 
+    // ---------- bonds and money ----------
+
+    /// Put NEAR on your ledger balance. Bonds are paid from this balance.
+    #[payable]
+    pub fn deposit(&mut self) {
+        let who = env::predecessor_account_id();
+        let cur = self.balances.get(&who).copied().unwrap_or(0);
+        self.balances.insert(who, cur + env::attached_deposit().as_yoctonear());
+    }
+
+    /// Take NEAR out of your ledger balance.
+    pub fn withdraw(&mut self, amount: U128) -> Promise {
+        let who = env::predecessor_account_id();
+        let cur = self.balances.get(&who).copied().unwrap_or(0);
+        assert!(cur >= amount.0 && amount.0 > 0, "not enough balance");
+        self.balances.insert(who.clone(), cur - amount.0);
+        Promise::new(who).transfer(NearToken::from_yoctonear(amount.0))
+    }
+
+    /// Anyone may add to the reserve that pays winners when losers' forfeits are not enough.
+    #[payable]
+    pub fn fund_reserve(&mut self) {
+        self.reserve += env::attached_deposit().as_yoctonear();
+    }
+
+    /// Bond the fixed stake on a sentence with one word: is, very likely, likely or disputed.
+    /// Only before any attempt has started, so nobody can bond once a ruling is possible.
+    pub fn bond(&mut self, round: u64, word: String) {
+        let chance = word_bps(&word).expect("word must be: is, very likely, likely or disputed");
+        let mut r = self.rounds.get(&round).cloned().expect("unknown round");
+        assert!(r.status == "open" && r.attempts.is_empty(), "bonds close when the first attempt starts");
+        assert!(r.bonds.len() < MAX_BONDS, "this sentence already has the most bonds allowed");
+        let who = env::predecessor_account_id();
+        assert!(r.bonds.iter().all(|b| b.writer != who), "you already bonded this sentence");
+        let cur = self.balances.get(&who).copied().unwrap_or(0);
+        assert!(cur >= self.stake, "deposit first: not enough balance for the stake");
+        self.balances.insert(who.clone(), cur - self.stake);
+        r.bonds.push(Bond { writer: who.clone(), word, chance_bps: chance, stake: U128(self.stake), payout: None });
+        event("bonded", serde_json::json!({"round": round, "writer": who}));
+        self.rounds.insert(round, r);
+    }
+
+    fn settle_bonds(&mut self, r: &mut Round, outcome: Option<Outcome>) {
+        if r.bonds.is_empty() {
+            return;
+        }
+        let entries: Vec<Entry> = r.bonds.iter().map(|b| Entry { stake: b.stake.0, chance_bps: b.chance_bps }).collect();
+        let s = settle(&entries, outcome, self.reserve);
+        self.reserve = s.reserve_after;
+        for (b, p) in r.bonds.iter_mut().zip(s.payouts.iter()) {
+            let cur = self.balances.get(&b.writer).copied().unwrap_or(0);
+            self.balances.insert(b.writer.clone(), cur + p);
+            b.payout = Some(U128(*p));
+        }
+        event("bonds_settled", serde_json::json!({"bonds": r.bonds.len(), "reserve": self.reserve.to_string()}));
+    }
+
     // ---------- views ----------
+
+    pub fn balance(&self, account: AccountId) -> U128 {
+        U128(self.balances.get(&account).copied().unwrap_or(0))
+    }
+
+    pub fn reserve(&self) -> U128 {
+        U128(self.reserve)
+    }
+
+    pub fn stake(&self) -> U128 {
+        U128(self.stake)
+    }
 
     pub fn get_round(&self, round: u64) -> Option<Round> {
         self.rounds.get(&round).cloned()

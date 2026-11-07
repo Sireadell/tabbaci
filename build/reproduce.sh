@@ -10,5 +10,6 @@ cd "$WORK/court"
 export RUSTFLAGS="--remap-path-prefix=$WORK/court=/src --remap-path-prefix=$HOME/.cargo=/cargo --remap-path-prefix=$HOME/.rustup=/rustup"
 export CARGO_INCREMENTAL=0
 ${CARGO:-cargo} ${TOOLCHAIN:+$TOOLCHAIN} build --locked --target wasm32-wasip2 --release ${FEATURES:+--features $FEATURES} >/dev/null 2>&1
+[ -n "$OUT" ] && cp target/wasm32-wasip2/release/court.wasm "$OUT"
 sha256sum target/wasm32-wasip2/release/court.wasm
 rm -rf "$WORK"

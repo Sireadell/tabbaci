@@ -19,6 +19,13 @@ fn main() {
             .and_then(|v| v.get("sa").cloned())
             .and_then(|v| serde_json::from_value(v).ok())
             .unwrap_or_default();
+        // Test build only: a claim containing "(lie)" is answered FALSE by all three stand-in judges.
+        let sa = if sa.is_empty() {
+            let lie = String::from_utf8_lossy(&input).contains("(lie)");
+            vec![(if lie { "FALSE" } else { "TRUE" }).to_string(); 3]
+        } else {
+            sa
+        };
         court::judges::standin::StandIn::new(sa)
     };
     #[cfg(not(feature = "standin"))]
