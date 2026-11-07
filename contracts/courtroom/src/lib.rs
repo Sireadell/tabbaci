@@ -6,6 +6,7 @@ use near_sdk::{
 
 const OUTLAYER: &str = "outlayer.testnet";
 const CALLBACK_GAS: Gas = Gas::from_tgas(10);
+const OVERHEAD_GAS: Gas = Gas::from_tgas(10);
 
 #[ext_contract(ext_outlayer)]
 trait OutLayer {
@@ -88,13 +89,13 @@ impl Courtroom {
             "max_memory_mb": 128,
             "max_execution_seconds": max_seconds.unwrap_or(60)});
         let gas = env::prepaid_gas()
-            .saturating_sub(env::used_gas())
-            .saturating_sub(CALLBACK_GAS);
+            .saturating_sub(CALLBACK_GAS)
+            .saturating_sub(OVERHEAD_GAS);
         ext_outlayer::ext(OUTLAYER.parse().unwrap())
             .with_attached_deposit(env::attached_deposit())
             .with_static_gas(gas)
             .with_unused_gas_weight(1)
-            .request_execution(source, limits, input, secrets_ref, "String".into(), None)
+            .request_execution(source, limits, input, secrets_ref, "Text".into(), None)
             .then(
                 ext_self::ext(env::current_account_id())
                     .with_static_gas(CALLBACK_GAS)

@@ -18,6 +18,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let hash = Sha256::digest(&body);
     let hex: String = hash.iter().map(|b| format!("{:02x}", b)).collect();
     let out = serde_json::json!({"status": status, "bytes": body.len(), "sha256": hex});
+    let mut out = out;
+    if let Ok(v) = std::env::var("TEST_SECRET") { out["secret_len"] = serde_json::json!(v.len()); }
     print!("{}", out);
     io::stdout().flush()?;
     Ok(())
