@@ -18,7 +18,7 @@ test("wrong nonce, swapped signer, edited config, edited log and debug mode are 
   assert.match(checkReport(copy(), "11".repeat(32)).why, /nonce/);
   const a = copy(); a.signing_address = "ab".repeat(32);
   assert.match(checkReport(a, fx.nonce).why, /bind/);
-  const b = copy(); const t = JSON.parse(b.info.tcb_info); t.app_compose += " "; b.info.tcb_info = t;
+  const b = copy(); const t = typeof b.info.tcb_info === "string" ? JSON.parse(b.info.tcb_info) : b.info.tcb_info; t.app_compose += " "; b.info.tcb_info = t;
   assert.match(checkReport(b, fx.nonce).why, /app_compose/);
   const c = copy(); const log = typeof c.event_log === "string" ? JSON.parse(c.event_log) : c.event_log;
   log.find((e) => e.imr === 3 && e.event === "system-preparing").event = "system-preparing-x"; c.event_log = log;

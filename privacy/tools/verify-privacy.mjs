@@ -2,6 +2,7 @@
 // One command that checks the privacy claims from public chain data only. No keys, no logins.
 //
 //   node tools/verify-privacy.mjs --contract privacy.sireadell.testnet --secret-owner seal.sireadell.testnet [--rpc URL]
+//        [--batch <id> --key <hex>] [--report <file> --nonce <hex>] [--canary <marker> --txs <hash,hash>]
 //
 // Each line prints MATCH, MISMATCH or CANNOT VERIFY (never a fake pass).
 // Exit code: 0 all MATCH, 1 any MISMATCH, 2 some CANNOT VERIFY and no MISMATCH.
@@ -114,8 +115,56 @@ await check("secret owner has no access keys", async () => {
   return k.length === 0 ? ["MATCH", `${owner} has 0 access keys`] : ["MISMATCH", `${owner} has ${k.length} access key(s), so the rule could still be changed`];
 });
 
-// 6. things this command cannot check yet
-add("judge replies come from the named models", "CANNOT VERIFY", "needs the paid NEAR AI credit and the judge step; not built in this test");
+// 6. one sealed batch, re-opened and re-cleared from public data (needs the released key)
+const batchId = opt("--batch"), batchKey = opt("--key");
+if (batchId) {
+  const { checkBatch } = await import("./batch-check.mjs");
+  try {
+    const fx = { batch: await view(contract, "get_batch", { batch_id: Number(batchId) }), key: batchKey };
+    for (const [f, m] of [["clearing", "get_clearing"], ["words", "get_words"], ["instructions", "get_instructions"]]) {
+      try { fx[f] = await view(contract, m, { batch_id: Number(batchId) }); } catch { /* older contract */ }
+    }
+    for (const k of ["words", "instructions"]) if (fx[k]) fx[k] = fx[k].map((x) => ({ ...x, c1: typeof x.c1 === "string" ? x.c1 : Buffer.from(x.c1).toString("hex") }));
+    for (const [n, v, d] of checkBatch(fx)) add(`batch ${batchId}: ${n}`, v, d);
+  } catch (e) { add(`batch ${batchId}`, "CANNOT VERIFY", e.message); }
+} else {
+  add("sealed batch re-opened and re-cleared", "CANNOT VERIFY", "pass --batch <id> --key <released key hex> to run it");
+}
+
+// 7. a saved model report, checked with the nonce we sent
+const reportFile = opt("--report"), reportNonce = opt("--nonce");
+if (reportFile && reportNonce) {
+  const { checkReport } = await import("./attest.mjs");
+  const { readFileSync } = await import("node:fs");
+  let raw = JSON.parse(readFileSync(reportFile, "utf8"));
+  raw = raw.report || raw.model_attestations?.[0] || raw;
+  const r = checkReport(raw, reportNonce);
+  add("judge model report: nonce, signer, config, event log", r.ok ? "MATCH" : "MISMATCH", r.ok ? `signer ${r.signer.slice(0, 16)}... (${r.algo}), debug mode off` : r.why);
+  add("judge model report: Intel signature chain on the quote", "CANNOT VERIFY", "not checked by this command; use a DCAP verifier such as dcap-qvl");
+} else {
+  add("judge replies come from the named models", "CANNOT VERIFY", "pass --report <saved report json> --nonce <hex> to check a model report");
+}
+
+// 8. a marker planted in the secret never shows up in public transaction data
+const canary = opt("--canary"), txs = opt("--txs");
+if (canary && txs) {
+  await check("secret marker absent from public transaction data", async () => {
+    let seen = 0;
+    for (const h of txs.split(",")) {
+      const r = await fetch(rpc, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "EXPERIMENTAL_tx_status", params: { tx_hash: h, sender_account_id: opt("--sender", contract), wait_until: "FINAL" } }), signal: AbortSignal.timeout(25000) });
+      const j = await r.json();
+      if (!j.result) throw new Error(`transaction ${h.slice(0, 8)} not found`);
+      const text = JSON.stringify(j.result);
+      const enc = [canary, Buffer.from(canary).toString("hex"), Buffer.from(canary).toString("base64")];
+      if (enc.some((e) => text.includes(e))) return ["MISMATCH", `marker found in transaction ${h.slice(0, 8)}...`];
+      seen++;
+    }
+    return ["MATCH", `marker (plain, hex, base64) absent from ${seen} transaction(s)`];
+  });
+}
+
+// 9. what is stored on a server
+add("nothing kept on a server", "CANNOT VERIFY", "the site is static files and chain reads; a hosting company's own logs cannot be checked from here");
 
 const w = Math.max(...rows.map((r) => r.name.length));
 for (const r of rows) console.log(`${r.verdict.padEnd(13)} ${r.name.padEnd(w)}  ${r.detail}`);
