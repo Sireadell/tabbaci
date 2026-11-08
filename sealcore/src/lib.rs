@@ -164,6 +164,121 @@ pub fn open_words(k: &Fr, c1_le: &Point, ct: &[u8]) -> Option<Vec<u8>> {
     Some(words_xor(&shared, ct))
 }
 
+// ---- Viewing keys -------------------------------------------------------------------------
+// Plain words: the trader who sealed an order knows the secret number r behind C1 = r*G.
+// Handing r over would let anyone forge nothing but would also expose the trader's other
+// seals made with the same r, so instead the trader hands over only S = r*lock (the shared
+// point that unlocks this one seal) plus a proof that S really comes from the same r as C1.
+// Without the proof a trader could grind for a fake S that reads as a different order.
+
+fn wide_challenge(parts: &[&[u8]]) -> Fr {
+    let mut wide = [0u8; 64];
+    for (i, tag) in [b"A", b"B"].iter().enumerate() {
+        let mut v = Vec::new();
+        v.extend_from_slice(b"view-proof-v1");
+        v.extend_from_slice(*tag);
+        for p in parts {
+            v.extend_from_slice(p);
+        }
+        wide[i * 32..(i + 1) * 32].copy_from_slice(&keccak(&v));
+    }
+    Fr::interpret(&wide)
+}
+
+fn g_be() -> Point {
+    affine_to_be(G1::one()).unwrap()
+}
+
+/// What the trader hands to an auditor: the shared point S (big-endian) and the proof (e, z).
+pub struct ViewGrant {
+    pub shared_be: Point,
+    pub e_be: [u8; 32],
+    pub z_be: [u8; 32],
+}
+
+/// `s` is a fresh random number for the proof. `r` is the trader's secret from sealing.
+pub fn view_grant(lock_be_bytes: &Point, r: &Fr, s: &Fr) -> ViewGrant {
+    let lock = affine_from_be(lock_be_bytes).expect("lock is not a valid point");
+    let c1 = affine_to_be(G1::one() * *r).unwrap();
+    let shared = affine_to_be(lock * *r).expect("shared point");
+    let a1 = affine_to_be(G1::one() * *s).unwrap();
+    let a2 = affine_to_be(lock * *s).unwrap();
+    let e = wide_challenge(&[&g_be(), lock_be_bytes, &c1, &shared, &a1, &a2]);
+    let z = *s + e * *r;
+    ViewGrant { shared_be: shared, e_be: scalar_to_be(&e), z_be: scalar_to_be(&z) }
+}
+
+fn fr_from_be(b: &[u8; 32]) -> Option<Fr> {
+    Fr::new(substrate_bn::arith::U256::from_slice(b).ok()?)
+}
+
+/// Auditor side: true only if S has the same secret behind it as C1 (given the lock).
+pub fn view_check(lock_be_bytes: &Point, c1_le: &Point, g: &ViewGrant) -> bool {
+    let (Some(lock), Some(c1), Some(sh)) = (
+        affine_from_be(lock_be_bytes),
+        affine_from_be(&point_le_to_be(c1_le)),
+        affine_from_be(&g.shared_be),
+    ) else {
+        return false;
+    };
+    let (Some(e), Some(z)) = (fr_from_be(&g.e_be), fr_from_be(&g.z_be)) else {
+        return false;
+    };
+    let a1 = G1::one() * z - c1 * e;
+    let a2 = lock * z - sh * e;
+    let (Some(a1b), Some(a2b)) = (affine_to_be(a1), affine_to_be(a2)) else {
+        return false;
+    };
+    let c1b = point_le_to_be(c1_le);
+    wide_challenge(&[&g_be(), lock_be_bytes, &c1b, &g.shared_be, &a1b, &a2b]) == e
+}
+
+/// Read a sealed 32-byte order using S instead of the batch key (only after `view_check` passed).
+pub fn open_order_with_shared(shared_be: &Point, ct: &[u8; 32]) -> [u8; 32] {
+    let pad = pad_from_shared(shared_be);
+    let mut o = [0u8; 32];
+    for i in 0..32 {
+        o[i] = ct[i] ^ pad[i];
+    }
+    o
+}
+
+#[cfg(test)]
+mod view_tests {
+    use super::*;
+    #[test]
+    fn grant_checks_out_and_reads_the_order() {
+        let k = batch_scalar(b"master", 21);
+        let lock = lock_be(&k);
+        let r = batch_scalar(b"trader", 1);
+        let s = batch_scalar(b"proof", 1);
+        let mut order = [0u8; 32];
+        order[0] = 1;
+        order[1] = 1;
+        order[2] = 0x19;
+        order[3] = 0x64;
+        let (c1, ct) = seal(&lock, &r, &order);
+        let g = view_grant(&lock, &r, &s);
+        assert!(view_check(&lock, &c1, &g));
+        assert_eq!(open_order_with_shared(&g.shared_be, &ct), order);
+    }
+    #[test]
+    fn a_fake_shared_point_fails() {
+        let k = batch_scalar(b"master", 21);
+        let lock = lock_be(&k);
+        let r = batch_scalar(b"trader", 1);
+        let (c1, _ct) = seal(&lock, &r, &[0u8; 32]);
+        let other = batch_scalar(b"trader", 2);
+        let mut g = view_grant(&lock, &r, &batch_scalar(b"proof", 1));
+        // swap in a shared point made from a different secret
+        g.shared_be = view_grant(&lock, &other, &batch_scalar(b"proof", 1)).shared_be;
+        assert!(!view_check(&lock, &c1, &g));
+        // a grant made for another seal does not fit this one
+        let g2 = view_grant(&lock, &other, &batch_scalar(b"proof", 3));
+        assert!(!view_check(&lock, &c1, &g2));
+    }
+}
+
 #[cfg(test)]
 mod words_tests {
     use super::*;
