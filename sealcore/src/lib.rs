@@ -131,6 +131,58 @@ pub fn pad_from_shared_le(shared_le: &Point) -> [u8; 32] {
     pad_from_shared(&point_le_to_be(shared_le))
 }
 
+/// Scramble or unscramble free text (a writer's page) with a pad stream taken from the shared
+/// point (big-endian bytes). Block i of the stream is keccak("words-v1" || shared || i).
+/// The same call scrambles and unscrambles.
+pub fn words_xor(shared_be: &Point, data: &[u8]) -> Vec<u8> {
+    let mut out = Vec::with_capacity(data.len());
+    for (i, chunk) in data.chunks(32).enumerate() {
+        let mut v = Vec::with_capacity(8 + 64 + 8);
+        v.extend_from_slice(b"words-v1");
+        v.extend_from_slice(shared_be);
+        v.extend_from_slice(&(i as u64).to_be_bytes());
+        let pad = keccak(&v);
+        for (j, b) in chunk.iter().enumerate() {
+            out.push(b ^ pad[j]);
+        }
+    }
+    out
+}
+
+/// Seal a page of text to the batch lock. Returns (C1 little-endian, scrambled text, keccak of the plain text).
+pub fn seal_words(lock_be_bytes: &Point, r: &Fr, text: &[u8]) -> (Point, Vec<u8>, [u8; 32]) {
+    let lock = affine_from_be(lock_be_bytes).expect("lock is not a valid point");
+    let c1 = affine_to_be(G1::one() * *r).expect("r is not zero");
+    let shared = affine_to_be(lock * *r).expect("shared point");
+    (point_be_to_le(&c1), words_xor(&shared, text), keccak(text))
+}
+
+/// Open a sealed page with the batch key.
+pub fn open_words(k: &Fr, c1_le: &Point, ct: &[u8]) -> Option<Vec<u8>> {
+    let c1 = affine_from_be(&point_le_to_be(c1_le))?;
+    let shared = affine_to_be(c1 * *k)?;
+    Some(words_xor(&shared, ct))
+}
+
+#[cfg(test)]
+mod words_tests {
+    use super::*;
+    #[test]
+    fn words_round_trip_and_hash() {
+        let k = batch_scalar(b"master", 9);
+        let lock = lock_be(&k);
+        let r = batch_scalar(b"writer-random", 2);
+        let text = b"The sky was blue on 3 March 2026. This sentence is longer than one 32 byte block so the stream must move on.";
+        let (c1, ct, h) = seal_words(&lock, &r, text);
+        assert_ne!(&ct[..], &text[..]);
+        assert_eq!(ct.len(), text.len());
+        assert_eq!(open_words(&k, &c1, &ct).unwrap(), text.to_vec());
+        assert_eq!(keccak(&open_words(&k, &c1, &ct).unwrap()), h);
+        let wrong = batch_scalar(b"master", 10);
+        assert_ne!(open_words(&wrong, &c1, &ct).unwrap(), text.to_vec());
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

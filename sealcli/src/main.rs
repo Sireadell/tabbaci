@@ -78,7 +78,33 @@ fn run(a: &[String]) -> Result<String, String> {
             do_seal(&a[1], &a[2], &a[3], &a[4], random_scalar()?, f)
         }
         Some("open") if a.len() == 4 => do_open(&a[1], &a[2], &a[3]),
-        _ => Err("usage:\n  sealcli seal <lock_hex_le128> <side 0|1> <price_bp> <amount_yocto>\n  sealcli open <key_hex_le64> <c1_hex> <ct_hex>".into()),
+        Some("words-seal") if a.len() == 3 => {
+            let lock: Point = dec(&a[1], "lock")?;
+            let text = std::fs::read(&a[2]).map_err(|e| format!("{}: {e}", a[2]))?;
+            if text.is_empty() || text.len() > 8192 {
+                return Err("page must be 1 to 8192 bytes".into());
+            }
+            let (c1, ct, h) = sealcore::seal_words(&point_le_to_be(&lock), &random_scalar()?, &text);
+            Ok(format!(
+                "{{\"c1\":\"{}\",\"ct\":\"{}\",\"text_hash\":\"{}\"}}",
+                hex::encode(c1),
+                hex::encode(ct),
+                hex::encode(h)
+            ))
+        }
+        Some("words-open") if a.len() == 5 => {
+            let key: [u8; 32] = dec(&a[1], "key")?;
+            let k = scalar_from_le_canonical(&key)?;
+            let c1: Point = dec(&a[2], "c1")?;
+            let ct = hex::decode(&a[3]).map_err(|e| format!("ct: bad hex: {e}"))?;
+            let want: [u8; 32] = dec(&a[4], "text_hash")?;
+            let plain = sealcore::open_words(&k, &c1, &ct).ok_or("c1 is not a valid curve point")?;
+            if sealcore::keccak(&plain) != want {
+                return Err("MISMATCH: the opened text does not match the hash the writer fixed".into());
+            }
+            Ok(String::from_utf8_lossy(&plain).into_owned())
+        }
+        _ => Err("usage:\n  sealcli words-seal <lock_hex_le128> <page_file>\n  sealcli words-open <key_hex_le64> <c1_hex> <ct_hex> <text_hash_hex>\n  sealcli seal <lock_hex_le128> <side 0|1> <price_bp> <amount_yocto>\n  sealcli open <key_hex_le64> <c1_hex> <ct_hex>".into()),
     }
 }
 
