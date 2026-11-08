@@ -3,7 +3,9 @@
 //   node verify.mjs --contract court2.sireadell.testnet --round 1 [--network testnet] [--archive dir]
 //                   [--tx <attempt tx hash>] [--signer <model>=0x..] [--vectors payout-vectors.json]
 // Prints one line per check: MATCH, MISMATCH or CANNOT VERIFY. Exit code 0 all match, 1 any mismatch, 2 something could not be checked.
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { proofPath, sealedBoxCommand } from './proofs.mjs';
 import { spawnSync } from 'node:child_process';
 import { sha256, sha256hex, b64url, recoverAddress } from './crypto.mjs';
 import { net, settle, settleBatchCheck } from './payout.mjs';
@@ -200,11 +202,14 @@ async function main() {
   }
 
   // 9. the sealed box run itself
-  if (args.tx) {
-    const t = spawnSync('outlayer-verify', ['tx', args.tx, '--network', network, '--short', ...(network === 'testnet' ? ['--api', 'https://testnet-api.outlayer.ai'] : [])], { encoding: 'utf8' });
+  const savedPath = args.proof || proofPath(args.contract, args.round);
+  const cmd = sealedBoxCommand({ tx: args.tx, bundle: savedPath, network, save: args['save-proof'] === 'true', savePath: savedPath });
+  if (cmd) {
+    if (cmd.args[0] === 'tx' && args['save-proof'] === 'true') mkdirSync(dirname(savedPath), { recursive: true });
+    const t = spawnSync('outlayer-verify', cmd.args, { encoding: 'utf8' });
     if (t.error) add(C, 'sealed-box attestation (outlayer-verify)', 'outlayer-verify is not installed on this machine');
-    else add(t.status === 0 ? M : t.status === 1 ? X : C, 'sealed-box attestation (outlayer-verify)', (t.stdout || t.stderr || '').trim().split('\n').slice(-1)[0]);
-  } else add(C, 'sealed-box attestation (outlayer-verify)', 'pass --tx <attempt transaction hash> and install outlayer-verify');
+    else add(t.status === 0 ? M : t.status === 1 ? X : C, 'sealed-box attestation (outlayer-verify)', `${(t.stdout || t.stderr || '').trim().split('\n').slice(-1)[0]} [${cmd.source}]`);
+  } else add(C, 'sealed-box attestation (outlayer-verify)', `no saved proof at ${savedPath}; pass --tx <attempt transaction hash> (add --save-proof to keep it) and install outlayer-verify`);
   return finish();
 }
 
