@@ -59,7 +59,11 @@ The last line ends with OVERALL: MISMATCH, because of the one key.
 
 **To check the sealed chip too,** install OutLayer's `outlayer-verify` (it needs Rust and a C compiler) and add `--tx 8XYvkuJR2ysAoS8rBsBCF6L5xeaWB1N8dBybejV1YF6n`. That line then says MATCH: the ruling came out of genuine Intel TDX hardware running the program approved on chain (OutLayer task 27107).
 
+The saved proof for round 6 is in `proofs/court5/round-6.bundle.json`. The checker reads it by itself and re-checks it offline, with no network (details in `docs/SEALED_BOX_PROOF.md`).
+
 Exit code 0 means everything matched, 1 means something did not, 2 means nothing mismatched but something could not be checked.
+
+**Before a page goes on chain,** `node tools/writer/check.mjs content/pages/near-chain.json --contract court5.sireadell.testnet` runs the courtroom's own pre-judge rules on every sentence (HTTPS, size, approved list, two groups, numbers agree, key words found) and prints the text the judges would read.
 
 **To see it in a browser,** serve the `site/` folder from any static file server and open `ledger.html`. It reads the contract live, with no backend. `index.html` lets you try to sneak a lie past it.
 
@@ -70,12 +74,12 @@ Exit code 0 means everything matched, 1 means something did not, 2 means nothing
 | Courtroom program (Rust, wasm32-wasip2) | `programs/court` | 22 tests. It fetches 2 to 3 sources (HTTPS only, 8 s each, 2 MB cap). It asks 3 judges with a fixed prompt, checks each judge's signature, and stops itself at 75 s. |
 | Ruling size | same | 733 to 742 bytes with 3 judges and 2 sources. OutLayer's limit is 900. |
 | Time from request to payout callback | testnet runs | Usually 11 blocks, once 67. NEAR waits about 200 blocks. |
-| Contract | `contracts/courtroom`, rules in `contracts/rules` | Each round stores its request once, and every retry sends the same bytes. One attempt runs at a time and every attempt is published. A round is void after 3 failed runs. Sources must come from 2 independent groups on a list only the DAO account can change, and a removal takes 72 hours. 9 rule tests. |
-| Payout formula | `contracts/payout`, `docs/PAYOUT_RULE.md` | 15 property tests. On chain: a right *is* earns +24.75%, a right *likely* +12.75%, *disputed* gets the stake back, a wrong *is* loses 65.25%. |
+| Contract | `contracts/courtroom`, rules in `contracts/rules` | Each round stores its request once, and every retry sends the same bytes. One attempt runs at a time and every attempt is published. A round is void after 3 failed runs. Sources must come from 2 independent groups on a list only the DAO account can change, and a removal takes 72 hours. 17 rule tests, 15 tests of the contract itself. |
+| Payout formula | `contracts/payout`, `docs/PAYOUT_RULE.md` | 16 property tests. On chain: a right *is* earns +24.75%, a right *likely* +12.75%, *disputed* gets the stake back, a wrong *is* loses 65.25%. |
 | Checker | `tools/verify` | Node, no packages. Its keccak and signature recovery match the Rust program. Recomputes payouts and outcomes. |
 | Reproducible build | `build/reproduce.sh` | Two clean builds in different folders give the same sha256 (on Windows). |
 | Site | `site/` | "Try to lie to it", a live ledger of every ruling and every lie tried, and pages. |
-| Seed page | `content/pages/near-chain.json`, rounds 4 to 6 | A true number (two RPC providers both say 88), a false number (87), and a prose sentence checked against Wikipedia and GitHub. All three settled. |
+| Pages | `content/pages/` (3 pages), rounds 4 to 18 on `court5` | `near-chain` (rounds 4 to 6): a true number (two RPC providers both say 88), a false number (87), and a prose sentence checked against Wikipedia and GitHub. `near-tools` (rounds 7 to 12): crate and package versions from crates.io, npm and GitHub. `lagos-abuja` (rounds 13 to 18): facts from Wikidata and Wikipedia. Rounds 1 to 3 were earlier tests. All 15 page rounds settled. |
 | Accuracy test | `tools/accuracy` | 200 sentences (100 true, 100 false) with truth from Wikidata. Ready to run against real judges. |
 
 ## What it does not do
@@ -98,10 +102,29 @@ Exit code 0 means everything matched, 1 means something did not, 2 means nothing
 | Per-run Intel attestation | Proven for round 6 with OutLayer's `outlayer-verify`. Installing it needs Rust and a C compiler (`cargo install --git https://github.com/out-layer/outlayer-verify`), since OutLayer ships no ready-made copy. |
 | Judge reply words | Only each reply's fingerprint is published, so the checker cannot confirm that the reply text equals the recorded answer. |
 | Pages that change every second | An RPC status page cannot be fetched again byte for byte. The ruling keeps the extracted number and the fingerprint. |
-| Build on Linux or macOS | Not yet compared with the Windows build. |
-| Challenges, random audits, appeals | Designed, not built. |
-| Writers | The seed page was written by hand. AI writers plug in at `tools/writer`. |
+| Build on Linux or macOS | Not yet compared with the Windows build. A Linux check is written (`.github/workflows/reproducible-build.yml`) but has never run. |
+| Challenges, appeals, random audits, expiry | Built and tested (`contracts/rules/src/ladder.rs` and the tests in `contracts/courtroom`), but not yet on the `court5` testnet contract: `court5` answers "method not found" to the challenge methods. They arrive with the final contract. |
+| Writers | The three pages were written by hand. AI writers plug in at `tools/writer`. |
 | Mainnet | Nothing is deployed on mainnet yet. |
+
+## Which track this fits
+
+NEAR HACKATHON has 13 tracks. This entry fits three. The lines below are the track goals as summarised in the hackathon notes, each answered plainly.
+
+**Privacy & Private AI** (confidential computation, private finance, AI that protects data; TEE, NEAR AI Cloud)
+- Confidential computation: the courtroom program runs inside an Intel TDX chip on OutLayer. Nobody can see or change what it does while it runs.
+- NEAR AI Cloud: the three judges are NEAR AI models, called from inside the chip. Not yet run for real, because the account has no credit.
+- Private data: the program keeps its judge key secret. A script locks that key to one exact program build (`tools/lockkey`). Proven on testnet with a dummy key.
+
+**AI Security & Defense** (policy engines, reputation, scam detection; function-call keys, TEE attestation)
+- TEE attestation: every ruling carries a signed proof from the chip. The checker re-checks it offline (`proofs/`, `docs/SEALED_BOX_PROOF.md`).
+- Policy engine: fixed rules decide the outcome, not a person. Sources must come from an approved list, two independent groups, HTTPS only.
+- Scam detection: a sentence that hides an order to the judges reaches them as untrusted text in a fixed frame. Not yet tested against real models.
+
+**Open Innovation** (anything else about money, intelligence, ownership)
+- Money: writers lock a fixed stake behind each sentence and a public formula pays or takes it.
+- Intelligence: AI judges rule only on evidence the sealed program fetched itself.
+- Ownership: no owner. The contract has no upgrade method and the final deployment holds no keys.
 
 ## Run the tests
 
@@ -109,6 +132,7 @@ Exit code 0 means everything matched, 1 means something did not, 2 means nothing
 cd contracts/rules   && cargo test
 cd contracts/payout  && cargo test
 cd programs/court    && cargo test --lib
+cd contracts/courtroom && cargo test
 cd tools/verify      && node --test
 ```
 
@@ -126,7 +150,10 @@ To build the contract, run `cargo near build non-reproducible-wasm --no-abi` in 
 | `contracts/payout` | The payout formula and its tests |
 | `tools/verify` | The one-command checker |
 | `tools/archive` | Saves fetched pages by fingerprint |
-| `tools/writer` | Publishes a page: opens rounds and bonds words |
+| `tools/writer` | Publishes a page: opens rounds and bonds words. `check.mjs` checks a page before it is published |
+| `content/pages` | The three pages |
+| `proofs` | Saved sealed-box proofs that re-check offline (see `docs/SEALED_BOX_PROOF.md`) |
+| `docs` | The payout rule, the sealed-box proof, hosting notes |
 | `tools/accuracy` | The 200-sentence judge test |
 | `site` | Try to lie, ledger, pages |
 | `archive` | Page bytes that past rulings saw |
