@@ -1,4 +1,4 @@
-# Checker
+﻿# Checker
 
 One command that checks a ruling without trusting the people who made it.
 
@@ -13,4 +13,7 @@ What it checks: the contract has no keys and no method that can replace its code
 
 What it cannot check today: that a judge's reply words equal its recorded answer (only the reply fingerprint is published).
 
+Saved sealed-box proofs: the proof for each round is kept in the repo at `proofs/<contract name>/round-<id>.bundle.json` (round 6 on court5 is included). The checker picks it up on its own and re-checks it with no network and no OutLayer service, so a judge can verify the sealed-box run offline. To save a new one: add `--tx <attempt transaction hash> --save-proof`. To check a bundle by hand: `outlayer-verify bundle <file> --offline`.
+
 Tests: `node --test`.
+
