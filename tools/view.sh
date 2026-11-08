@@ -1,0 +1,3 @@
+#!/bin/bash
+c=privacy.sireadell.testnet; m=$1; a=${2:-{\}}
+curl -s -m 30 -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"query","params":{"request_type":"call_function","finality":"final","account_id":"'$c'","method_name":"'$m'","args_base64":"'$(printf '%s' "$a" | base64 -w0)'"}}' https://rpc.testnet.near.org | node -e "let d='';process.stdin.on('data',x=>d+=x).on('end',()=>{const j=JSON.parse(d);if(j.result&&j.result.result)console.log(Buffer.from(j.result.result).toString());else console.log('VIEW ERROR',JSON.stringify(j.error||j.result).slice(0,300));if(j.result&&j.result.block_height)console.error('block',j.result.block_height)})"

@@ -432,7 +432,7 @@ fn refund(o: &Sealed) {
 }
 
 impl Sealbox {
-    fn request_run(&self, input: String, deposit: NearToken) -> u64 {
+    fn request_run(&self, input: String, deposit: NearToken) -> near_sdk::PromiseIndex {
         let args = format!(
             "{{\"input_data\":{},\"payer_account_id\":{},\"resource_limits\":{{\"max_execution_seconds\":60,\"max_instructions\":1000000000,\"max_memory_mb\":128}},\"response_format\":\"Text\",\"secrets_ref\":{{\"account_id\":{},\"profile\":{}}},\"source\":{{\"WasmUrl\":{{\"build_target\":\"wasm32-wasip2\",\"hash\":{},\"url\":{}}}}}}}",
             jstr(&input),
