@@ -79,14 +79,15 @@ const MAX_WORDS_BYTES: usize = 8192;
 /// storage price per byte, in yoctoNEAR (1e19), a little above the real price
 const BYTE_COST: u128 = 10_000_000_000_000_000_000;
 
-fn wkey(id: u64) -> Vec<u8> {
-    let mut k = b"w".to_vec();
+/// kind 0 = writer pages (storage prefix "w"), kind 1 = writer instructions (prefix "i")
+fn wkey(id: u64, kind: u8) -> Vec<u8> {
+    let mut k = if kind == 1 { b"i".to_vec() } else { b"w".to_vec() };
     k.extend_from_slice(&id.to_le_bytes());
     k
 }
 
-fn load_words(id: u64) -> Vec<Words> {
-    env::storage_read(&wkey(id)).map(|v| borsh::from_slice(&v).expect("bad words")).unwrap_or_default()
+fn load_words(id: u64, kind: u8) -> Vec<Words> {
+    env::storage_read(&wkey(id, kind)).map(|v| borsh::from_slice(&v).expect("bad words")).unwrap_or_default()
 }
 
 fn words_json(w: &[Words]) -> String {
@@ -586,7 +587,7 @@ impl Sealbox {
 
     /// Seal a writer's page. `c1` and `ct` are hex, `text_hash` is the keccak256 of the plain text.
     /// The attached deposit pays for the storage and is kept.
-    fn seal_words(&mut self, batch_id: u64, c1: String, ct: String, text_hash: String) {
+    fn seal_words(&mut self, batch_id: u64, c1: String, ct: String, text_hash: String, kind: u8) {
         let b = must(load(batch_id), "unknown batch");
         if b.state != State::Open {
             die("batch not open");
@@ -603,14 +604,17 @@ impl Sealbox {
         if env::attached_deposit().as_yoctonear() < (ct.len() as u128 + 200) * BYTE_COST {
             die("deposit too small for storage");
         }
-        let mut w = load_words(batch_id);
+        let mut w = load_words(batch_id, kind);
         if w.len() >= MAX_WORDS {
             die("too many pages");
         }
         w.push(Words { from: env::predecessor_account_id(), c1, ct, text_hash });
         let n = w.len();
-        env::storage_write(&wkey(batch_id), &borsh::to_vec(&w).unwrap());
-        event("words_sealed", format!("{{\"batch\":{},\"n\":{}}}", batch_id, n));
+        env::storage_write(&wkey(batch_id, kind), &borsh::to_vec(&w).unwrap());
+        event(
+            if kind == 1 { "instructions_sealed" } else { "words_sealed" },
+            format!("{{\"batch\":{},\"n\":{}}}", batch_id, n),
+        );
     }
 
     /// After the close block: ask the chip for the key. Anyone may call.
@@ -746,7 +750,24 @@ mod exports {
     pub extern "C" fn seal_words() {
         let a = Args::read();
         let (id, c1, ct, h) = (a.u64("batch_id"), a.str("c1"), a.str("ct"), a.str("text_hash"));
-        state().seal_words(id, c1, ct, h);
+        state().seal_words(id, c1, ct, h, 0);
+    }
+
+    /// Same as seal_words, but for the instructions a writer's AI follows.
+    #[no_mangle]
+    pub extern "C" fn seal_instructions() {
+        let a = Args::read();
+        let (id, c1, ct, h) = (a.u64("batch_id"), a.str("c1"), a.str("ct"), a.str("text_hash"));
+        state().seal_words(id, c1, ct, h, 1);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn get_instructions() {
+        nodeposit("get_instructions");
+        let a = Args::read();
+        let id = a.u64("batch_id");
+        let _ = state();
+        env::value_return(words_json(&load_words(id, 1)).as_bytes());
     }
 
     #[no_mangle]
@@ -755,7 +776,7 @@ mod exports {
         let a = Args::read();
         let id = a.u64("batch_id");
         let _ = state();
-        env::value_return(words_json(&load_words(id)).as_bytes());
+        env::value_return(words_json(&load_words(id, 0)).as_bytes());
     }
 
     #[no_mangle]
