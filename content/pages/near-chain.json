@@ -1,32 +1,82 @@
 {
   "slug": "near-chain",
   "title": "NEAR mainnet, checked sentence by sentence",
-  "intro": "Each sentence below is a question the courtroom can answer from public evidence. The word before it is the chance its writer bonded on it.",
-  "written_by": "hand-seeded for the test network",
+  "intro": "Facts about the live NEAR network. The two number sentences are checked against two separate public NEAR servers. The last one is checked against Wikipedia and NEAR's own code on GitHub.",
+  "written_by": "hand-seeded for the test network on 7 November 2026",
   "sentences": [
     {
-      "writer": "w1.sireadell.testnet", "word": "is",
-      "kind": "data", "claim": "On 7 November 2026, NEAR mainnet runs protocol version 88.", "cv": "88",
+      "writer": "w1.sireadell.testnet",
+      "word": "is",
+      "kind": "data",
+      "claim": "On 7 November 2026, NEAR mainnet runs protocol version 88.",
+      "cv": "88",
       "picks": [
-        { "id": 3, "url": "https://rpc.mainnet.near.org/status", "x": "json:$.protocol_version", "tol": 0 },
-        { "id": 4, "url": "https://free.rpc.fastnear.com/status", "x": "json:$.protocol_version", "tol": 0 }
-      ], "terms": []
+        {
+          "id": 3,
+          "url": "https://rpc.mainnet.near.org/status",
+          "x": "json:$.protocol_version",
+          "tol": 0
+        },
+        {
+          "id": 4,
+          "url": "https://free.rpc.fastnear.com/status",
+          "x": "json:$.protocol_version",
+          "tol": 0
+        }
+      ],
+      "terms": []
     },
     {
-      "writer": "w2.sireadell.testnet", "word": "likely",
-      "kind": "data", "claim": "On 7 November 2026, NEAR mainnet runs protocol version 87.", "cv": "87",
+      "writer": "w2.sireadell.testnet",
+      "word": "likely",
+      "kind": "data",
+      "claim": "On 7 November 2026, NEAR mainnet runs protocol version 87.",
+      "cv": "87",
       "picks": [
-        { "id": 3, "url": "https://rpc.mainnet.near.org/status", "x": "json:$.protocol_version", "tol": 0 },
-        { "id": 4, "url": "https://free.rpc.fastnear.com/status", "x": "json:$.protocol_version", "tol": 0 }
-      ], "terms": [], "also_bond": [{ "writer": "w3.sireadell.testnet", "word": "disputed" }]
+        {
+          "id": 3,
+          "url": "https://rpc.mainnet.near.org/status",
+          "x": "json:$.protocol_version",
+          "tol": 0
+        },
+        {
+          "id": 4,
+          "url": "https://free.rpc.fastnear.com/status",
+          "x": "json:$.protocol_version",
+          "tol": 0
+        }
+      ],
+      "terms": [],
+      "also_bond": [
+        {
+          "writer": "w3.sireadell.testnet",
+          "word": "disputed"
+        }
+      ]
     },
     {
-      "writer": "w1.sireadell.testnet", "word": "very likely",
-      "kind": "prose", "claim": "NEAR is a blockchain platform.", "cv": null,
+      "writer": "w1.sireadell.testnet",
+      "word": "very likely",
+      "kind": "prose",
+      "claim": "NEAR is a blockchain platform.",
+      "cv": null,
       "picks": [
-        { "id": 5, "url": "https://en.wikipedia.org/api/rest_v1/page/summary/NEAR_Protocol", "x": "", "tol": 0 },
-        { "id": 6, "url": "https://raw.githubusercontent.com/near/nearcore/master/README.md", "x": "", "tol": 0 }
-      ], "terms": ["NEAR"]
+        {
+          "id": 5,
+          "url": "https://en.wikipedia.org/api/rest_v1/page/summary/NEAR_Protocol",
+          "x": "",
+          "tol": 0
+        },
+        {
+          "id": 6,
+          "url": "https://raw.githubusercontent.com/near/nearcore/master/README.md",
+          "x": "",
+          "tol": 0
+        }
+      ],
+      "terms": [
+        "NEAR"
+      ]
     }
   ]
 }

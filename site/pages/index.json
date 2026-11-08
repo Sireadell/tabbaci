@@ -1,7 +1,17 @@
 [
   {
+    "slug": "lagos-abuja",
+    "title": "Lagos and Abuja, checked sentence by sentence",
+    "count": 6
+  },
+  {
     "slug": "near-chain",
     "title": "NEAR mainnet, checked sentence by sentence",
     "count": 3
+  },
+  {
+    "slug": "near-tools",
+    "title": "Building on NEAR: the developer libraries, checked",
+    "count": 6
   }
 ]

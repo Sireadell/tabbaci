@@ -1,0 +1,56 @@
+{
+  "slug": "lagos-abuja",
+  "title": "Lagos and Abuja, checked sentence by sentence",
+  "intro": "Nigeria's biggest city and its capital. Each sentence is checked against Wikipedia and Wikidata, two separate projects with separate editors. Map positions are numbers, so the numbers decide them, not an AI.",
+  "written_by": "hand-seeded for the test network on 8 November 2026",
+  "sentences": [
+    {
+      "writer": "w1.sireadell.testnet", "word": "is", "expect": "T",
+      "kind": "prose", "claim": "On 8 November 2026, Abuja is the capital of Nigeria.", "cv": null,
+      "picks": [
+        { "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Abuja", "x": "", "tol": 0 },
+        { "url": "https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q3787/descriptions/en", "x": "", "tol": 0 }
+      ], "terms": ["capital"]
+    },
+    {
+      "writer": "w2.sireadell.testnet", "word": "very likely", "expect": "T",
+      "kind": "prose", "claim": "Lagos is the largest city in Nigeria.", "cv": null,
+      "picks": [
+        { "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Lagos", "x": "", "tol": 0 },
+        { "url": "https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q8673/descriptions/en", "x": "", "tol": 0 }
+      ], "terms": ["largest city"]
+    },
+    {
+      "writer": "w3.sireadell.testnet", "word": "very likely", "expect": "T",
+      "kind": "prose", "claim": "Lagos is a former capital of Nigeria. Abuja replaced it in 1991.", "cv": null,
+      "picks": [
+        { "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Abuja", "x": "", "tol": 0 },
+        { "url": "https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q8673/descriptions/en", "x": "", "tol": 0 }
+      ], "terms": ["replaced", "former capital"]
+    },
+    {
+      "writer": "w1.sireadell.testnet", "word": "is", "expect": "T",
+      "kind": "data", "claim": "Lagos lies about 6.46 degrees north of the equator.", "cv": "6.46",
+      "picks": [
+        { "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Lagos", "x": "json:$.coordinates.lat", "tol": 0.01 },
+        { "url": "https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q8673/statements?property=P625", "x": "json:$.P625[0].value.content.latitude", "tol": 0.01 }
+      ], "terms": []
+    },
+    {
+      "writer": "w2.sireadell.testnet", "word": "is", "expect": "T",
+      "kind": "data", "claim": "Lagos lies about 3.39 degrees east of Greenwich.", "cv": "3.39",
+      "picks": [
+        { "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Lagos", "x": "json:$.coordinates.lon", "tol": 0.01 },
+        { "url": "https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q8673/statements?property=P625", "x": "json:$.P625[0].value.content.longitude", "tol": 0.01 }
+      ], "terms": []
+    },
+    {
+      "writer": "w3.sireadell.testnet", "word": "likely", "expect": "T",
+      "kind": "data", "claim": "Abuja lies about 9.06 degrees north of the equator.", "cv": "9.06",
+      "picks": [
+        { "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Abuja", "x": "json:$.coordinates.lat", "tol": 0.02 },
+        { "url": "https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q3787/statements?property=P625", "x": "json:$.P625[0].value.content.latitude", "tol": 0.02 }
+      ], "terms": []
+    }
+  ]
+}

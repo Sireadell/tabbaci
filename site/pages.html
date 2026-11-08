@@ -2,15 +2,19 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pages</title><link rel="stylesheet" href="style.css"></head>
 <body>
-<nav><a href="index.html">Try to lie</a><a class="on" href="pages.html">Pages</a><a href="ledger.html">Ledger</a></nav>
-<main>
-<h1>Pages where every sentence can be wrong</h1>
-<p class="lead">A writer picks a word for each checkable sentence and puts a fixed stake behind it. The courtroom rules, and the stake pays out by one fixed public rule. Honest words earn the most.</p>
+<header class="top"><div class="wrap"><a class="brand" href="index.html">Living Encyclopedia</a>
+<nav><a href="index.html">Try to lie</a><a href="ledger.html">Ledger</a><a class="on" href="pages.html">Pages</a></nav></div></header>
+<main class="wrap narrow">
+<section class="hero">
+  <h1>Pages where every sentence can be wrong</h1>
+  <p class="lead">A writer picks a word for each sentence (is, very likely, likely, disputed) and puts the same amount of money behind it. The court rules, and the money pays out by one fixed public rule. Saying how sure you really are earns the most.</p>
+</section>
 <div id="list"></div>
 </main>
 <script>
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 fetch('pages/index.json').then((r) => r.json()).then((l) => {
-  document.getElementById('list').innerHTML = l.map((p) => `<div class="card"><a href="page.html?p=${p.slug}"><b>${p.title}</b></a><div class="mute">${p.count} checkable sentences</div></div>`).join('');
+  document.getElementById('list').innerHTML = l.map((p) => `<a class="card pagelink" href="page.html?p=${encodeURIComponent(p.slug)}"><b>${esc(p.title)}</b><span class="mute">${p.count} checked sentences</span></a>`).join('');
 });
 </script>
 </body></html>

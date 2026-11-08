@@ -2,35 +2,38 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ledger</title><link rel="stylesheet" href="style.css"></head>
 <body>
-<nav><a href="index.html">Try to lie</a><a href="pages.html">Pages</a><a class="on" href="ledger.html">Ledger</a></nav>
-<main>
-<h1>Every ruling, and every lie that was tried</h1>
-<p class="lead">This list is read live from the contract. Nobody can edit it. Each row has a command that checks that ruling from scratch.</p>
-<div class="card row">
-  <div><div class="mute">Rulings</div><div id="n-all" style="font-size:1.6rem">-</div></div>
-  <div><div class="mute">Lies tried</div><div id="n-lie" style="font-size:1.6rem">-</div></div>
-  <div><div class="mute">Lies that got through</div><div id="n-won" style="font-size:1.6rem">-</div></div>
-</div>
-<div class="row" style="margin:10px 0"><select id="f"><option value="all">All rounds</option><option value="lie_attempt">Only lies that were tried</option></select></div>
-<div class="card" style="overflow:auto"><table><thead><tr><th>#</th><th>Sentence</th><th>Ruling</th><th></th></tr></thead><tbody id="rows"><tr><td colspan="4" class="mute">Loading from the chain...</td></tr></tbody></table></div>
-<p class="mute">A "lie that got through" is a round tagged as a lie attempt that the courtroom ruled true. If this number is ever above zero it is listed here, in the open.</p>
+<header class="top"><div class="wrap"><a class="brand" href="index.html">Living Encyclopedia</a>
+<nav><a href="index.html">Try to lie</a><a class="on" href="ledger.html">Ledger</a><a href="pages.html">Pages</a></nav></div></header>
+<main class="wrap">
+<section class="hero">
+  <h1>Every ruling, and every lie that was tried</h1>
+  <p class="lead">Read live from the contract on NEAR testnet. There is no server and no way for us to hide a row. Each ruling has a command that checks it from scratch.</p>
+</section>
+<section class="strip" aria-label="Live from the contract">
+  <div><span class="big" id="n-all">-</span><span class="mute">rulings so far</span></div>
+  <div><span class="big" id="n-lie">-</span><span class="mute">lies tried</span></div>
+  <div><span class="big" id="n-won">-</span><span class="mute">lies that got through</span></div>
+  <div class="src"><label for="f" class="mute">Show</label><select id="f"><option value="all">All rounds</option><option value="lie_attempt">Only lies that were tried</option><option value="page">Only page sentences</option></select></div>
+</section>
+<div id="rows"><p class="mute">Reading the contract...</p></div>
+<p class="mute">A lie that got through is a round sent as a lie that the court ruled true. If that number is ever above zero, the round is listed here like any other.</p>
 </main>
 <script src="config.js"></script><script src="app.js"></script>
 <script>
 let rounds = [];
 function draw() {
   const only = document.getElementById('f').value;
-  const list = only === 'all' ? rounds : rounds.filter((r) => r.tag === only);
-  document.getElementById('rows').innerHTML = list.map(Site.roundRow).join('') || '<tr><td colspan="4" class="mute">Nothing here yet.</td></tr>';
+  const list = only === 'all' ? rounds : rounds.filter((r) => (r.tag || 'page') === only);
+  document.getElementById('rows').innerHTML = list.map(Site.roundRow).join('') || '<p class="mute">Nothing here yet.</p>';
 }
 Site.allRounds().then((rs) => {
   rounds = rs;
   const lies = rs.filter((r) => r.tag === 'lie_attempt');
-  document.getElementById('n-all').textContent = rs.length;
+  document.getElementById('n-all').textContent = rs.filter((r) => r.status !== 'open').length;
   document.getElementById('n-lie').textContent = lies.length;
   document.getElementById('n-won').textContent = lies.filter((r) => r.outcome === 'T').length;
   draw();
-}).catch(() => { document.getElementById('rows').innerHTML = '<tr><td colspan="4">Could not reach the chain. Try again in a moment.</td></tr>'; });
+}).catch(() => { document.getElementById('rows').innerHTML = '<p>Could not reach the chain. Try again in a moment.</p>'; });
 document.getElementById('f').addEventListener('change', draw);
 </script>
 </body></html>

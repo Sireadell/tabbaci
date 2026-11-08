@@ -1,0 +1,149 @@
+{
+    "name": "near-api-js",
+    "description": "JavaScript library to interact with NEAR Protocol via RPC API",
+    "version": "7.4.0",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/near/near-api-js.git"
+    },
+    "engines": {
+        "node": ">=22.22.2",
+        "pnpm": ">=10.4.1"
+    },
+    "packageManager": "pnpm@10.28.0",
+    "homepage": "https://github.com/near/near-api-js",
+    "type": "module",
+    "main": "./lib/index.cjs",
+    "module": "./lib/index.js",
+    "types": "./lib/index.d.ts",
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./lib/index.d.ts",
+                "default": "./lib/index.js"
+            },
+            "require": {
+                "types": "./lib/index.d.cts",
+                "default": "./lib/index.cjs"
+            }
+        },
+        "./tokens": {
+            "import": {
+                "types": "./lib/tokens/index.d.ts",
+                "default": "./lib/tokens/index.js"
+            },
+            "require": {
+                "types": "./lib/tokens/index.d.cts",
+                "default": "./lib/tokens/index.cjs"
+            }
+        },
+        "./tokens/mainnet": {
+            "import": {
+                "types": "./lib/tokens/mainnet/index.d.ts",
+                "default": "./lib/tokens/mainnet/index.js"
+            },
+            "require": {
+                "types": "./lib/tokens/mainnet/index.d.cts",
+                "default": "./lib/tokens/mainnet/index.cjs"
+            }
+        },
+        "./tokens/testnet": {
+            "import": {
+                "types": "./lib/tokens/testnet/index.d.ts",
+                "default": "./lib/tokens/testnet/index.js"
+            },
+            "require": {
+                "types": "./lib/tokens/testnet/index.d.cts",
+                "default": "./lib/tokens/testnet/index.cjs"
+            }
+        },
+        "./nep413": {
+            "import": {
+                "types": "./lib/nep413/index.d.ts",
+                "default": "./lib/nep413/index.js"
+            },
+            "require": {
+                "types": "./lib/nep413/index.d.cts",
+                "default": "./lib/nep413/index.cjs"
+            }
+        },
+        "./seed-phrase": {
+            "import": {
+                "types": "./lib/seed-phrase/index.d.ts",
+                "default": "./lib/seed-phrase/index.js"
+            },
+            "require": {
+                "types": "./lib/seed-phrase/index.d.cts",
+                "default": "./lib/seed-phrase/index.cjs"
+            }
+        },
+        "./rpc-errors": {
+            "import": {
+                "types": "./lib/rpc-errors/index.d.ts",
+                "default": "./lib/rpc-errors/index.js"
+            },
+            "require": {
+                "types": "./lib/rpc-errors/index.d.cts",
+                "default": "./lib/rpc-errors/index.cjs"
+            }
+        }
+    },
+    "dependencies": {
+        "@noble/curves": "2.2.0",
+        "@noble/hashes": "2.2.0",
+        "@noble/post-quantum": "0.6.1",
+        "@scure/base": "2.2.0",
+        "borsh": "2.0.0",
+        "is-my-json-valid": "2.20.6",
+        "near-seed-phrase": "0.2.1"
+    },
+    "devDependencies": {
+        "@arethetypeswrong/cli": "0.18.5",
+        "@biomejs/biome": "^2.5.5",
+        "@changesets/changelog-github": "0.7.0",
+        "@changesets/cli": "2.31.1",
+        "@commitlint/cli": "21.2.1",
+        "@commitlint/config-conventional": "21.2.0",
+        "@hey-api/openapi-ts": "^0.99.0",
+        "@types/node": "26.1.1",
+        "@vitest/coverage-v8": "4.1.10",
+        "@vitest/ui": "4.1.10",
+        "commitlint": "21.2.1",
+        "husky": "9.1.7",
+        "near-hello": "0.5.1",
+        "near-sandbox": "0.3.1",
+        "rimraf": "6.1.3",
+        "semver": "7.8.5",
+        "ts-node": "10.9.2",
+        "tsup": "^8.5.1",
+        "typedoc": "0.28.20",
+        "typescript": "6.0.3",
+        "vitest": "4.1.10"
+    },
+    "keywords": [],
+    "license": "(MIT AND Apache-2.0)",
+    "scripts": {
+        "compile": "tsup",
+        "dev": "pnpm compile -w",
+        "prebuild": "pnpm clean",
+        "build": "tsup",
+        "test": "vitest run test",
+        "test:formats": "pnpm build && vitest run test/unit/formats.test.ts",
+        "typecheck": "tsc --noEmit -p ./tsconfig.json",
+        "lint": "biome check",
+        "prefuzz": "pnpm build",
+        "fuzz": "jsfuzz test/fuzz/borsh-roundtrip.js test/fuzz/corpus/",
+        "clean": "pnpm rimraf lib",
+        "check-exports": "attw --pack . --ignore-rules cjs-resolves-to-esm no-resolution",
+        "docs:generate": "typedoc",
+        "autoclave": "rimraf lib && rimraf node_modules && rimraf coverage && rimraf node_modules && rimraf e2e/node_modules && rimraf e2e/coverage && rimraf e2e/tests/node_modules",
+        "release": "changeset publish",
+        "rpc:generate": "pnpm openapi-ts",
+        "postrpc:generate": "biome check --fix"
+    },
+    "files": [
+        "lib"
+    ],
+    "author": "NEAR Inc",
+    "sideEffects": false
+}
