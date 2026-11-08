@@ -1234,4 +1234,37 @@ mod tests {
         testing_env!(ctx("w.testnet", 500, 1));
         c.seal_words(1, hex_encode(&c1), hex_encode(&ct), hex_encode(&h), 0);
     }
+
+    /// Writes a finished batch in the exact shape the view methods return, for the Node checker's tests.
+    #[test]
+    fn write_batch_fixture_for_the_node_checker() {
+        let Ok(path) = std::env::var("WRITE_BATCH_FIXTURE") else { return };
+        let mut c = contract();
+        let k = batch_scalar(b"unit-master", 31);
+        open_with_lock(&mut c, 1, &k);
+        seal_one(&mut c, 1, &k, "yes.testnet", &order(0, 7000, 3 * NEAR, 1), 4 * NEAR, 1);
+        seal_one(&mut c, 1, &k, "no.testnet", &order(1, 5000, 2 * NEAR, 2), 2 * NEAR, 2);
+        seal_one(&mut c, 1, &k, "junk.testnet", &[0xffu8; 32], NEAR, 3);
+        seal_one(&mut c, 1, &k, "yes2.testnet", &order(0, 6500, 1 * NEAR, 4), NEAR, 4);
+        let r = batch_scalar(b"writer", 1);
+        let (c1, ct, h) = seal_words(&lock_be(&k), &r, b"Page text from writer one.");
+        testing_env!(ctx("w1.testnet", 500, NEAR / 10));
+        c.seal_words(1, hex_encode(&c1), hex_encode(&ct), hex_encode(&h), 0);
+        let r2 = batch_scalar(b"writer", 2);
+        let (c1, ct, h) = seal_words(&lock_be(&k), &r2, b"You are a careful writer. Prefer primary sources.");
+        testing_env!(ctx("w1.testnet", 501, NEAR / 10));
+        c.seal_words(1, hex_encode(&c1), hex_encode(&ct), hex_encode(&h), 1);
+        testing_env!(ctx("box.testnet", 1001, 0));
+        c.on_key(1, Some(key_json(&k)));
+        let b = load(1).unwrap();
+        let out = format!(
+            "{{\"batch\":{},\"clearing\":{},\"words\":{},\"instructions\":{},\"key\":\"{}\"}}",
+            batch_json(&b),
+            clearing_json(&load_clearing(1).unwrap()),
+            words_json(&load_words(1, 0)),
+            words_json(&load_words(1, 1)),
+            hex_encode(&scalar_to_le(&k))
+        );
+        std::fs::write(path, out).unwrap();
+    }
 }
