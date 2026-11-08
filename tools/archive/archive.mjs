@@ -22,7 +22,7 @@ mkdirSync(a.out, { recursive: true });
 let changed = 0;
 for (const s of v.s || []) {
   const url = input.src.find((x) => x.i === s.i).u;
-  const bytes = Buffer.from(await (await fetch(url)).arrayBuffer());
+  const bytes = Buffer.from(await (await fetch(url, { headers: { 'User-Agent': 'courtroom-fetch/0.1' } })).arrayBuffer());
   const h = createHash('sha256').update(bytes).digest('base64url');
   const hex = createHash('sha256').update(bytes).digest('hex');
   if (h === s.h) {
