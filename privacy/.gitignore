@@ -1,0 +1,5 @@
+notes/
+target/
+*.env
+.secrets/
+.tmp/
