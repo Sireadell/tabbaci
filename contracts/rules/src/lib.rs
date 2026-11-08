@@ -1,4 +1,5 @@
 //! Pure rules for a round. No blockchain calls in here, so every rule is tested on a normal computer.
+pub mod ladder;
 use serde_json::Value;
 
 pub const MAX_ATTEMPTS: usize = 3;

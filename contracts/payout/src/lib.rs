@@ -89,9 +89,31 @@ pub fn settle(entries: &[Entry], outcome: Option<Outcome>, reserve: u128) -> Set
 }
 
 fn mul_div(a: u128, b: u128, c: u128) -> u128 {
-    // a x b / c without overflow for our sizes (a, b below 2^100)
-    assert!(a < (1u128 << 100) && b < (1u128 << 100));
-    (a * b) / c
+    // a x b / c with the product held in 256 bits, rounded down. Needs c > 0 and a result below 2^128.
+    assert!(c > 0, "division by zero");
+    let m = u64::MAX as u128;
+    let (a_hi, a_lo) = (a >> 64, a & m);
+    let (b_hi, b_lo) = (b >> 64, b & m);
+    let ll = a_lo * b_lo;
+    let lh = a_lo * b_hi;
+    let hl = a_hi * b_lo;
+    let hh = a_hi * b_hi;
+    let mid = (ll >> 64) + (lh & m) + (hl & m);
+    let lo = (ll & m) | (mid << 64);
+    let hi = hh + (lh >> 64) + (hl >> 64) + (mid >> 64);
+    assert!(hi < c, "result does not fit");
+    let mut rem = hi;
+    let mut q: u128 = 0;
+    for i in (0..128).rev() {
+        let carry = rem >> 127;
+        rem = (rem << 1) | ((lo >> i) & 1);
+        q <<= 1;
+        if carry == 1 || rem >= c {
+            rem = rem.wrapping_sub(c);
+            q |= 1;
+        }
+    }
+    q
 }
 
 /// Random audit: drawn from a random seed, the sentence and the round only.

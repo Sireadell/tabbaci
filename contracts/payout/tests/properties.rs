@@ -226,3 +226,14 @@ fn every_word_resolves_and_unknown_words_do_not() {
     }
     assert_eq!(word_bps("certainly"), None);
 }
+
+#[test]
+fn scaled_gains_do_not_overflow_at_real_money_sizes() {
+    // Outcome true, 5 writers at "is" with 0.1 NEAR each and a small reserve: gains exceed the pool, so they are scaled.
+    let stake: u128 = 100_000_000_000_000_000_000_000;
+    let entries: Vec<Entry> = (0..5).map(|_| Entry { stake, chance_bps: 9500 }).collect();
+    let reserve: u128 = 10_000_000_000_000_000_000_000; // 0.01 NEAR
+    let s = settle(&entries, Some(Outcome::True), reserve);
+    let total: u128 = entries.iter().map(|e| e.stake).sum();
+    assert_eq!(s.payouts.iter().sum::<u128>() + s.reserve_after, total + reserve);
+}
