@@ -11,6 +11,7 @@ near-sdk = { version = "5", features = ["unstable"] }
 
 [dev-dependencies]
 sealcore = { path = "../sealcore" }
+substrate-bn = { version = "0.6", default-features = false }
 near-sdk = { version = "5", features = ["unstable", "unit-testing"] }
 
 [profile.release]

@@ -4,6 +4,7 @@
 //! out only the public lock `k*G` when the batch opens. Traders seal orders to that lock.
 //! After the close block the contract asks the chip for `k`, checks `k*G == lock` with
 //! NEAR's built-in curve maths, and opens every order itself.
+mod clearing;
 use near_sdk::borsh;
 use near_sdk::{env, near, AccountId, Gas, GasWeight, NearToken, PanicOnDefault};
 
@@ -12,6 +13,9 @@ const MAX_ORDERS: usize = 100;
 const MAX_KEY_ATTEMPTS: u8 = 3;
 const CALLBACK_GAS: Gas = Gas::from_tgas(30);
 const OVERHEAD_GAS: Gas = Gas::from_tgas(15);
+/// Gas handed to the chip request. Everything else goes to the callback that opens and clears the
+/// batch (about 155 Tgas for 100 orders in the unit-test host). Not yet run on the real network.
+const REQUEST_GAS: Gas = Gas::from_tgas(100);
 
 /// The curve's base point G = (1, 2), in the little-endian layout NEAR's host function wants.
 const G_LE: [u8; 64] = {
@@ -290,6 +294,39 @@ fn batch_json(b: &Batch) -> String {
     )
 }
 
+/// What the one-price clearing did to a batch: price, matched shares, and per order (shares, cost).
+#[near(serializers = [borsh])]
+#[derive(Clone)]
+pub struct Clearing {
+    pub price_bp: u16,
+    pub matched: u128,
+    pub fills: Vec<(u128, u128)>,
+}
+
+fn ckey(id: u64) -> Vec<u8> {
+    let mut k = b"c".to_vec();
+    k.extend_from_slice(&id.to_le_bytes());
+    k
+}
+
+fn save_clearing(id: u64, c: &Clearing) {
+    env::storage_write(&ckey(id), &borsh::to_vec(c).unwrap());
+}
+
+fn load_clearing(id: u64) -> Option<Clearing> {
+    env::storage_read(&ckey(id)).map(|v| borsh::from_slice(&v).expect("bad clearing"))
+}
+
+fn clearing_json(c: &Clearing) -> String {
+    let fills: Vec<String> = c.fills.iter().map(|(s, k)| format!("[\"{}\",\"{}\"]", s, k)).collect();
+    format!(
+        "{{\"price_bp\":{},\"matched\":\"{}\",\"fills\":[{}]}}",
+        c.price_bp,
+        c.matched,
+        fills.join(",")
+    )
+}
+
 fn bkey(id: u64) -> Vec<u8> {
     let mut k = b"b".to_vec();
     k.extend_from_slice(&id.to_le_bytes());
@@ -487,7 +524,7 @@ impl Sealbox {
             jstr(&self.program_hash),
             jstr(&self.program_url),
         );
-        let gas = env::prepaid_gas().saturating_sub(CALLBACK_GAS).saturating_sub(OVERHEAD_GAS);
+        let gas = REQUEST_GAS;
         let p = env::promise_batch_create(&OUTLAYER.parse::<AccountId>().unwrap());
         env::promise_batch_action_function_call_weight(
             p,
@@ -495,7 +532,7 @@ impl Sealbox {
             args.as_bytes(),
             deposit,
             gas,
-            GasWeight(1),
+            GasWeight(0),
         );
         p
     }
@@ -505,12 +542,13 @@ impl Sealbox {
         let p = self.request_run(input, deposit);
         let me = env::current_account_id();
         let q = env::promise_batch_then(p, &me);
-        env::promise_batch_action_function_call(
+        env::promise_batch_action_function_call_weight(
             q,
             method,
             format!("{{\"batch_id\":{}}}", batch_id).as_bytes(),
             NearToken::from_yoctonear(0),
             CALLBACK_GAS,
+            GasWeight(1),
         );
         env::promise_return(q);
     }
@@ -540,6 +578,9 @@ impl Sealbox {
 
     fn on_lock(&mut self, batch_id: u64, result: Option<String>) {
         let mut b = must(load(batch_id), "unknown batch");
+        if b.state != State::WaitingForLock {
+            return;
+        }
         match field(result, "lock").filter(|l| l.len() == 64) {
             Some(l) => {
                 b.lock = l.clone();
@@ -636,6 +677,11 @@ impl Sealbox {
 
     fn on_key(&mut self, batch_id: u64, result: Option<String>) {
         let mut b = must(load(batch_id), "unknown batch");
+        // Anyone may call release() more than once. Only the first answer may open the batch,
+        // otherwise a second answer would pay the refunds out a second time.
+        if b.state != State::Open {
+            return;
+        }
         let start = env::used_gas();
         let key = field(result, "key").filter(|k| k.len() == 32 && key_matches_lock(k, &b.lock));
         let Some(key) = key else {
@@ -682,6 +728,37 @@ impl Sealbox {
                 }
             }
         }
+        // One price for the whole batch. Money that is not spent goes back to the trader now;
+        // the spent money stays in the contract as the backing for the shares.
+        let reqs: Vec<clearing::Req> = opened
+            .iter()
+            .map(|o| clearing::Req {
+                side: o.side,
+                limit_bp: o.price_bp,
+                amount: o.amount.as_yoctonear(),
+            })
+            .collect();
+        let cleared = clearing::clear(&reqs);
+        let mut fills: Vec<(u128, u128)> = Vec::with_capacity(opened.len());
+        for (i, o) in b.orders.iter().enumerate() {
+            let f = cleared.fills[i];
+            fills.push((f.shares, f.cost));
+            if opened[i].status == 0 {
+                let back = o.deposit.as_yoctonear() - f.cost;
+                if back > 0 {
+                    let p = env::promise_batch_create(&o.from);
+                    env::promise_batch_action_transfer(p, NearToken::from_yoctonear(back));
+                }
+            }
+        }
+        save_clearing(batch_id, &Clearing { price_bp: cleared.price_bp, matched: cleared.matched, fills });
+        event(
+            "batch_cleared",
+            format!(
+                "{{\"batch\":{},\"matched\":\"{}\",\"price_bp\":{}}}",
+                batch_id, cleared.matched, cleared.price_bp
+            ),
+        );
         let end = env::used_gas();
         b.state = State::Opened;
         b.opened = opened;
@@ -808,6 +885,20 @@ mod exports {
         env::value_return(out.as_bytes());
     }
 
+    /// The one-price result of an opened batch, or null.
+    #[no_mangle]
+    pub extern "C" fn get_clearing() {
+        nodeposit("get_clearing");
+        let a = Args::read();
+        let id = a.u64("batch_id");
+        let _ = state();
+        let out = match load_clearing(id) {
+            None => "null".to_string(),
+            Some(c) => clearing_json(&c),
+        };
+        env::value_return(out.as_bytes());
+    }
+
     /// Used by the chip to double-check that a batch has really closed. Public data only.
     #[no_mangle]
     pub extern "C" fn close_height() {
@@ -897,5 +988,250 @@ mod tests {
         assert!(parse_order(&order(2, 5000, 10, 0)).is_none());
         assert!(parse_order(&order(0, 0, 10, 0)).is_none());
         assert!(parse_order(&order(0, 10_000, 10, 0)).is_none());
+    }
+
+    // ---- whole-batch tests on the contract's own code (the chip is replaced by sealcore's maths) ----
+
+    const NEAR: u128 = 1_000_000_000_000_000_000_000_000;
+
+    fn ctx(pred: &str, height: u64, deposit: u128) -> near_sdk::VMContext {
+        VMContextBuilder::new()
+            .current_account_id(acct("box.testnet"))
+            .predecessor_account_id(acct(pred))
+            .signer_account_id(acct(pred))
+            .block_height(height)
+            .attached_deposit(NearToken::from_yoctonear(deposit))
+            .prepaid_gas(Gas::from_tgas(900))
+            .account_balance(NearToken::from_near(100_000))
+            .build()
+    }
+
+    fn contract() -> Sealbox {
+        Sealbox {
+            program_url: "https://example.org/p.wasm".into(),
+            program_hash: "0".repeat(64),
+            secrets_account: acct("seal.testnet"),
+            secrets_profile: "k".into(),
+        }
+    }
+
+    fn lock_json(k: &substrate_bn::Fr) -> String {
+        format!("{{\"lock\":\"{}\"}}", hex_encode(&lock_le(k)))
+    }
+
+    fn key_json(k: &substrate_bn::Fr) -> String {
+        format!("{{\"key\":\"{}\"}}", hex_encode(&scalar_to_le(k)))
+    }
+
+    fn open_with_lock(c: &mut Sealbox, id: u64, k: &substrate_bn::Fr) {
+        testing_env!(ctx("anyone.testnet", 100, 0));
+        // open_batch itself only starts the chip request, which the unit-test host cannot run
+        save(
+            id,
+            &Batch { close_height: 1000, state: State::WaitingForLock, lock: vec![], key_attempts: 0, orders: vec![], opened: vec![] },
+        );
+        c.on_lock(id, Some(lock_json(k)));
+        assert!(load(id).unwrap().state == State::Open);
+    }
+
+    fn seal_one(c: &mut Sealbox, id: u64, k: &substrate_bn::Fr, who: &str, o: &[u8; 32], deposit: u128, seed: u64) {
+        let r = batch_scalar(b"trader", seed);
+        let (c1, ct) = seal(&lock_be(k), &r, o);
+        testing_env!(ctx(who, 500, deposit));
+        c.seal(id, hex_encode(&c1), hex_encode(&ct));
+    }
+
+    /// Total moved to each account by receipts created so far in the current call.
+    fn paid_out() -> std::collections::BTreeMap<String, u128> {
+        use near_sdk::mock::MockAction;
+        let mut m = std::collections::BTreeMap::new();
+        for r in near_sdk::test_utils::get_created_receipts() {
+            for a in r.actions {
+                if let MockAction::Transfer { deposit, .. } = a {
+                    *m.entry(r.receiver_id.to_string()).or_insert(0u128) += deposit.as_yoctonear();
+                }
+            }
+        }
+        m
+    }
+
+    #[test]
+    fn a_whole_batch_opens_clears_and_pays_back_the_unspent_money() {
+        let mut c = contract();
+        let k = batch_scalar(b"unit-master", 11);
+        open_with_lock(&mut c, 1, &k);
+        seal_one(&mut c, 1, &k, "yes.testnet", &order(0, 7000, 3 * NEAR, 1), 4 * NEAR, 1);
+        seal_one(&mut c, 1, &k, "no.testnet", &order(1, 5000, 2 * NEAR, 2), 2 * NEAR, 2);
+        testing_env!(ctx("anyone.testnet", 1001, 0));
+        testing_env!(ctx("box.testnet", 1002, 0));
+        c.on_key(1, Some(key_json(&k)));
+        let b = load(1).unwrap();
+        assert!(b.state == State::Opened);
+        assert_eq!(b.opened.len(), 2);
+        let cl = load_clearing(1).unwrap();
+        assert!(cl.price_bp >= 5000 && cl.price_bp <= 7000, "price {}", cl.price_bp);
+        assert_eq!(cl.fills[0].0, cl.fills[1].0);
+        assert_eq!(cl.fills[0].0, cl.matched);
+        let paid = paid_out();
+        assert_eq!(paid.get("yes.testnet").copied().unwrap_or(0), 4 * NEAR - cl.fills[0].1);
+        assert_eq!(paid.get("no.testnet").copied().unwrap_or(0), 2 * NEAR - cl.fills[1].1);
+        assert!(cl.fills[0].1 + cl.fills[1].1 >= cl.matched);
+    }
+
+    #[test]
+    #[should_panic(expected = "batch not closed yet")]
+    fn early_reveal_is_refused() {
+        let mut c = contract();
+        let k = batch_scalar(b"unit-master", 12);
+        open_with_lock(&mut c, 1, &k);
+        testing_env!(ctx("anyone.testnet", 999, 0));
+        c.release(1);
+    }
+
+    #[test]
+    #[should_panic(expected = "batch closed")]
+    fn sealing_after_the_close_block_is_refused() {
+        let mut c = contract();
+        let k = batch_scalar(b"unit-master", 13);
+        open_with_lock(&mut c, 1, &k);
+        let r = batch_scalar(b"trader", 1);
+        let (c1, ct) = seal(&lock_be(&k), &r, &order(0, 6000, NEAR, 3));
+        testing_env!(ctx("late.testnet", 1000, NEAR));
+        c.seal(1, hex_encode(&c1), hex_encode(&ct));
+    }
+
+    #[test]
+    fn withheld_key_three_times_voids_the_batch_and_returns_every_deposit() {
+        let mut c = contract();
+        let k = batch_scalar(b"unit-master", 14);
+        open_with_lock(&mut c, 1, &k);
+        seal_one(&mut c, 1, &k, "a.testnet", &order(0, 6000, NEAR, 4), NEAR, 1);
+        seal_one(&mut c, 1, &k, "b.testnet", &order(1, 6000, NEAR, 5), 2 * NEAR, 2);
+        testing_env!(ctx("box.testnet", 1001, 0));
+        c.on_key(1, None);
+        assert!(load(1).unwrap().state == State::Open);
+        c.on_key(1, None);
+        assert!(load(1).unwrap().state == State::Open);
+        c.on_key(1, None);
+        assert!(load(1).unwrap().state == State::Void);
+        let paid = paid_out();
+        assert_eq!(paid["a.testnet"], NEAR);
+        assert_eq!(paid["b.testnet"], 2 * NEAR);
+    }
+
+    #[test]
+    fn a_wrong_key_counts_as_withheld() {
+        let mut c = contract();
+        let k = batch_scalar(b"unit-master", 15);
+        open_with_lock(&mut c, 1, &k);
+        seal_one(&mut c, 1, &k, "a.testnet", &order(0, 6000, NEAR, 6), NEAR, 1);
+        testing_env!(ctx("box.testnet", 1001, 0));
+        c.on_key(1, Some(key_json(&batch_scalar(b"unit-master", 16))));
+        let b = load(1).unwrap();
+        assert!(b.state == State::Open);
+        assert_eq!(b.key_attempts, 1);
+        assert!(b.opened.is_empty());
+    }
+
+    #[test]
+    fn garbage_order_is_refunded_in_full_and_the_rest_still_clears() {
+        let mut c = contract();
+        let k = batch_scalar(b"unit-master", 17);
+        open_with_lock(&mut c, 1, &k);
+        seal_one(&mut c, 1, &k, "junk.testnet", &[0xffu8; 32], 3 * NEAR, 1);
+        seal_one(&mut c, 1, &k, "liar.testnet", &order(0, 6000, 9 * NEAR, 7), NEAR, 2);
+        seal_one(&mut c, 1, &k, "yes.testnet", &order(0, 8000, 2 * NEAR, 8), 2 * NEAR, 3);
+        seal_one(&mut c, 1, &k, "no.testnet", &order(1, 8000, 2 * NEAR, 9), 2 * NEAR, 4);
+        testing_env!(ctx("box.testnet", 1001, 0));
+        c.on_key(1, Some(key_json(&k)));
+        let b = load(1).unwrap();
+        assert_eq!(b.opened.iter().map(|o| o.status).collect::<Vec<_>>(), vec![1, 1, 0, 0]);
+        let paid = paid_out();
+        assert_eq!(paid["junk.testnet"], 3 * NEAR);
+        assert_eq!(paid["liar.testnet"], NEAR);
+        assert!(load_clearing(1).unwrap().matched > 0);
+    }
+
+    #[test]
+    fn a_second_answer_cannot_pay_refunds_twice() {
+        let mut c = contract();
+        let k = batch_scalar(b"unit-master", 18);
+        open_with_lock(&mut c, 1, &k);
+        seal_one(&mut c, 1, &k, "junk.testnet", &[0xffu8; 32], 3 * NEAR, 1);
+        seal_one(&mut c, 1, &k, "yes.testnet", &order(0, 8000, 2 * NEAR, 8), 2 * NEAR, 3);
+        testing_env!(ctx("box.testnet", 1001, 0));
+        c.on_key(1, Some(key_json(&k)));
+        assert!(!paid_out().is_empty());
+        testing_env!(ctx("box.testnet", 1002, 0));
+        c.on_key(1, Some(key_json(&k)));
+        assert!(paid_out().is_empty(), "a second answer must pay nothing");
+    }
+
+    #[test]
+    fn no_trade_when_prices_never_meet_and_everyone_gets_everything_back() {
+        let mut c = contract();
+        let k = batch_scalar(b"unit-master", 19);
+        open_with_lock(&mut c, 1, &k);
+        seal_one(&mut c, 1, &k, "a.testnet", &order(0, 3000, 2 * NEAR, 10), 2 * NEAR, 1);
+        seal_one(&mut c, 1, &k, "b.testnet", &order(1, 3000, 2 * NEAR, 11), 2 * NEAR, 2);
+        testing_env!(ctx("box.testnet", 1001, 0));
+        c.on_key(1, Some(key_json(&k)));
+        let cl = load_clearing(1).unwrap();
+        assert_eq!((cl.price_bp, cl.matched), (0, 0));
+        let paid = paid_out();
+        assert_eq!(paid["a.testnet"], 2 * NEAR);
+        assert_eq!(paid["b.testnet"], 2 * NEAR);
+    }
+
+    #[test]
+    fn a_full_batch_of_100_clears_inside_the_gas_budget() {
+        let mut c = contract();
+        let k = batch_scalar(b"unit-master", 20);
+        open_with_lock(&mut c, 1, &k);
+        for i in 0..100u64 {
+            let who = format!("t{}.testnet", i);
+            let o = order((i % 2) as u8, 4000 + (i as u16 * 37) % 5000, (1 + i as u128 % 5) * NEAR, i as u8);
+            seal_one(&mut c, 1, &k, &who, &o, 6 * NEAR, 1000 + i);
+        }
+        testing_env!(ctx("box.testnet", 1001, 0));
+        let before = env::used_gas();
+        c.on_key(1, Some(key_json(&k)));
+        let used = env::used_gas().as_gas() - before.as_gas();
+        println!("GAS open and clear 100 orders: {:.1} Tgas", used as f64 / 1e12);
+        assert!(used < 270_000_000_000_000, "too close to the 300 Tgas limit");
+        let cl = load_clearing(1).unwrap();
+        assert_eq!(cl.fills.len(), 100);
+        let (mut ys, mut ns) = (0u128, 0u128);
+        for (i, f) in cl.fills.iter().enumerate() {
+            if i % 2 == 0 { ys += f.0 } else { ns += f.0 }
+        }
+        assert_eq!(ys, ns);
+    }
+
+    #[test]
+    fn sealed_pages_open_with_the_key_and_match_their_hash() {
+        let mut c = contract();
+        let k = batch_scalar(b"unit-master", 21);
+        open_with_lock(&mut c, 1, &k);
+        let r = batch_scalar(b"writer", 1);
+        let (c1, ct, h) = seal_words(&lock_be(&k), &r, b"my page text");
+        testing_env!(ctx("w.testnet", 500, NEAR / 10));
+        c.seal_words(1, hex_encode(&c1), hex_encode(&ct), hex_encode(&h), 0);
+        assert_eq!(load_words(1, 0).len(), 1);
+        let plain = open_words(&k, &c1, &ct).unwrap();
+        assert_eq!(plain, b"my page text");
+        assert_eq!(keccak(&plain), h);
+    }
+
+    #[test]
+    #[should_panic(expected = "deposit too small for storage")]
+    fn sealed_page_with_too_little_deposit_is_refused() {
+        let mut c = contract();
+        let k = batch_scalar(b"unit-master", 22);
+        open_with_lock(&mut c, 1, &k);
+        let r = batch_scalar(b"writer", 2);
+        let (c1, ct, h) = seal_words(&lock_be(&k), &r, b"my page text");
+        testing_env!(ctx("w.testnet", 500, 1));
+        c.seal_words(1, hex_encode(&c1), hex_encode(&ct), hex_encode(&h), 0);
     }
 }
