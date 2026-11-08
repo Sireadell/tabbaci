@@ -1,0 +1,38 @@
+﻿name: reproducible-build
+
+# Builds the courtroom program and the contract twice from separate clean copies on Linux
+# and fails if the two fingerprints differ. Also prints the Windows reference fingerprints for comparison.
+on:
+  workflow_dispatch:
+  push:
+    paths: ['programs/court/**', 'contracts/**', 'build/**', '.github/workflows/reproducible-build.yml']
+
+jobs:
+  linux-twice:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the same Rust version the recorded builds used
+        run: |
+          rustup toolchain install 1.99.1 --profile minimal --target wasm32-wasip2 --target wasm32-unknown-unknown
+          rustup default 1.99.1
+          rustc --version
+      - name: Program, build one
+        run: FEATURES=standin ./build/reproduce.sh | tee program1.txt
+      - name: Program, build two (different folder, new temp dir)
+        run: FEATURES=standin ./build/reproduce.sh | tee program2.txt
+      - name: Contract, build one
+        run: ./build/reproduce-contract.sh | tee contract1.txt
+      - name: Contract, build two
+        run: ./build/reproduce-contract.sh | tee contract2.txt
+      - name: Both pairs must be identical
+        run: |
+          diff <(cut -d' ' -f1 program1.txt) <(cut -d' ' -f1 program2.txt)
+          diff <(cut -d' ' -f1 contract1.txt) <(cut -d' ' -f1 contract2.txt)
+          echo "program  (standin build) $(cut -d' ' -f1 program1.txt)"
+          echo "contract                 $(cut -d' ' -f1 contract1.txt)"
+      - name: Compare with the Windows reference (reported, not enforced)
+        run: |
+          ref=aa5ed46ffc58efc94921daa224f95b88d584599e6a05daf7ee0e427ffc2885f1
+          got=$(cut -d' ' -f1 program1.txt)
+          if [ "$got" = "$ref" ]; then echo "Linux program build equals the Windows reference"; else echo "Linux program build differs from the Windows reference ($ref)"; fi
