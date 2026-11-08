@@ -19,6 +19,8 @@ fn acc(s: &str) -> AccountId {
 struct World {
     c: Courtroom,
     bh: u64,
+    /// chain clock in nanoseconds
+    ts: u64,
     /// every yoctoNEAR that ever entered the contract
     money_in: u128,
 }
@@ -29,7 +31,7 @@ impl World {
         near_sdk::mock::with_mocked_blockchain(|b| {
             let _ = b.take_storage();
         });
-        let mut w = World { c: unsafe_placeholder(), bh: 10, money_in: 0 };
+        let mut w = World { c: unsafe_placeholder(), bh: 10, ts: 0, money_in: 0 };
         w.as_("dao.t", 0);
         let top: Vec<String> = (0..top_judges).map(|i| format!("top-{i}")).collect();
         w.c = Courtroom::new(
@@ -60,6 +62,7 @@ impl World {
         b.predecessor_account_id(acc(who))
             .current_account_id(acc("court.t"))
             .block_height(self.bh)
+            .block_timestamp(self.ts)
             .attached_deposit(NearToken::from_yoctonear(deposit))
             .prepaid_gas(Gas::from_tgas(900))
             .random_seed([7u8; 32]);
@@ -477,9 +480,21 @@ fn audit_drawn_inside_the_contract_uses_the_chain_seed() {
 
 // ---------------------------------------------------------------- every refusal
 
-fn refuses<F: FnOnce() + std::panic::UnwindSafe>(f: F, why: &str) {
+/// The call must panic AND the panic text must contain `want`, so a refusal for the wrong reason fails the test.
+fn refuses<F: FnOnce() + std::panic::UnwindSafe>(f: F, want: &str) {
     let r = std::panic::catch_unwind(f);
-    assert!(r.is_err(), "should have refused: {why}");
+    let e = match r {
+        Ok(_) => panic!("should have refused with: {want}"),
+        Err(e) => e,
+    };
+    let got = if let Some(s) = e.downcast_ref::<String>() {
+        s.clone()
+    } else if let Some(s) = e.downcast_ref::<&str>() {
+        s.to_string()
+    } else {
+        String::from("(unreadable panic)")
+    };
+    assert!(got.contains(want), "refused for the wrong reason: wanted \"{want}\", got \"{got}\"");
 }
 
 #[test]
@@ -498,51 +513,51 @@ fn every_challenge_refusal() {
     {
         let mut w = funded_world(0);
         let r = w.open();
-        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3]); }), "no ruling yet");
+        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3]); }), "no ruling to challenge");
     }
     {
         let mut w = funded_world(0);
         let r = w.open();
         w.run(r, Some("U"));
-        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3]); }), "unsure ruling");
+        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3]); }), "no ruling to challenge");
     }
     {
         let (mut w, r) = ruled();
         w.advance(WINDOW);
-        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3]); }), "window closed");
+        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3]); }), "challenge window is closed");
     }
     {
         let (mut w, r) = ruled();
         w.challenge("ch1.t", r, &[1, 2, 3]);
-        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch2.t", r, &[1, 2, 3, 4]); }), "a re-run is open");
+        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch2.t", r, &[1, 2, 3, 4]); }), "re-run is already open");
     }
     {
         let (mut w, r) = ruled();
-        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2]); }), "no new source");
+        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2]); }), "add at least one new source");
     }
     {
         let (mut w, r) = ruled();
-        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 3]); }), "drops an earlier source");
+        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 3]); }), "keep every earlier source");
     }
     {
         let (mut w, r) = ruled();
-        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3, 3]); }), "duplicate source");
+        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3, 3]); }), "picked once");
     }
     {
         let (mut w, r) = ruled();
-        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 99]); }), "source not approved");
+        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 99]); }), "not on the approved list");
     }
     {
         let (mut w, r) = ruled();
         w.as_("ch1.t", 0);
         let mut p = World::picks(&[1, 2, 3]);
         p[2].url = "https://evil.example/x".into();
-        refuses(std::panic::AssertUnwindSafe(|| { w.c.challenge(r, p); }), "url outside the source");
+        refuses(std::panic::AssertUnwindSafe(|| { w.c.challenge(r, p); }), "outside the approved source");
     }
     {
         let (mut w, r) = ruled();
         w.as_("poor.t", 0);
-        refuses(std::panic::AssertUnwindSafe(|| { w.c.challenge(r, World::picks(&[1, 2, 3])); }), "no balance for the bond");
+        refuses(std::panic::AssertUnwindSafe(|| { w.c.challenge(r, World::picks(&[1, 2, 3])); }), "not enough balance for the challenge bond");
     }
     {
         let (mut w, r) = ruled();
@@ -550,9 +565,9 @@ fn every_challenge_refusal() {
         // but removing a source schedules it out, and after 72 hours it cannot be used
         w.as_("dao.t", 0);
         w.c.remove_source(3);
-        w.bh += 1_000_000;
+        w.ts += 73 * 3600 * 1_000_000_000; // 73 hours later, still inside the challenge window
         w.as_("ch1.t", 0);
-        refuses(std::panic::AssertUnwindSafe(|| { w.c.challenge(r, World::picks(&[1, 2, 3])); }), "source removed");
+        refuses(std::panic::AssertUnwindSafe(|| { w.c.challenge(r, World::picks(&[1, 2, 3])); }), "source has been removed");
     }
     {
         // top of the ladder: a fourth challenge is refused
@@ -563,14 +578,14 @@ fn every_challenge_refusal() {
         w.run(c2, Some("T"));
         let c3 = w.challenge("ch3.t", r, &[1, 2, 3, 4, 5]);
         w.run(c3, Some("F"));
-        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3, 4, 5, 6]); }), "past the top");
+        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3, 4, 5, 6]); }), "challenge window is closed"); // the window shuts at the top rung, so this fires before the explicit top-rung check
         w.finalize(r);
-        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3, 4, 5, 6]); }), "after the end");
+        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3, 4, 5, 6]); }), "already finished");
     }
     {
         // more than five sources
         let (mut w, r) = ruled();
-        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3, 4, 5, 6]); }), "six sources");
+        refuses(std::panic::AssertUnwindSafe(|| { w.challenge("ch1.t", r, &[1, 2, 3, 4, 5, 6]); }), "at most 5 sources");
     }
 }
 
@@ -579,57 +594,107 @@ fn every_finalize_and_expire_and_bond_refusal() {
     {
         let mut w = funded_world(0);
         let r = w.open();
-        refuses(std::panic::AssertUnwindSafe(|| w.finalize(r)), "finalize without a ruling");
-        refuses(std::panic::AssertUnwindSafe(|| w.finalize(999)), "finalize unknown round");
+        refuses(std::panic::AssertUnwindSafe(|| w.finalize(r)), "no ruling to finish");
+        refuses(std::panic::AssertUnwindSafe(|| w.finalize(999)), "unknown round");
     }
     {
         let mut w = funded_world(0);
         let r = w.open();
         w.run(r, Some("T"));
-        refuses(std::panic::AssertUnwindSafe(|| w.finalize(r)), "window still open");
+        refuses(std::panic::AssertUnwindSafe(|| w.finalize(r)), "window is still open");
         let c1 = w.challenge("ch1.t", r, &[1, 2, 3]);
         w.advance(WINDOW + 1);
-        refuses(std::panic::AssertUnwindSafe(|| w.finalize(r)), "re-run still open");
+        refuses(std::panic::AssertUnwindSafe(|| w.finalize(r)), "re-run is still open");
         w.run(c1, Some("T"));
-        refuses(std::panic::AssertUnwindSafe(|| w.finalize(r)), "window restarted after the re-run");
+        refuses(std::panic::AssertUnwindSafe(|| w.finalize(r)), "window is still open");
         w.advance(WINDOW);
         w.finalize(r);
-        refuses(std::panic::AssertUnwindSafe(|| w.finalize(r)), "finalize twice");
+        refuses(std::panic::AssertUnwindSafe(|| w.finalize(r)), "already finished");
     }
     {
         let mut w = funded_world(0);
         let r = w.open();
         w.run(r, Some("T"));
         w.as_("anyone.t", 0);
-        refuses(std::panic::AssertUnwindSafe(|| w.c.expire_round(r)), "expire a closed round");
-        refuses(std::panic::AssertUnwindSafe(|| w.c.expire_round(999)), "expire unknown");
+        refuses(std::panic::AssertUnwindSafe(|| w.c.expire_round(r)), "already closed");
+        refuses(std::panic::AssertUnwindSafe(|| w.c.expire_round(999)), "unknown round");
     }
     {
         let mut w = funded_world(0);
         let r = w.open();
         w.run(r, Some("T"));
-        refuses(std::panic::AssertUnwindSafe(|| w.bond("w1.t", r, "is")), "bond after ruling");
+        refuses(std::panic::AssertUnwindSafe(|| w.bond("w1.t", r, "is")), "bonds close when the first attempt starts");
         let r2 = w.open();
         w.bond("w1.t", r2, "is");
-        refuses(std::panic::AssertUnwindSafe(|| w.bond("w1.t", r2, "likely")), "double bond");
-        refuses(std::panic::AssertUnwindSafe(|| w.bond("w2.t", r2, "certain")), "bad word");
-        refuses(std::panic::AssertUnwindSafe(|| w.bond("poor.t", r2, "is")), "no balance");
+        refuses(std::panic::AssertUnwindSafe(|| w.bond("w1.t", r2, "likely")), "already bonded");
+        refuses(std::panic::AssertUnwindSafe(|| w.bond("w2.t", r2, "certain")), "word must be");
+        refuses(std::panic::AssertUnwindSafe(|| w.bond("poor.t", r2, "is")), "not enough balance for the stake");
         // an audit or challenge round takes no word bonds
         let mut w = funded_world(10_000);
         let r = w.open();
         w.run(r, Some("T"));
         let a = w.c.get_case(r).unwrap().audit_round.unwrap();
-        refuses(std::panic::AssertUnwindSafe(|| w.bond("w1.t", a, "is")), "bond on an audit");
+        refuses(std::panic::AssertUnwindSafe(|| w.bond("w1.t", a, "is")), "original ruling only");
     }
-    {
-        // the ladder settings are checked at start
-        let r = std::panic::catch_unwind(|| World::new(10_001, 5));
-        assert!(r.is_err(), "audit rate above 100%");
-        let r = std::panic::catch_unwind(|| World::new(0, 4));
-        assert!(r.is_err(), "4 top judges");
-        let r = std::panic::catch_unwind(|| World::new(0, 2));
-        assert!(r.is_err(), "2 top judges");
+}
+
+/// Build a contract with one ladder setting changed, to see which refusal it gets.
+fn new_with(change: impl FnOnce(&mut LadderConfig, &mut Vec<String>) + std::panic::UnwindSafe) {
+    let mut b = VMContextBuilder::new();
+    b.predecessor_account_id(acc("dao.t")).current_account_id(acc("court.t"));
+    testing_env!(b.build());
+    let mut l = LadderConfig {
+        top_models: (0..5).map(|i| format!("top-{i}")).collect(),
+        challenge_base: U128(BASE),
+        window_blocks: WINDOW,
+        run_deadline_blocks: RUN_DEADLINE,
+        pending_timeout_blocks: PENDING_TIMEOUT,
+        audit_rate_bps: 0,
+    };
+    let mut models: Vec<String> = vec!["m1".into(), "m2".into(), "m3".into()];
+    change(&mut l, &mut models);
+    Courtroom::new(acc("dao.t"), "u".into(), "a".repeat(64), models, None, None, U128(STAKE), l);
+}
+
+#[test]
+fn every_start_up_refusal() {
+    new_with(|_, _| {}); // the unchanged setup is fine
+    refuses(|| new_with(|l, _| l.audit_rate_bps = 10_001), "audit rate is at most 10000 basis points");
+    new_with(|l, _| l.audit_rate_bps = 10_000); // the edge itself is allowed
+    refuses(|| new_with(|l, _| l.top_models.truncate(4)), "the top rung needs 5 judge models");
+    refuses(|| new_with(|l, _| l.top_models.truncate(2)), "the top rung needs 5 judge models");
+    refuses(|| new_with(|l, _| l.window_blocks = 0), "deadlines must be above zero");
+    refuses(|| new_with(|l, _| l.run_deadline_blocks = 0), "deadlines must be above zero");
+    refuses(|| new_with(|l, _| l.pending_timeout_blocks = 0), "deadlines must be above zero");
+    refuses(|| new_with(|l, _| l.challenge_base = U128(0)), "challenge bond must be above zero");
+    refuses(|| new_with(|_, m| m.truncate(2)), "exactly 3 judge models");
+}
+
+#[test]
+fn the_most_bonds_allowed_per_sentence() {
+    let mut w = World::new(0, 5);
+    let r = w.open();
+    for i in 0..MAX_BONDS {
+        let who = format!("bonder{i}.t");
+        w.fund(&who, NEAR);
+        w.bond(&who, r, "is");
     }
+    w.fund("late.t", NEAR);
+    refuses(std::panic::AssertUnwindSafe(|| w.bond("late.t", r, "is")), "already has the most bonds allowed");
+}
+
+#[test]
+fn a_run_that_may_still_finish_cannot_be_expired_early() {
+    let mut w = funded_world(0);
+    let r = w.open();
+    w.as_("anyone.t", 0);
+    w.c.begin_attempt(r); // started, no answer yet
+    w.advance(PENDING_TIMEOUT - 1);
+    w.as_("anyone.t", 0);
+    refuses(std::panic::AssertUnwindSafe(|| w.c.expire_round(r)), "the run may still finish");
+    w.advance(1);
+    w.as_("anyone.t", 0);
+    w.c.expire_round(r); // exactly at the timeout it works
 }
 
 // ---------------------------------------------------------------- property test for money
