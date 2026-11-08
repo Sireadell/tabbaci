@@ -1,0 +1,12 @@
+[package]
+name = "judgeverify"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+near-sdk = { version = "5", default-features = false }
+
+[dev-dependencies]
+near-sdk = { version = "5", features = ["unit-testing"] }
+ed25519-dalek = { version = "2", default-features = false, features = ["std"] }
+sha2 = "0.10"
