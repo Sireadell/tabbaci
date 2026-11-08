@@ -1,0 +1,56 @@
+{
+  "slug": "near-tools",
+  "title": "Building on NEAR: the developer libraries, checked",
+  "intro": "The two libraries most NEAR apps are built with, the Rust one for contracts and the JavaScript one for apps. Each sentence is checked against the package registry and the project's own code on GitHub, two places run by different people.",
+  "written_by": "hand-seeded for the test network on 8 November 2026",
+  "sentences": [
+    {
+      "writer": "w1.sireadell.testnet", "word": "is", "expect": "T",
+      "kind": "data", "claim": "On 8 November 2026, the newest release of near-sdk, NEAR's Rust library for contracts, is in major version 5.", "cv": "5",
+      "picks": [
+        { "url": "https://crates.io/api/v1/crates/near-sdk", "x": "find:\"max_version\":\"|.", "tol": 0 },
+        { "url": "https://raw.githubusercontent.com/near/near-sdk-rs/master/Cargo.toml", "x": "find:version = \"|.", "tol": 0 }
+      ], "terms": []
+    },
+    {
+      "writer": "w2.sireadell.testnet", "word": "very likely", "expect": "T",
+      "kind": "data", "claim": "On 8 November 2026, the newest near-sdk release needs Rust 1.95 or newer.", "cv": "1.95",
+      "picks": [
+        { "url": "https://crates.io/api/v1/crates/near-sdk", "x": "json:$.versions[0].rust_version", "tol": 0 },
+        { "url": "https://raw.githubusercontent.com/near/near-sdk-rs/master/Cargo.toml", "x": "find:rust-version = \"|\"", "tol": 0 }
+      ], "terms": []
+    },
+    {
+      "writer": "w3.sireadell.testnet", "word": "is", "expect": "T",
+      "kind": "prose", "claim": "near-sdk is released under the MIT or Apache 2.0 licence, at the user's choice.", "cv": null,
+      "picks": [
+        { "url": "https://crates.io/api/v1/crates/near-sdk", "x": "", "tol": 0 },
+        { "url": "https://raw.githubusercontent.com/near/near-sdk-rs/master/Cargo.toml", "x": "", "tol": 0 }
+      ], "terms": ["license"]
+    },
+    {
+      "writer": "w1.sireadell.testnet", "word": "is", "expect": "T",
+      "kind": "data", "claim": "On 8 November 2026, the newest release of near-api-js, NEAR's JavaScript library, is in major version 7.", "cv": "7",
+      "picks": [
+        { "url": "https://registry.npmjs.org/near-api-js/latest", "x": "find:\"version\":\"|.", "tol": 0 },
+        { "url": "https://raw.githubusercontent.com/near/near-api-js/master/package.json", "x": "find:\"version\": \"|.", "tol": 0 }
+      ], "terms": []
+    },
+    {
+      "writer": "w2.sireadell.testnet", "word": "likely", "expect": "T",
+      "kind": "data", "claim": "On 8 November 2026, the newest near-api-js release needs Node.js 22 or newer.", "cv": "22",
+      "picks": [
+        { "url": "https://registry.npmjs.org/near-api-js/latest", "x": "find:\"node\":\">=|.", "tol": 0 },
+        { "url": "https://raw.githubusercontent.com/near/near-api-js/master/package.json", "x": "find:\"node\": \">=|.", "tol": 0 }
+      ], "terms": []
+    },
+    {
+      "writer": "w3.sireadell.testnet", "word": "very likely", "expect": "T",
+      "kind": "prose", "claim": "near-api-js is a JavaScript library for talking to NEAR through its RPC API.", "cv": null,
+      "picks": [
+        { "url": "https://registry.npmjs.org/near-api-js/latest", "x": "", "tol": 0 },
+        { "url": "https://raw.githubusercontent.com/near/near-api-js/master/package.json", "x": "", "tol": 0 }
+      ], "terms": ["JavaScript library"]
+    }
+  ]
+}
