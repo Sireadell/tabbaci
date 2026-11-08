@@ -48,7 +48,9 @@ try {
   $json = $json.Replace('"','\"')   # PowerShell 5.1 drops inner quotes of native arguments unless escaped
   $acc = @('--access','allow-all')
   if ($Via) { $acc += @('--via',$Via) }
+  $ErrorActionPreference = 'Continue'   # PowerShell 5.1 turns any stderr line (even a plain notice) into an error otherwise
   & outlayer secrets set $json --profile $Profile --wasm-hash $ProgramHash @acc 2>&1 | Out-Null
+  $ErrorActionPreference = 'Stop'
   if ($LASTEXITCODE -ne 0) { throw 'storing the secret failed' }
   $value = $null; $json = $null
 } finally {

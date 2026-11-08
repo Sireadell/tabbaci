@@ -3,7 +3,7 @@ pub mod ladder;
 use serde_json::Value;
 
 pub const MAX_ATTEMPTS: usize = 3;
-pub const OUT_MAX: usize = 900;
+pub const OUT_MAX: usize = 2000;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Judged {
