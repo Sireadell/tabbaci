@@ -1,8 +1,8 @@
 {
   "slug": "near-chain",
   "title": "NEAR mainnet, checked sentence by sentence",
-  "intro": "Each sentence below is a question the courtroom can answer from public evidence. The word before it is the chance its writer bonded on it.",
-  "written_by": "hand-seeded for the test network",
+  "intro": "Facts about the live NEAR network. The two number sentences are checked against two separate public NEAR servers. The last one is checked against Wikipedia and NEAR's own code on GitHub.",
+  "written_by": "hand-seeded for the test network on 7 November 2026",
   "contract": "court5.sireadell.testnet",
   "sentences": [
     {
