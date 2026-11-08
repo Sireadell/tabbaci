@@ -201,7 +201,7 @@ async function main() {
 
   // 9. the sealed box run itself
   if (args.tx) {
-    const t = spawnSync('outlayer-verify', ['tx', args.tx, '--network', network, '--short'], { encoding: 'utf8' });
+    const t = spawnSync('outlayer-verify', ['tx', args.tx, '--network', network, '--short', ...(network === 'testnet' ? ['--api', 'https://testnet-api.outlayer.ai'] : [])], { encoding: 'utf8' });
     if (t.error) add(C, 'sealed-box attestation (outlayer-verify)', 'outlayer-verify is not installed on this machine');
     else add(t.status === 0 ? M : t.status === 1 ? X : C, 'sealed-box attestation (outlayer-verify)', (t.stdout || t.stderr || '').trim().split('\n').slice(-1)[0]);
   } else add(C, 'sealed-box attestation (outlayer-verify)', 'pass --tx <attempt transaction hash> and install outlayer-verify');

@@ -34,7 +34,7 @@ Each line prints MATCH, MISMATCH or CANNOT VERIFY. Today you should see:
 | source bytes match their fingerprint | MATCH | The archived Wikipedia and GitHub pages hash to what the box saw. |
 | judge signatures | CANNOT VERIFY | The signatures are valid. The judges on testnet are stand-ins signed by a test key, not the models' own keys (see limits). |
 | judge reply words match the answers | CANNOT VERIFY | Only each reply's fingerprint is published, not its words. |
-| sealed-box attestation | CANNOT VERIFY | Needs OutLayer's `outlayer-verify` tool and the attempt transaction hash. |
+| sealed-box attestation | MATCH | With `--tx 8XYvkuJR2ysAoS8rBsBCF6L5xeaWB1N8dBybejV1YF6n` and OutLayer's `outlayer-verify` installed. It proves the ruling came out of genuine Intel TDX hardware running code approved on chain (task 27107). Without them the line says CANNOT VERIFY. |
 
 Exit code 0 means everything matched, 1 means something did not match, and 2 means nothing mismatched but something could not be checked.
 
@@ -70,7 +70,7 @@ You can also see the rulings in a browser. Open `site/ledger.html` from any stat
 | Real AI judges | Not running yet. The NEAR AI calls are written from the published docs but have not been run, because the account has no credit. Every ruling so far uses stand-in judges signed by a fixed test key, and the site says so. |
 | Accuracy | Not measured. The 200-sentence test only proves the plumbing until it runs against real judges. |
 | Judge models | `deepseek-ai/DeepSeek-V4.1-Flash-1017`, `Qwen/Qwen3.8-27B` and `Qwen/Qwen3.6-35B-A3B-FP8`. It is not yet confirmed that each one signs inside its own sealed box. |
-| Per-run Intel attestation | The checker calls OutLayer's `outlayer-verify` when it is installed. It has not been installed or run here yet. |
+| Per-run Intel attestation | Proven for round 6 with OutLayer's `outlayer-verify`. Installing it needs Rust and a C compiler (`cargo install --git https://github.com/out-layer/outlayer-verify`), since OutLayer ships no ready-made copy. |
 | Judge reply words | Only each reply's fingerprint is published, so the checker cannot confirm that the reply text equals the recorded answer. |
 | Pages that change every second | An RPC status page cannot be fetched again byte for byte. The ruling keeps the extracted number and the fingerprint. |
 | Build on Linux or macOS | Not yet compared with the Windows build. |
