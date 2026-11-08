@@ -1,0 +1,51 @@
+{
+  "slug": "lagos-abuja",
+  "title": "Lagos and Abuja, checked sentence by sentence",
+  "intro": "Nigeria's biggest city and its capital. Each sentence is checked against Wikipedia and Wikidata, two separate projects with separate editors. Map positions are numbers, so the numbers decide them, not an AI.",
+  "written_by": "hand-seeded for the test network on 8 November 2026",
+  "contract": "court5.sireadell.testnet",
+  "sentences": [
+    {
+      "claim": "On 8 November 2026, Abuja is the capital of Nigeria.",
+      "word": "is",
+      "writer": "w1.sireadell.testnet",
+      "kind": "prose",
+      "round": 13
+    },
+    {
+      "claim": "Lagos is the largest city in Nigeria.",
+      "word": "very likely",
+      "writer": "w2.sireadell.testnet",
+      "kind": "prose",
+      "round": 14
+    },
+    {
+      "claim": "Lagos is a former capital of Nigeria. Abuja replaced it in 1991.",
+      "word": "very likely",
+      "writer": "w3.sireadell.testnet",
+      "kind": "prose",
+      "round": 15
+    },
+    {
+      "claim": "Lagos lies about 6.46 degrees north of the equator.",
+      "word": "is",
+      "writer": "w1.sireadell.testnet",
+      "kind": "data",
+      "round": 16
+    },
+    {
+      "claim": "Lagos lies about 3.39 degrees east of Greenwich.",
+      "word": "is",
+      "writer": "w2.sireadell.testnet",
+      "kind": "data",
+      "round": 17
+    },
+    {
+      "claim": "Abuja lies about 9.06 degrees north of the equator.",
+      "word": "likely",
+      "writer": "w3.sireadell.testnet",
+      "kind": "data",
+      "round": 18
+    }
+  ]
+}

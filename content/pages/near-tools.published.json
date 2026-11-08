@@ -1,0 +1,30 @@
+{
+  "slug": "near-tools",
+  "contract": "court5.sireadell.testnet",
+  "rounds": [
+    {
+      "round": 7,
+      "claim": "On 8 November 2026, the newest release of near-sdk, NEAR's Rust library for contracts, is in major version 5."
+    },
+    {
+      "round": 8,
+      "claim": "On 8 November 2026, the newest near-sdk release needs Rust 1.95 or newer."
+    },
+    {
+      "round": 9,
+      "claim": "near-sdk is released under the MIT or Apache 2.0 licence, at the user's choice."
+    },
+    {
+      "round": 10,
+      "claim": "On 8 November 2026, the newest release of near-api-js, NEAR's JavaScript library, is in major version 7."
+    },
+    {
+      "round": 11,
+      "claim": "On 8 November 2026, the newest near-api-js release needs Node.js 22 or newer."
+    },
+    {
+      "round": 12,
+      "claim": "near-api-js is a JavaScript library for talking to NEAR through its RPC API."
+    }
+  ]
+}
