@@ -1,0 +1,5 @@
+[
+  { "prefix": "https://crates.io/api/v1/", "group": "crates-io", "why": "Rust package registry, run by the Rust Foundation" },
+  { "prefix": "https://registry.npmjs.org/", "group": "npm", "why": "JavaScript package registry, run by GitHub" },
+  { "prefix": "https://www.wikidata.org/w/rest.php/wikibase/v1/", "group": "wikidata", "why": "Wikidata, edited separately from Wikipedia" }
+]

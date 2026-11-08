@@ -8,6 +8,7 @@
 //     and the result (true or false) matches the "expect" field when the page sets one;
 //   text sentences: a key word is found in EVERY source (the courtroom only needs one),
 //     and the piece of text the judges would read is printed so a person can read it too.
+//   --proposed <file>  also accept sources waiting to be added to the list (marked "proposed")
 // Exit 0 when every sentence passes, 1 when any fails.
 import { readFileSync } from 'node:fs';
 
@@ -26,6 +27,7 @@ const view = async (method, args) => {
   return JSON.parse(Buffer.from(j.result.result).toString());
 };
 const list = (await view('sources', {})).filter((s) => s.removed_at === null);
+if (get('proposed')) for (const p of JSON.parse(readFileSync(get('proposed'), 'utf8'))) if (!list.some((x) => x.prefix === p.prefix)) list.push({ ...p, group: p.group + ' (proposed)' });
 
 // Same extractors as programs/court/src/extract.rs.
 function jsonPath(v, path) {
