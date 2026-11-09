@@ -3,28 +3,28 @@
   "title": "NEAR mainnet, checked sentence by sentence",
   "intro": "Facts about the live NEAR network. The two number sentences are checked against two separate public NEAR servers. The last one is checked against Wikipedia and NEAR's own code on GitHub.",
   "written_by": "hand-seeded for the test network on 7 November 2026",
-  "contract": "court5.sireadell.testnet",
+  "contract": "finalenc2.testnet",
   "sentences": [
     {
       "claim": "On 7 November 2026, NEAR mainnet runs protocol version 88.",
       "word": "is",
       "writer": "w1.sireadell.testnet",
       "kind": "data",
-      "round": 4
+      "round": 2
     },
     {
       "claim": "On 7 November 2026, NEAR mainnet runs protocol version 87.",
       "word": "likely",
       "writer": "w2.sireadell.testnet",
       "kind": "data",
-      "round": 5
+      "round": 3
     },
     {
       "claim": "NEAR is a blockchain platform.",
       "word": "very likely",
       "writer": "w1.sireadell.testnet",
       "kind": "prose",
-      "round": 6
+      "round": 4
     }
   ]
 }

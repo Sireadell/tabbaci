@@ -3,49 +3,49 @@
   "title": "Building on NEAR: the developer libraries, checked",
   "intro": "The two libraries most NEAR apps are built with, the Rust one for contracts and the JavaScript one for apps. Each sentence is checked against the package registry and the project's own code on GitHub, two places run by different people.",
   "written_by": "hand-seeded for the test network on 8 November 2026",
-  "contract": "court5.sireadell.testnet",
+  "contract": "finalenc2.testnet",
   "sentences": [
     {
       "claim": "On 8 November 2026, the newest release of near-sdk, NEAR's Rust library for contracts, is in major version 5.",
       "word": "is",
       "writer": "w1.sireadell.testnet",
       "kind": "data",
-      "round": 7
+      "round": 5
     },
     {
       "claim": "On 8 November 2026, the newest near-sdk release needs Rust 1.95 or newer.",
       "word": "very likely",
       "writer": "w2.sireadell.testnet",
       "kind": "data",
-      "round": 8
+      "round": 6
     },
     {
       "claim": "near-sdk is released under the MIT or Apache 2.0 licence, at the user's choice.",
       "word": "is",
       "writer": "w3.sireadell.testnet",
       "kind": "prose",
-      "round": 9
+      "round": 7
     },
     {
       "claim": "On 8 November 2026, the newest release of near-api-js, NEAR's JavaScript library, is in major version 7.",
       "word": "is",
       "writer": "w1.sireadell.testnet",
       "kind": "data",
-      "round": 10
+      "round": 8
     },
     {
       "claim": "On 8 November 2026, the newest near-api-js release needs Node.js 22 or newer.",
       "word": "likely",
       "writer": "w2.sireadell.testnet",
       "kind": "data",
-      "round": 11
+      "round": 9
     },
     {
       "claim": "near-api-js is a JavaScript library for talking to NEAR through its RPC API.",
       "word": "very likely",
       "writer": "w3.sireadell.testnet",
       "kind": "prose",
-      "round": 12
+      "round": 10
     }
   ]
 }
