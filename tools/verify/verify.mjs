@@ -2,9 +2,11 @@
 // One-command checker for a courtroom ruling.
 //   node verify.mjs --contract court2.sireadell.testnet --round 1 [--network testnet] [--archive dir]
 //                   [--tx <attempt tx hash>] [--signer <model>=0x..] [--vectors payout-vectors.json]
+//                   [--attested-judges]   compare judge signatures with keys Intel vouches for today (run npm install --prefix privacy/tools once)
 // Prints one line per check: MATCH, MISMATCH or CANNOT VERIFY. Exit code 0 all match, 1 any mismatch, 2 something could not be checked.
 import { readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { proofPath, sealedBoxCommand } from './proofs.mjs';
 import { spawnSync } from 'node:child_process';
 import { sha256, sha256hex, b64url, recoverAddress } from './crypto.mjs';
@@ -175,8 +177,17 @@ async function main() {
       const parts = bodies.map((b) => windowOf(b, input.terms || [])).filter(Boolean);
       user = parts.length ? proseUser(parts.join('\n---\n'), input.claim) : null;
     }
-    const signers = {};
-    for (const [k, val] of Object.entries(Object.fromEntries((args.signer ? [args.signer] : []).map((x) => x.split('='))))) signers[k] = val.toLowerCase();
+    const signers = {}; // model -> addresses Intel has vouched for
+    for (const [k, val] of Object.entries(Object.fromEntries((args.signer ? [args.signer] : []).map((x) => x.split('='))))) signers[k.toLowerCase()] = [val.toLowerCase()];
+    if (args['attested-judges']) {
+      // asks NEAR AI for a fresh Intel-signed report per judge model (free, no key) and keeps every key that passes
+      const { execFileSync } = await import('node:child_process');
+      const script = new URL('../../privacy/tools/verify-judges.mjs', import.meta.url);
+      try {
+        const got = JSON.parse(execFileSync(process.execPath, [fileURLToPath(script),'--algo', 'ecdsa', '--signers', '--models', input.m.join(',')], { encoding: 'utf8', timeout: 240000, stdio: ['ignore', 'pipe', 'ignore'] }));
+        for (const [m, list] of Object.entries(got)) if (list.length) signers[m.toLowerCase()] = list.map((x) => x.toLowerCase());
+      } catch (e) { add(C, 'judge keys vouched for by Intel', 'could not run privacy/tools/verify-judges.mjs: ' + String(e.message).slice(0, 80)); }
+    }
     for (const j of v.j) {
       const model = input.m[j.m];
       if (j.a === 'X') { add(M, `judge ${j.m} (${model}) was not counted`, 'unsigned or failed reply is treated as UNSURE'); continue; }
@@ -186,11 +197,11 @@ async function main() {
       for (const build of [requestBody, requestBodyV1]) {
         const rh = sha256hex(Buffer.from(build(model, user, input.seed)));
         const a = recoverAddress(`${model}:${rh}:${Buffer.from(j.h, 'base64url').toString('hex')}`, Buffer.from(j.g, 'base64url'));
-        if (a && (addr === null || a === want)) addr = a;
-        if (want && a === want) break;
+        if (a && (addr === null || want?.includes(a))) addr = a;
+        if (want?.includes(a)) break;
       }
       if (!addr) { add(X, `judge ${j.m} (${model}) signature`, 'does not recover to any signer'); continue; }
-      if (want) add(addr === want ? M : X, `judge ${j.m} (${model}) signed by the expected key`, addr);
+      if (want) add(want.includes(addr) ? M : X, `judge ${j.m} (${model}) signed by ${args['attested-judges'] ? 'a key Intel vouches for' : 'the expected key'}`, addr);
       else add(C, `judge ${j.m} (${model}) signed by the model's attested key`, `valid signature from ${addr}; give --signer "${model}=<attested address>" to compare`);
     }
     // 8. outcome recomputed from the answers

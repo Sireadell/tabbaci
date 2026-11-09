@@ -3,3 +3,4 @@ target/
 *.env
 .secrets/
 .tmp/
+node_modules/

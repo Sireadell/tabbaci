@@ -142,7 +142,24 @@ if (reportFile && reportNonce) {
   add("judge model report: nonce, signer, config, event log", r.ok ? "MATCH" : "MISMATCH", r.ok ? `signer ${r.signer.slice(0, 16)}... (${r.algo}), debug mode off` : r.why);
   add("judge model report: Intel signature chain on the quote", "CANNOT VERIFY", "not checked by this command; use a DCAP verifier such as dcap-qvl");
 } else {
-  add("judge replies come from the named models", "CANNOT VERIFY", "pass --report <saved report json> --nonce <hex> to check a model report");
+  // live: the AI judges run in sealed chips that Intel has signed for (tools/verify-judges.mjs does the work)
+  await check("judges run in Intel-signed sealed chips", async () => {
+    const { execFileSync } = await import("node:child_process");
+    const { fileURLToPath } = await import("node:url");
+    const script = fileURLToPath(new URL("./verify-judges.mjs", import.meta.url));
+    let out;
+    try { out = execFileSync(process.execPath, [script, "--json"], { encoding: "utf8", timeout: 240000, stdio: ["ignore", "pipe", "ignore"] }); }
+    catch (e) { out = e.stdout; }
+    const lines = JSON.parse(out || "[]").filter((r) => r.name !== "signed replies");
+    if (!lines.length) return ["CANNOT VERIFY", "the judge check produced no result"];
+    const bad = lines.filter((r) => r.verdict === "MISMATCH");
+    if (bad.length) return ["MISMATCH", bad.map((r) => `${r.name}: ${r.detail}`).join(" | ").slice(0, 300)];
+    const unk = lines.filter((r) => r.verdict === "CANNOT VERIFY");
+    if (unk.length) return ["CANNOT VERIFY", unk[0].detail];
+    const models = new Set(lines.map((r) => r.name.split(": ")[0].replace(/ #\d+$/, ""))).size;
+    return ["MATCH", `${models} judge model(s): fresh nonce, key bound in the quote, Intel signature chain valid`];
+  });
+  add("judge replies are signed by those chips", "CANNOT VERIFY", "needs one paid question per judge: run node tools/verify-judges.mjs --call (uses a NEAR AI key)");
 }
 
 // 8. a marker planted in the secret never shows up in public transaction data

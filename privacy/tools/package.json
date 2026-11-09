@@ -1,0 +1,7 @@
+{
+  "name": "privacy-checks",
+  "private": true,
+  "type": "module",
+  "description": "Checks that read public data only",
+  "dependencies": { "@phala/dcap-qvl": "0.7.1" }
+}

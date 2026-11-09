@@ -73,6 +73,6 @@ export async function ask(key, spend, body, { sigAlgo = 'ecdsa', sigTries = 4, t
   return {
     ok: true, content, chatMs, totalMs: Date.now() - t0,
     signed: !!sig, signedTextMatches: sig ? sig.text === want || sig.text === want.slice(model.length + 1) : false,
-    sigKind: sig?.signature_kind,
+    sigKind: sig?.signature_kind, signer: sig?.signing_address?.toLowerCase(),
   };
 }
