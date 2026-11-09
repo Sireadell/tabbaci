@@ -32,6 +32,8 @@ struct Req<'a> {
     seed: u64,
     max_tokens: u8,
     stream: bool,
+    /// The judge models think before answering. With thinking on, 4 tokens are spent thinking and the answer is empty.
+    reasoning_effort: &'a str,
 }
 
 /// The exact request bytes. Same input always gives the same bytes, so a checker can rebuild them.
@@ -46,6 +48,7 @@ pub fn request_body(model: &str, user: &str, seed: u64) -> Vec<u8> {
         seed,
         max_tokens: 4,
         stream: false,
+        reasoning_effort: "none",
     };
     serde_json::to_vec(&r).unwrap()
 }
@@ -63,5 +66,14 @@ mod tests {
         let b = request_body("m", &data_user("NEAR has 5 things", "5"), 7);
         assert_eq!(a, b);
         assert!(String::from_utf8(a).unwrap().contains("\"stream\":false"));
+    }
+    #[test]
+    fn exact_bytes_match_the_checker() {
+        // tools/verify/frames.test.mjs pins the same string, so the program and the checker cannot drift apart.
+        let a = request_body("m", "u", 7);
+        assert_eq!(
+            String::from_utf8(a).unwrap(),
+            format!("{{\"model\":\"m\",\"messages\":[{{\"role\":\"system\",\"content\":\"{}\"}},{{\"role\":\"user\",\"content\":\"u\"}}],\"temperature\":0,\"seed\":7,\"max_tokens\":4,\"stream\":false,\"reasoning_effort\":\"none\"}}", SYSTEM)
+        );
     }
 }

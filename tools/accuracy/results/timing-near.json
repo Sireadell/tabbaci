@@ -1,0 +1,116 @@
+[
+ {
+  "claim": "The capital of Afghanistan is Kabul.",
+  "truth": "T",
+  "ruling": "T",
+  "totalMs": 4593,
+  "per": [
+   {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "ok": true,
+    "chatMs": 1802,
+    "totalMs": 2893,
+    "signed": true,
+    "signedTextMatches": true,
+    "sigKind": "provider_tee",
+    "answer": "TRUE"
+   },
+   {
+    "model": "Qwen/Qwen3.8-27B",
+    "ok": true,
+    "chatMs": 401,
+    "totalMs": 807,
+    "signed": true,
+    "signedTextMatches": true,
+    "sigKind": "provider_tee",
+    "answer": "TRUE"
+   },
+   {
+    "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+    "ok": true,
+    "chatMs": 592,
+    "totalMs": 892,
+    "signed": true,
+    "signedTextMatches": true,
+    "sigKind": "provider_tee",
+    "answer": "TRUE"
+   }
+  ]
+ },
+ {
+  "claim": "The capital of Albania is Tirana.",
+  "truth": "T",
+  "ruling": "T",
+  "totalMs": 2284,
+  "per": [
+   {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "ok": true,
+    "chatMs": 481,
+    "totalMs": 784,
+    "signed": true,
+    "signedTextMatches": true,
+    "sigKind": "provider_tee",
+    "answer": "TRUE"
+   },
+   {
+    "model": "Qwen/Qwen3.8-27B",
+    "ok": true,
+    "chatMs": 401,
+    "totalMs": 701,
+    "signed": true,
+    "signedTextMatches": true,
+    "sigKind": "provider_tee",
+    "answer": "TRUE"
+   },
+   {
+    "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+    "ok": true,
+    "chatMs": 498,
+    "totalMs": 799,
+    "signed": true,
+    "signedTextMatches": true,
+    "sigKind": "provider_tee",
+    "answer": "TRUE"
+   }
+  ]
+ },
+ {
+  "claim": "The capital of Algeria is Algiers.",
+  "truth": "T",
+  "ruling": "T",
+  "totalMs": 3898,
+  "per": [
+   {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "ok": true,
+    "chatMs": 496,
+    "totalMs": 800,
+    "signed": true,
+    "signedTextMatches": true,
+    "sigKind": "provider_tee",
+    "answer": "TRUE"
+   },
+   {
+    "model": "Qwen/Qwen3.8-27B",
+    "ok": true,
+    "chatMs": 403,
+    "totalMs": 700,
+    "signed": true,
+    "signedTextMatches": true,
+    "sigKind": "provider_tee",
+    "answer": "TRUE"
+   },
+   {
+    "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+    "ok": true,
+    "chatMs": 1095,
+    "totalMs": 2398,
+    "signed": true,
+    "signedTextMatches": true,
+    "sigKind": "provider_tee",
+    "answer": "TRUE"
+   }
+  ]
+ }
+]

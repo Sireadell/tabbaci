@@ -1,0 +1,27 @@
+{
+ "judge": "near",
+ "n": 200,
+ "per": {
+  "deepseek-ai/DeepSeek-V4.1-Flash-1017": {
+   "right": 200,
+   "wrong": 0,
+   "unsure": 0
+  },
+  "Qwen/Qwen3.8-27B": {
+   "right": 197,
+   "wrong": 1,
+   "unsure": 2
+  },
+  "Qwen/Qwen3.6-35B-A3B-FP8": {
+   "right": 197,
+   "wrong": 1,
+   "unsure": 2
+  }
+ },
+ "three": {
+  "right": 198,
+  "wrong": 0,
+  "none": 2
+ },
+ "misses": []
+}

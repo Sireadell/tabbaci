@@ -9,7 +9,7 @@ import { proofPath, sealedBoxCommand } from './proofs.mjs';
 import { spawnSync } from 'node:child_process';
 import { sha256, sha256hex, b64url, recoverAddress } from './crypto.mjs';
 import { net, settle, settleBatchCheck } from './payout.mjs';
-import { dataUser, proseUser, requestBody, canon, extract, windowOf, proseOutcome, dataOutcome } from './frames.mjs';
+import { dataUser, proseUser, requestBody, requestBodyV1, canon, extract, windowOf, proseOutcome, dataOutcome } from './frames.mjs';
 
 const args = Object.fromEntries(
   process.argv.slice(2).reduce((acc, a, i, all) => (a.startsWith('--') ? [...acc, [a.slice(2), all[i + 1] && !all[i + 1].startsWith('--') ? all[i + 1] : 'true']] : acc), []),
@@ -181,11 +181,15 @@ async function main() {
       const model = input.m[j.m];
       if (j.a === 'X') { add(M, `judge ${j.m} (${model}) was not counted`, 'unsigned or failed reply is treated as UNSURE'); continue; }
       if (!user) { add(C, `judge ${j.m} (${model}) signature`, 'cannot rebuild the question without the archived sources'); continue; }
-      const rh = sha256hex(Buffer.from(requestBody(model, user, input.seed)));
-      const text = `${model}:${rh}:${Buffer.from(j.h, 'base64url').toString('hex')}`;
-      const addr = recoverAddress(text, Buffer.from(j.g, 'base64url'));
-      if (!addr) { add(X, `judge ${j.m} (${model}) signature`, 'does not recover to any signer'); continue; }
       const want = signers[model.toLowerCase()];
+      let addr = null;
+      for (const build of [requestBody, requestBodyV1]) {
+        const rh = sha256hex(Buffer.from(build(model, user, input.seed)));
+        const a = recoverAddress(`${model}:${rh}:${Buffer.from(j.h, 'base64url').toString('hex')}`, Buffer.from(j.g, 'base64url'));
+        if (a && (addr === null || a === want)) addr = a;
+        if (want && a === want) break;
+      }
+      if (!addr) { add(X, `judge ${j.m} (${model}) signature`, 'does not recover to any signer'); continue; }
       if (want) add(addr === want ? M : X, `judge ${j.m} (${model}) signed by the expected key`, addr);
       else add(C, `judge ${j.m} (${model}) signed by the model's attested key`, `valid signature from ${addr}; give --signer "${model}=<attested address>" to compare`);
     }
