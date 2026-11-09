@@ -3,3 +3,4 @@ target/
 .env
 *.key
 dist/
+tools/accuracy/results/spend.json
