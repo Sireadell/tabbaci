@@ -80,12 +80,12 @@ Exit code 0 means everything matched, 1 means something did not, 2 means nothing
 | Reproducible build | `build/reproduce.sh` | Two clean builds in different folders give the same sha256 (on Windows). |
 | Site | `site/` | "Try to lie to it", a live ledger of every ruling and every lie tried, and pages. |
 | Pages | `content/pages/` (3 pages), rounds 4 to 18 on `court5` | `near-chain` (rounds 4 to 6): a true number (two RPC providers both say 88), a false number (87), and a prose sentence checked against Wikipedia and GitHub. `near-tools` (rounds 7 to 12): crate and package versions from crates.io, npm and GitHub. `lagos-abuja` (rounds 13 to 18): facts from Wikidata and Wikipedia. Rounds 1 to 3 were earlier tests. All 15 page rounds settled. |
-| Accuracy test | `tools/accuracy` | 200 sentences (100 true, 100 false) with truth from Wikidata. Ready to run against real judges. |
+| Accuracy test | `tools/accuracy` | 200 sentences (100 true, 100 false) with truth from Wikidata, run against the 3 real NEAR AI judges on 9 Nov 2026: the 3-judge ruling was right on 198, wrong on 0, no ruling on 2. Cost: $0.017 for 600 judge calls. |
 
 ## What it does not do
 
 - It does not prove a sentence is true about the world. It proves which listed sites the evidence came from, that a sealed chip fetched it at a recorded time, and how three models ruled on it.
-- The judges are not real AI models yet. Every ruling so far uses stand-ins signed by a test key, and the site says so. Real NEAR AI judges are written but have not run.
+- Every ruling on chain so far uses stand-in judges signed by a test key, and the site says so. The real NEAR AI judges have been tested off chain (accuracy and timing below) but have not yet ruled on chain.
 - Three models from one provider are three models, not three independent parties.
 - It never picks a side when two sources disagree. The round is void and stakes go back.
 - It cannot be bent by whoever relays the request. The worst they can force is a void round, and every failed attempt is published.
@@ -96,9 +96,9 @@ Exit code 0 means everything matched, 1 means something did not, 2 means nothing
 
 | Limit | State |
 |---|---|
-| Real AI judges | Not running yet. The NEAR AI calls are written from the published docs but have not been run, because the account has no credit. Every ruling so far uses stand-in judges signed by a fixed test key, and the site says so. |
-| Accuracy | Not measured. The 200-sentence test only proves the plumbing until it runs against real judges. |
-| Judge models | `deepseek-ai/DeepSeek-V4.1-Flash-1017`, `Qwen/Qwen3.8-27B` and `Qwen/Qwen3.6-35B-A3B-FP8`. It is not yet confirmed that each one signs inside its own sealed box. |
+| Real AI judges | Tested off chain on 9 Nov 2026, not yet ruling on chain. A full 3-judge ruling with signed receipts takes under 5 seconds (target 60, cap 90). Every on-chain ruling so far uses stand-ins signed by a test key, and the site says so. |
+| Accuracy | 198 of 200 right, 0 wrong, 2 with no ruling, on simple "capital of" sentences. Harder sentences are not measured. |
+| Judge models | `deepseek-ai/DeepSeek-V4.1-Flash-1017`, `Qwen/Qwen3.8-27B` and `Qwen/Qwen3.6-35B-A3B-FP8`. Each one was checked: a fresh Intel-signed report binds its signing key, and its reply receipts recover to that key (`privacy/tools/verify-judges.mjs`, and `--attested-judges` on the checker). Only these 3 pass today, so the top appeal level has 3 judges, not 5. |
 | Per-run Intel attestation | Proven for round 6 with OutLayer's `outlayer-verify`. Installing it needs Rust and a C compiler (`cargo install --git https://github.com/out-layer/outlayer-verify`), since OutLayer ships no ready-made copy. |
 | Judge reply words | Only each reply's fingerprint is published, so the checker cannot confirm that the reply text equals the recorded answer. |
 | Pages that change every second | An RPC status page cannot be fetched again byte for byte. The ruling keeps the extracted number and the fingerprint. |
