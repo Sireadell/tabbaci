@@ -21,6 +21,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $near = 'C:\Users\DELL\near-tools\bin\near.exe'
+$outlayer = 'C:\Users\DELL\near-tools\bin\outlayer.exe'
 $userHome = 'C:\Users\DELL'
 $cred = "$userHome\.near-credentials\testnet\$Owner.json"
 if ($ProgramHash -notmatch '^[0-9a-f]{64}$') { throw 'ProgramHash must be 64 lowercase hex characters' }
@@ -38,9 +39,9 @@ Copy-Item $main $bak -Recurse -Force
 try {
   $in = Join-Path $env:TEMP ("ol-" + [guid]::NewGuid().ToString('N') + '.txt')
   [IO.File]::WriteAllText($in, "$Owner`n$($c.private_key)`n")
-  Start-Process outlayer -ArgumentList 'login','testnet' -NoNewWindow -Wait -RedirectStandardInput $in -RedirectStandardOutput "$env:TEMP\ol-o.txt" -RedirectStandardError "$env:TEMP\ol-e.txt"
+  Start-Process $outlayer -ArgumentList 'login','testnet' -NoNewWindow -Wait -RedirectStandardInput $in -RedirectStandardOutput "$env:TEMP\ol-o.txt" -RedirectStandardError "$env:TEMP\ol-e.txt"
   Remove-Item $in -Force
-  $me = ((& outlayer whoami | Select-String 'Account:\s*(\S+)').Matches[0].Groups[1].Value)
+  $me = ((& $outlayer whoami | Select-String 'Account:\s*(\S+)').Matches[0].Groups[1].Value)
   if ($me -ne $Owner) { throw "OutLayer login is $me, expected $Owner" }
 
   $value = (Get-Content $KeyFile -Raw).Trim()
@@ -49,7 +50,7 @@ try {
   $acc = @('--access','allow-all')
   if ($Via) { $acc += @('--via',$Via) }
   $ErrorActionPreference = 'Continue'   # PowerShell 5.1 turns any stderr line (even a plain notice) into an error otherwise
-  & outlayer secrets set $json --profile $Profile --wasm-hash $ProgramHash @acc 2>&1 | Out-Null
+  & $outlayer secrets set $json --profile $Profile --wasm-hash $ProgramHash @acc 2>&1 | Out-Null
   $ErrorActionPreference = 'Stop'
   if ($LASTEXITCODE -ne 0) { throw 'storing the secret failed' }
   $value = $null; $json = $null
