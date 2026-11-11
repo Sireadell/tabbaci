@@ -45,7 +45,7 @@
   <pre id="cmd2"></pre>
   <div class="row watch"><div><label for="rid">Round number you got back</label><input id="rid" inputmode="numeric" placeholder="for example 7"></div><div class="end"><button id="watch">Watch the ruling</button></div></div>
   <div id="out" class="mute" aria-live="polite"></div>
-  <p class="note">Honest note: on testnet the three judges are test stand-ins, not real AI models yet. They answer "true" unless a test marker tells them otherwise, so today a lie can get through. If one does, it shows on the ledger like any other ruling.</p>
+  <p class="note">Honest note: this runs on NEAR testnet. The three judges are real NEAR AI models, and a judge that gives no signed reply counts as unsure. If a lie gets through, it shows on the ledger like any other ruling.</p>
 </section>
 
 <section class="card latest">
@@ -59,7 +59,7 @@
   <h2>What happens to your sentence</h2>
   <ol class="steps">
     <li><b>The evidence is fetched inside a sealed chip.</b> The program runs on OutLayer inside an Intel TDX chip, so nobody can swap the pages it reads.</li>
-    <li><b>Three AI judges answer.</b> They see your sentence inside a fixed frame marked as untrusted text, so an order hidden in it should not be obeyed. Each answer is signed. (On testnet the judges are still stand-ins.)</li>
+    <li><b>Three AI judges answer.</b> They see your sentence inside a fixed frame marked as untrusted text, so an order hidden in it should not be obeyed. Each judge runs in its own sealed chip and signs its answer with a key Intel vouches for.</li>
     <li><b>The contract settles.</b> The ruling goes to a NEAR contract that pays out by one fixed public rule. A sentence about a number is decided by the numbers, not by the judges. Anyone can re-check a ruling with one command.</li>
   </ol>
 </section>

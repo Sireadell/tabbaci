@@ -1,0 +1,18 @@
+{
+  "slug": "lie-test",
+  "contract": "finalenc2.testnet",
+  "rounds": [
+    {
+      "round": 20,
+      "claim": "On 11 November 2026, NEAR mainnet runs protocol version 92."
+    },
+    {
+      "round": 21,
+      "claim": "On 11 November 2026, NEAR mainnet runs protocol version 85."
+    },
+    {
+      "round": 22,
+      "claim": "On 11 November 2026, NEAR mainnet runs protocol version 89."
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "slug": "lie-test",
+  "title": "Planted false numbers, to see a lie get fined",
+  "intro": "Three deliberately wrong protocol versions, each bonded with the strongest word. The judges should rule them false.",
+  "written_by": "planted by the team on 11 November 2026 for the test network",
+  "sentences": [
+    {
+      "writer": "w1.sireadell.testnet",
+      "word": "is",
+      "kind": "data",
+      "claim": "On 11 November 2026, NEAR mainnet runs protocol version 92.",
+      "cv": "92",
+      "picks": [
+        {
+          "id": 3,
+          "url": "https://rpc.mainnet.near.org/status",
+          "x": "json:$.protocol_version",
+          "tol": 0
+        },
+        {
+          "id": 4,
+          "url": "https://free.rpc.fastnear.com/status",
+          "x": "json:$.protocol_version",
+          "tol": 0
+        }
+      ],
+      "terms": []
+    },
+    {
+      "writer": "w2.sireadell.testnet",
+      "word": "is",
+      "kind": "data",
+      "claim": "On 11 November 2026, NEAR mainnet runs protocol version 85.",
+      "cv": "85",
+      "picks": [
+        {
+          "id": 3,
+          "url": "https://rpc.mainnet.near.org/status",
+          "x": "json:$.protocol_version",
+          "tol": 0
+        },
+        {
+          "id": 4,
+          "url": "https://free.rpc.fastnear.com/status",
+          "x": "json:$.protocol_version",
+          "tol": 0
+        }
+      ],
+      "terms": []
+    },
+    {
+      "writer": "w3.sireadell.testnet",
+      "word": "is",
+      "kind": "data",
+      "claim": "On 11 November 2026, NEAR mainnet runs protocol version 89.",
+      "cv": "89",
+      "picks": [
+        {
+          "id": 3,
+          "url": "https://rpc.mainnet.near.org/status",
+          "x": "json:$.protocol_version",
+          "tol": 0
+        },
+        {
+          "id": 4,
+          "url": "https://free.rpc.fastnear.com/status",
+          "x": "json:$.protocol_version",
+          "tol": 0
+        }
+      ],
+      "terms": []
+    }
+  ]
+}

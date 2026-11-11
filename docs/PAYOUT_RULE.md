@@ -22,4 +22,4 @@ What this gives:
 - Money is whole numbers. Gains round down and losses round up, so the contract never pays out more than it holds, and no unit is created or lost.
 - Which sentences are audited is drawn from a random number, the sentence and the round only. The word is not an input.
 
-Tests: `contracts/payout/tests/properties.rs` (15 tests, including a fine-grid honesty check, no-jump check at every basis point, exact money conservation over 20,000 random settlements, and 1,000 fixed vectors in `tests/vectors.json`).
+Tests: `contracts/payout/tests/properties.rs` (16 tests, including a fine-grid honesty check, no-jump check at every basis point, exact money conservation over 20,000 random settlements, and 1,000 fixed vectors in `tests/vectors.json`).

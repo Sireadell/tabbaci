@@ -1,6 +1,15 @@
 # Switching to the real AI judges, then deleting the keys
 
-Do these in order. Nothing here has been run yet. Each step has a check so you can see it worked before moving on.
+Do these in order. Each step has a check so you can see it worked before moving on.
+
+Where this stands for `finalenc2.testnet` (11 November 2026):
+
+| Step | State |
+|---|---|
+| 1 to 3 | Done. Program sha256 `2c8e24a5...`, two clean builds match. Key locked to it, owner `fkey2.sireadell.testnet` has 0 keys. Contract deployed. |
+| 4 | Done. Rounds 2 to 16 and 20 to 22 ruled with 3 signed judges (`proofs/finalenc2`). |
+| 5 | Partly done. Bonded rounds ruled and 13 finalized. No challenge run on `finalenc2` yet. |
+| 6 | Not done. The last key stays on purpose until I give the go. |
 
 ## Before you start
 - [ ] NEAR AI account has credit, and an API key saved in a file (never paste it into a chat or a commit).
