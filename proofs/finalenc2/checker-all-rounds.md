@@ -10,4 +10,4 @@ Command, once per round: `node tools/verify/verify.mjs --contract finalenc2.test
 | Not checkable from the chain alone: bond payout rule, judge reply words, sealed-box attestation (outlayer-verify not installed), source bytes of 5 prose rounds | listed as CANNOT VERIFY, never as MATCH |
 
 Time from sending the ruling call to the settled round: min 15 blocks, typical 17, max 46 (about one second per block). Every round needed exactly 1 attempt, none failed.
-Outcomes: rounds 2, 4 to 16 true, round 3 (the deliberately false sentence) not true.
+Outcomes: rounds 2, 4 to 16 true, round 3 (the deliberately false sentence) unsure (two of the three judges returned no signed reply, so the numbers could not be confirmed).
