@@ -1,0 +1,27 @@
+[workspace]
+resolver = "3"
+members = [
+    "near-sdk",
+    "near-sdk-core",
+    "near-sdk-env",
+    "near-sdk-macros",
+    "near-contract-standards",
+    "near-sys",
+    "near-global-contracts",
+    "near-crypto-hash",
+    "near-digest",
+]
+exclude = ["examples/"]
+
+[workspace.package]
+version = "5.30.1"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+categories = ["wasm"]
+repository = "https://github.com/near/near-sdk-rs"
+homepage = "https://docs.near.org/"
+rust-version = "1.95"
+
+[workspace.lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = ['cfg(near)']

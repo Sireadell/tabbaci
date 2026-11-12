@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Court record | Tabbaci</title>
+<link rel="stylesheet" href="style.css"></head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top" id="top"></header>
+<main id="main" class="wrap narrow">
+<div id="banner"></div>
+<article class="record" id="record" aria-live="polite">
+  <div class="rec-top"><span>Court record</span><span class="tn">Testnet</span></div>
+  <div class="rec-body"><p class="mute" id="status">Reading the chain...</p></div>
+</article>
+<section id="check" hidden>
+  <h2>Check this ruling yourself</h2>
+  <div class="card">
+    <div class="pick"><button type="button" class="btn" id="chk-run">Run the checks in this browser</button></div>
+    <ul class="checks" id="chk-list" aria-live="polite"></ul>
+    <p class="sum" id="chk-sum"></p>
+  </div>
+  <p class="mute">Lines marked COMMAND LINE need the signature maths or Intel's report, which a browser cannot do. This one command checks everything:</p>
+  <pre id="cmd"></pre>
+  <div class="copyrow"><button type="button" class="btn ghost" id="copy">Copy the command</button><span class="mute" id="copied" role="status"></span></div>
+  <p class="mute" style="font-size:.9rem">The contract still holds one access key that its owner keeps until the final deletion, so "no access keys" shows red today on purpose.</p>
+  <div class="print-row"><button type="button" class="btn ghost" onclick="window.print()">Print this record</button><a class="btn ghost" href="ledger.html">Back to the ledger</a></div>
+</section>
+</main>
+<footer id="foot"></footer>
+<script src="config.js"></script><script src="app.js"></script>
+<script>
+Site.chrome('ledger');
+const id = Number(new URLSearchParams(location.search).get('round'));
+const rec = $('record');
+const row = (dt, dd) => `<dt>${dt}</dt><dd>${dd}</dd>`;
+const oneLine = (s) => esc(String(s).replace(/\s+/g, ' ').trim());
+
+async function findAttemptTx(startBlock) {
+  for (let h = startBlock - 1; h >= startBlock - 3; h--) {
+    try {
+      const blk = await Site.rpc('block', { block_id: h });
+      for (const c of blk.chunks) {
+        if (c.tx_root === '11111111111111111111111111111111') continue;
+        const ch = await Site.rpc('chunk', { chunk_id: c.chunk_hash });
+        const t = ch.transactions.find((x) => x.receiver_id === Site.CFG.contract && x.actions.some((a) => a.FunctionCall && a.FunctionCall.method_name === 'attempt'));
+        if (t) return t.hash;
+      }
+    } catch (e) { /* the node may not keep an old block */ }
+  }
+  return null;
+}
+
+async function show() {
+  if (!Number.isInteger(id) || id < 1) { $('status').textContent = 'Add ?round= and a round number to the address, for example case.html?round=25.'; return; }
+  const r = await Site.getRound(id);
+  if (!r) { $('status').textContent = `There is no round ${id} on ${Site.CFG.contract}.`; return; }
+  if (!r._live) $('banner').innerHTML = '<p class="banner">The chain did not answer just now, so this is the saved copy of the round.</p>';
+  document.title = `Court record, round ${id} | Tabbaci`;
+  const input = Site.parse(r.input) || {}; const v = Site.parse(r.verdict); const models = input.m || [];
+  const isData = input.kind === 'data'; const word = Site.letterOf(r);
+  const split = r.claim.split(/(Judges?:.*)$/i);
+  const claimHtml = split.length > 1 ? `${esc(split[0])}<mark>${esc(split[1])}</mark>` : esc(r.claim);
+
+  const sources = (input.src || []).map((s) => {
+    const got = v && (v.s || []).find((x) => x.i === s.i); const sv = r._saved && r._saved[s.i];
+    return `<div><span class="mono">${esc(s.u)}</span><br><span class="mute">${got ? (got.x !== undefined && got.x !== '' ? 'the sealed run read <b>' + esc(got.x) + '</b>' : 'fetched, HTTP ' + esc(got.c)) : 'not fetched yet'}${got ? ', fingerprint <span class="mono">' + esc(got.h.slice(0, 10)) + '</span>' : ''}</span>${sv && sv.excerpt ? `<div class="excerpt">${oneLine(sv.excerpt)}</div>` : ''}</div>`;
+  }).join('') || '<span class="mute">None recorded.</span>';
+
+  const judges = v && v.j && v.j.length ? `<ul class="jl">${v.j.map((j) => { const a = j.a === 'T' ? 'TRUE' : j.a === 'F' ? 'FALSE' : 'UNSURE'; return `<li>${Site.stamp(a, 'small')}<span>${esc(Site.modelName(models[j.m]) || 'judge ' + j.m)}${j.g ? ', reply signed' : ', no signed reply, counted as unsure'}</span></li>`; }).join('')}</ul>${isData ? `<p class="mute" style="margin:6px 0 0;font-size:.9rem">This sentence is about a number. The numbers the sources returned decide it. The judges only confirm the sentence states that number${input.cv ? ' (' + esc(input.cv) + ')' : ''}.</p>` : ''}` : '<span class="mute">No judge answers yet.</span>';
+
+  const bonds = (r.bonds || []).length ? `<ul class="jl">${r.bonds.map((b) => `<li><span class="mono">${esc(b.writer)}</span> put <b>${Site.near(b.stake)} NEAR</b> on the word <b>${esc(b.word)}</b></li>`).join('')}</ul><p class="mute" style="margin:6px 0 0;font-size:.9rem">The bond-backed confidence of this sentence is ${(Site.WORDS[r.bonds[0].word] / 100).toFixed(0)} in 100. It comes from the word chosen and the money behind it, not from market trading.</p>` : '<span class="mute">No money behind this sentence.</span>';
+  const money = (r.bonds || []).length ? `<ul class="jl">${r.bonds.map((b) => { const m = Site.bondMoney(b); return `<li><span class="${m.kind === 'fine' ? 'neg' : m.kind === 'gain' ? 'pos' : ''}">${esc(m.text)}</span></li>`; }).join('')}</ul>` : '<span class="mute">Nothing to pay.</span>';
+  const blocks = Site.blocksOf(r);
+  const sealed = Site.CFG.sealed[id];
+  const proofRow = sealed
+    ? row('Sealed-run proof', `The sealed run was checked with Intel's report and the evidence saved. The program that ran has fingerprint <span class="mono">2c8e24a5...</span>, the one the contract stores.<br><span class="mute">OutLayer task ${sealed.task}. Check it offline:</span><pre>outlayer-verify bundle proofs/finalenc2/round-${id}.bundle.json --offline</pre>`)
+    : row('Sealed-run proof', '<span class="mute">Not saved for this round. The command below checks it live.</span>');
+
+  rec.innerHTML = `<div class="rec-top"><span>Court record · round ${id}</span><span class="tn">Testnet</span></div>
+  <div class="rec-body">
+    <p class="label">The sentence</p>
+    <p class="rec-claim">${claimHtml}</p>
+    <div class="rec-verdict">${Site.stamp(word, 'big')}<span class="mute">${esc(Site.plainOutcome(r))}</span></div>
+    <dl class="rec-grid">
+      ${row('Kind', Site.isLie(r) ? 'A lie planted on purpose, to see if the court stops it' : r.challenger ? 'A challenge round' : 'A page sentence')}
+      ${row('Evidence', sources)}
+      ${row('Three answers', judges)}
+      ${row('Writer and bond', bonds)}
+      ${row('Payout', money)}
+      ${r.challenger ? row('Challenge', `<span class="mono">${esc(r.challenger)}</span> challenged with ${Site.near(r.bond)} NEAR`) : ''}
+      ${row('Ruled in', `${r.attempts.length} run(s)${blocks.length ? ', ' + blocks.join(' and ') + ' blocks (about one second each)' : ''}`)}
+      ${proofRow}
+      ${row('On the chain', `<span id="tx" class="mute">${sealed ? '' : 'Looking up the ruling transaction...'}</span>`)}
+    </dl>
+  </div>`;
+  $('cmd').textContent = `npm ci --prefix privacy/tools\n${Site.fullCheckCmd(id)}`;
+  $('check').hidden = false;
+  const ex = Site.explorer();
+  if (sealed) { $('tx').innerHTML = `<a href="${ex}/txns/${sealed.tx}" rel="noopener">Ruling transaction ${esc(sealed.tx.slice(0, 12))}...</a> · <a href="${ex}/address/${Site.CFG.contract}" rel="noopener">Contract</a>`; }
+  else {
+    const last = r.attempts[r.attempts.length - 1];
+    if (!last) { $('tx').innerHTML = `Not ruled yet. <a href="${ex}/address/${Site.CFG.contract}" rel="noopener">Contract</a>`; return; }
+    findAttemptTx(last.start_block).then((hash) => { $('tx').innerHTML = hash ? `<a href="${ex}/txns/${hash}" rel="noopener">Ruling transaction ${hash.slice(0, 12)}...</a> · <a href="${ex}/address/${Site.CFG.contract}" rel="noopener">Contract</a>` : `Ruled in block ${last.end_block}. <a href="${ex}/address/${Site.CFG.contract}" rel="noopener">See the contract's transactions</a>`; });
+  }
+}
+$('chk-run').addEventListener('click', async () => {
+  const btn = $('chk-run'); btn.disabled = true; btn.textContent = 'Checking...';
+  $('chk-list').innerHTML = ''; $('chk-sum').textContent = '';
+  const out = await Site.runChecks(id, (name, status, detail) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="res ${status}">${status === 'NEEDS' ? 'COMMAND LINE' : status}</span><span class="name">${esc(name)}</span><span class="det">${esc(detail)}</span>`;
+    $('chk-list').appendChild(li);
+  });
+  const c = (s) => out.filter((x) => x.status === s).length;
+  $('chk-sum').textContent = `${c('MATCH')} matched in your browser, ${c('MISMATCH')} did not, ${c('NEEDS')} need the command line.`;
+  btn.disabled = false; btn.textContent = 'Run the checks again';
+});
+$('copy').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('cmd').textContent); $('copied').textContent = 'Copied.'; } catch { $('copied').textContent = 'Select the text above and copy it.'; }
+});
+show().catch(() => { rec.innerHTML = '<div class="rec-body"><p>Could not read this round. Try again in a moment.</p></div>'; });
+</script>
+</body></html>
