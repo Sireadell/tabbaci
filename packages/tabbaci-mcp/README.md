@@ -23,7 +23,7 @@ From a local copy of this repo:
   "mcpServers": {
     "tabbaci": {
       "command": "node",
-      "args": ["C:/path/to/encyclopedia/packages/encyclopedia-mcp/bin/tabbaci-mcp.mjs"]
+      "args": ["C:/path/to/encyclopedia/packages/tabbaci-mcp/bin/tabbaci-mcp.mjs"]
     }
   }
 }
