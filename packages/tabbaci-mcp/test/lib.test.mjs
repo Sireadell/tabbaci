@@ -15,7 +15,7 @@ const offline = async (method, params) => {
 export const offlineClient = () => createClient({ rpc: offline });
 
 test('checkCommand gives the exact verify command', () => {
-  assert.equal(checkCommand(20), 'node tools/verify/verify.mjs --contract finalenc2.testnet --round 20 --network testnet --archive archive');
+  assert.equal(checkCommand(20), 'node tools/verify/verify.mjs --contract finalenc2.testnet --round 20 --archive archive --network testnet --attested-judges --rpc https://test.rpc.fastnear.com');
   assert.throws(() => checkCommand(0));
   assert.throws(() => checkCommand('x'));
 });

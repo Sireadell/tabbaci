@@ -71,7 +71,7 @@ export function createClient(opts = {}) {
 export function checkCommand(round, { contract = DEFAULTS.contract, network = DEFAULTS.network } = {}) {
   const n = Number(round);
   if (!Number.isInteger(n) || n < 1) throw new Error('round must be a whole number, 1 or higher');
-  return `node tools/verify/verify.mjs --contract ${contract} --round ${n} --network ${network} --archive archive`;
+  return `node tools/verify/verify.mjs --contract ${contract} --round ${n} --archive archive --network ${network} --attested-judges --rpc https://test.rpc.fastnear.com`;
 }
 
 const parse = (s) => { try { return JSON.parse(s); } catch { return null; } };
