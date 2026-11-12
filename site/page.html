@@ -17,7 +17,7 @@
 <script>
 const slug = new URLSearchParams(location.search).get('p') || 'near-chain';
 fetch(`pages/${slug}.json`).then((r) => r.json()).then(async (p) => {
-  document.title = p.title;
+  document.title = p.title + " | Tabbaci";
   document.getElementById('title').textContent = p.title;
   document.getElementById('intro').textContent = p.intro;
   document.getElementById('by').textContent = 'Written by: ' + p.written_by + '. Network: NEAR ' + Site.CFG.network + '.';

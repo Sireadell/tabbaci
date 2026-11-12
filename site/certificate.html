@@ -65,7 +65,7 @@ async function show() {
   const r = await S.view('get_round', { round: id });
   if (!r) { document.getElementById('status').textContent = `There is no round ${id} on ${S.CFG.contract}.`; return; }
   r.id = id;
-  document.title = `Court paper, round ${id}`;
+  document.title = `Court paper, round ${id} | Tabbaci`;
   const [label, cls] = S.outcomeOf(r);
   const input = parse(r.input) || {};
   const v = parse(r.verdict);
