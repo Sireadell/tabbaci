@@ -41,7 +41,7 @@ I timed the second line: it takes about 20 to 40 seconds (21 seconds on my faste
 
 Each ruling also has its own one-page court paper on the site, for example `site/certificate.html?round=20`.
 
-What this does not show yet: it is testnet money only, I still keep that one access key, a judge that gives no signed reply counts as unsure, and the fines on rounds 23 to 33 were paid on 12 November 2026 after the 36,000 block window (about 5.8 hours) closed, on testnet money only. The sources on number rounds are live status pages that change every second, so their exact bytes cannot be matched again later. The full list is under [What this is not](#what-this-is-not).
+What this does not show yet: it is testnet money only, I still keep that one access key, a judge that gives no signed reply counts as unsure, the fines on rounds 20 to 31 and my challenge on rounds 32 and 33 were settled on 12 November 2026 after the 36,000 block window (about 5.8 hours) closed, and round 34 is ruled true but not finalized yet. The sources on number rounds are live status pages that change every second, so their exact bytes cannot be matched again later. The full list is under [What this is not](#what-this-is-not).
 
 ## What it is
 
@@ -127,7 +127,7 @@ The `privacy/` folder holds more: judge report checks, a reader that never leaks
 | FastFS | The sealed program's wasm file (the compiled program) is stored on FastFS. The contract's `courtroom` view returns its address, `https://test.fastfs.io/sireadell.testnet/outlayer.testnet/2c8e24a5....wasm`, and its sha256. | The checker downloads that file and compares its sha256 with the one on chain. |
 | Secrets locked to a program hash | The NEAR AI key can be read only by this exact program build, only through `finalenc2`. The account that owns the key, `fkey2.sireadell.testnet`, has 0 keys left, so nobody can change that rule. | `fkey2.sireadell.testnet` has 0 access keys on chain. The lock run is recorded in `proofs/finalenc2/README.md`. |
 | Access keys (function-call key) | The helper account `relay1.sireadell.testnet` has exactly one key: `ed25519:3iDTiazfmL3iUCMayKTEq8MNoT7i8WZZAFqLh7W9tsyd`. It can call only `open_round` and `bond`, only on `finalenc2.testnet`, with 0.05 NEAR that pays for gas only, and it can't send money. The account's first, full-power key was deleted. With that key alone I opened and bonded round 34. When I tried `finalize`, sending NEAR, and calling another account with it, all three were refused. | Look up the key list of `relay1.sireadell.testnet` on any testnet explorer: one key, limited to those two methods on `finalenc2.testnet`. |
-| NEAR AI Cloud private inference | 3 judges, each running and signing its answer from inside its own Intel-sealed chip, with a key Intel vouches for. | `--attested-judges` fetches a fresh Intel-signed report per model and matches each judge's signature to it. |
+| NEAR AI Cloud private inference | 3 judges, each running and signing its answer from inside its own Intel-sealed chip, with a key Intel vouches for. One of these models also drafted one short page from the ruled sentences (see What runs today). | `--attested-judges` fetches a fresh Intel-signed report per model and matches each judge's signature to it. |
 
 Not used, no honest fit: NEAR Intents, Chain Signatures, a Sputnik DAO owner, Agent Market.
 
@@ -170,7 +170,8 @@ Today a sentence is a bond, not a market: writers stake on their own words. Trad
 | Accuracy test | `tools/accuracy` | 200 sentences (100 true, 100 false) with truth from Wikidata, run against the 3 real judges on 9 November 2026. The 3-judge ruling was right on 198, wrong on 0, no ruling on 2. Cost: $0.0173 for 600 judge calls. |
 | Pages | `content/pages/` | `near-chain` (rounds 2 to 4), `near-tools` (rounds 5 to 10), `lagos-abuja` (rounds 11 to 16), the 12 bonded planted lies in `lie-test` (rounds 20 to 22) and `lie-wall` (rounds 23 to 31), and `self-challenge` (round 32). |
 | Site | `site/` | Try to lie to it, a live ledger of every ruling, the pages, and a one-page court paper for each ruling (`certificate.html?round=20`). |
-| Agent access | `packages/tabbaci-mcp` | Read-only library and MCP server so other AI agents can ask for a ruling, its fine state and the check command (not published yet). |
+| Agent access | `packages/tabbaci-mcp` | 13 tests. Read-only library and MCP server so other AI agents can ask for a ruling, its fine state and the check command (not published yet). |
+| Drafted page | `content/drafted`, `tools/draft-page` | One short page drafted on 12 November 2026 by the NEAR AI model `Qwen/Qwen3.8-27B` from the 15 sentences the court ruled true and finalized (rounds 2, 4 to 16 and 32). The script rejects a draft that holds a number or a `[round N]` that isn't in those sentences. I didn't edit the model's text. It drops some dates the rulings carry (for example "On 8 November 2026") and adds two sentences with no facts in them. The whole run, including retries, cost under three cents of NEAR AI credit. |
 
 ## What this is not
 
@@ -191,7 +192,7 @@ Today a sentence is a bond, not a market: writers stake on their own words. Trad
 - **Three models from one provider are three models, not three independent parties.**
 - **Accuracy is measured on simple sentences only** ("The capital of X is Y"). Harder sentences are not measured.
 - **It never picks a side when two sources disagree.** The round is void and stakes go back.
-- **The pages were written by hand.** No AI writer has published a page.
+- **The pages were written by hand.** One extra page was drafted by a NEAR AI model from sentences already ruled true, and it is labelled that way. It is not bonded or ruled itself, and it leaves out some dates the rulings state.
 - **The reproducible build is only compared on Windows.** A Linux check is written (`.github/workflows/reproducible-build.yml`) but has never run.
 
 ## Code written before the hackathon, and libraries
@@ -207,14 +208,14 @@ Libraries I did not write:
 | Sealed bets (`privacy/`) | substrate-bn, getrandom, sha2, sha3, serde, serde_json, wasi-http-client, hex |
 | Intel quote checker | @phala/dcap-qvl 0.7.1 (npm) |
 
-Services: NEAR testnet, OutLayer (runs the program in the Intel TDX chip), NEAR AI Cloud (the three judges).
+Services: NEAR testnet, OutLayer (runs the program in the Intel TDX chip), FastFS (stores the program file), NEAR AI Cloud (the three judges, and the model that drafted one page).
 
 ## Which tracks this fits
 
 NEAR's page says Privacy & Private AI is about "confidential computation, private finance and AI that protects sensitive data". Each track pays 10K, 3K and 2K in NEAR. Here is how this entry answers the tracks it fits.
 
 **Privacy & Private AI** (TEE, NEAR AI Cloud)
-- The courtroom program runs inside an Intel TDX chip on OutLayer.
+- The courtroom program runs inside an Intel TDX chip on OutLayer. `outlayer-verify` came back PROVEN on rounds 20, 25 and 33, and the saved proofs re-check with no network.
 - The judges are NEAR AI Cloud models, and each one signs from inside its own Intel-sealed chip. The checker confirms that against a fresh Intel report.
 - The NEAR AI key is locked to one program build and one contract, and its owner has no keys left.
 
@@ -236,9 +237,10 @@ cd contracts/courtroom; cargo test
 cd contracts/rules;     cargo test
 cd contracts/payout;    cargo test
 cd tools/verify;        node --test
+cd packages/tabbaci-mcp; node --test
 ```
 
-Run each line from the repo root. On Windows without the Microsoft C++ linker, add `+stable-x86_64-pc-windows-gnu` after `cargo`.
+Run each line from the repo root. The package has 13 tests. One of them checks the live contract and runs only with `ENCYCLOPEDIA_LIVE=1` set. On Windows without the Microsoft C++ linker, add `+stable-x86_64-pc-windows-gnu` after `cargo`.
 
 To build the contract, run `cargo near build non-reproducible-wasm --no-abi` in `contracts/courtroom`. To build the courtroom program, run `./build/reproduce.sh`.
 
@@ -255,7 +257,10 @@ To build the contract, run `cargo near build non-reproducible-wasm --no-abi` in 
 | `tools/accuracy` | The 200-sentence judge test |
 | `privacy` | Judge report checks, and sealed bets that are built and tested but not deployed |
 | `content/pages` | The pages |
-| `proofs` | Run notes and saved sealed-box proofs (see `docs/SEALED_BOX_PROOF.md`) |
+| `content/drafted` | The page drafted by a NEAR AI model, with its label and the 15 sentences it came from |
+| `tools/draft-page` | The script that asks the model for that draft and rejects any draft with a number or round not in the sentences |
+| `packages/tabbaci-mcp` | Read-only library and MCP server for other AI agents |
+| `proofs` | Run notes and saved sealed-box proofs for rounds 20, 25 and 33 (see `proofs/finalenc2/sealed-runs.md` and `docs/SEALED_BOX_PROOF.md`) |
 | `docs` | The payout rule, the sealed-box proof, the real-judge checklist |
 | `site` | Try to lie, ledger, pages |
 | `archive` | Page bytes that past rulings saw |
