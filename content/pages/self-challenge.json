@@ -1,0 +1,30 @@
+{
+  "slug": "self-challenge",
+  "title": "A true sentence we then challenge ourselves",
+  "intro": "A correct protocol version. Right after it is ruled true, one of us challenges the ruling and puts 0.2 NEAR behind the challenge.",
+  "written_by": "written by the team on 12 November 2026 for the test network",
+  "sentences": [
+    {
+      "writer": "w3.sireadell.testnet",
+      "word": "is",
+      "kind": "data",
+      "claim": "On 12 November 2026, NEAR mainnet runs protocol version 88.",
+      "cv": "88",
+      "picks": [
+        {
+          "url": "https://rpc.mainnet.near.org/status",
+          "x": "json:$.protocol_version",
+          "tol": 0,
+          "id": 0
+        },
+        {
+          "url": "https://free.rpc.fastnear.com/status",
+          "x": "json:$.protocol_version",
+          "tol": 0,
+          "id": 0
+        }
+      ],
+      "terms": []
+    }
+  ]
+}

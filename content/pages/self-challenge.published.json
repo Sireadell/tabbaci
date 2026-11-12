@@ -1,0 +1,10 @@
+{
+  "slug": "self-challenge",
+  "contract": "finalenc2.testnet",
+  "rounds": [
+    {
+      "round": 32,
+      "claim": "On 12 November 2026, NEAR mainnet runs protocol version 88."
+    }
+  ]
+}
