@@ -32,7 +32,8 @@ function outcomeOf(r) {
 }
 const verifyCmd = (id) => `node tools/verify/verify.mjs --contract ${CFG.contract} --round ${id} --network ${CFG.network} --archive archive`;
 const blocksOf = (r) => r.attempts.filter((a) => a.end_block).map((a) => a.end_block - a.start_block);
-const kindOf = (r) => (r.tag === 'lie_attempt' ? 'lie tried' : 'page sentence');
+const isLie = (r) => r.tag === 'lie_attempt' || (CFG.plantedLies || []).includes(Number(r.id));
+const kindOf = (r) => (isLie(r) ? 'lie tried' : 'page sentence');
 
 // What one bond did, in words: "very likely: gained 0.0105".
 function bondLine(b) {
@@ -76,4 +77,4 @@ function roundRow(r) {
 }
 
 const CFGnear = (y) => near(y);
-window.Site = { CFGnear, view, allRounds, roundRow, rulingItem, bondLine, outcomeOf, verifyCmd, esc, CFG };
+window.Site = { isLie, CFGnear, view, allRounds, roundRow, rulingItem, bondLine, outcomeOf, verifyCmd, esc, CFG };

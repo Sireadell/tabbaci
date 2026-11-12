@@ -89,7 +89,7 @@ function build() {
 build();
 
 Site.allRounds().then((rs) => {
-  const lies = rs.filter((r) => r.tag === 'lie_attempt');
+  const lies = rs.filter(Site.isLie);
   $('n-all').textContent = rs.filter((r) => r.status !== 'open').length;
   $('n-lie').textContent = lies.length;
   $('n-won').textContent = lies.filter((r) => r.outcome === 'T').length;

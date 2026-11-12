@@ -145,7 +145,7 @@ Services: NEAR testnet, OutLayer (runs the program in the Intel TDX chip), NEAR 
 
 ## Which tracks this fits
 
-I could not find NEAR's own prize wording saved anywhere, so these are the track names and the tech each one names.
+NEAR's page says Privacy & Private AI is about "confidential computation, private finance and AI that protects sensitive data". Each track pays 10K, 3K and 2K in NEAR. Here is how this entry answers the tracks it fits.
 
 **Privacy & Private AI** (TEE, NEAR AI Cloud)
 - The courtroom program runs inside an Intel TDX chip on OutLayer.
