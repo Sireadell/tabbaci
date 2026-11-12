@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tabbaci: lies cost money</title>
-<meta name="description" content="Every checkable sentence has a money bond. A sealed court decides if it is true, and a liar pays. Watch a real ruling and check it yourself.">
+<meta name="description" content="Tabbaci puts money behind every sentence you can check. A sealed court rules on it, and a writer who lied loses part of the bond. Watch a real ruling, then check it yourself.">
 <link rel="stylesheet" href="style.css"></head>
 <body>
 <a class="skip" href="#main">Skip to the content</a>
@@ -11,7 +11,7 @@
 <section class="hero">
   <div>
     <h1>A lie costs money. The court stamps it <span class="stamp st-false">False</span></h1>
-    <p class="lead">Every checkable sentence has a money bond. A sealed court decides if it is true, and a liar pays.</p>
+    <p class="lead">I built Tabbaci so that a sentence you can check comes with money behind it. A sealed court reads the evidence and rules. If the sentence was a lie, the writer pays.</p>
     <div class="cta">
       <a class="btn" href="#replay" id="go-replay">Watch a real ruling</a>
       <a class="btn ghost" href="#check">Check one yourself</a>
@@ -27,17 +27,17 @@
 </section>
 
 <section class="band" id="latest-sec">
-  <div class="sec-head"><div><p class="label">Latest rulings</p><h2>What the court decided last</h2></div><p><a href="ledger.html">Open the ledger with every round</a></p></div>
+  <div class="sec-head"><div><p class="label">Latest rulings</p><h2>What the court decided last</h2></div><p><a href="ledger.html">See every round in the ledger</a></p></div>
   <ol class="latest" id="latest"><li class="mute" style="padding:14px 4px">Reading the chain...</li></ol>
 </section>
 
 <section class="band" id="files">
-  <div class="sec-head"><div><p class="label">Court files</p><h2>Three cases worth reading</h2></div><p>Each one is a real round on the test network. Open it and you get the sentence, the evidence, the judges, the money and the command to check it.</p></div>
+  <div class="sec-head"><div><p class="label">Court files</p><h2>Three cases worth reading</h2></div><p>All three ran for real on the NEAR test network. Open one and you'll find the sentence, the pages the court read, what each judge said, where the money went and the command to check it yourself.</p></div>
   <div class="files" id="files-row"></div>
 </section>
 
 <section class="band" id="proof">
-  <div class="sec-head"><div><p class="label">The numbers</p><h2>What has been proven so far</h2></div><p>Two different things are measured here. They are kept apart on purpose.</p></div>
+  <div class="sec-head"><div><p class="label">The numbers</p><h2>What I can show so far</h2></div><p>The top rows are read from the chain as this page loads. The bottom rows come from a separate test I ran off the chain, so I keep the two apart.</p></div>
   <div class="tab-scroll"><table class="numtable">
     <thead><tr><th scope="col">Number</th><th scope="col">What it is</th><th scope="col">Where it comes from</th></tr></thead>
     <tbody id="numbody"><tr><td colspan="3" class="mute">Reading the chain...</td></tr></tbody>
@@ -45,7 +45,7 @@
 </section>
 
 <section class="band" id="check">
-  <div class="sec-head"><div><p class="label">Check it yourself</p><h2>Do not trust this page. Ask the chain.</h2></div><p>Pick a round. This page asks the chain for it and runs the checks in your own browser, one line at a time.</p></div>
+  <div class="sec-head"><div><p class="label">Check it yourself</p><h2>Do not trust this page. Ask the chain.</h2></div><p>Pick a round and press the button. Your own browser fetches that round from the chain and runs each check itself, one line at a time.</p></div>
   <div class="checkbox">
     <div class="card">
       <div class="pick">
@@ -56,11 +56,11 @@
       <p class="sum" id="chk-sum"></p>
     </div>
     <div>
-      <h3>Some lines need the command line</h3>
-      <p class="mute">A browser cannot check the judges' signatures or Intel's report on the sealed box. Those lines say so, and are never shown as a match. The same command checks everything, in about 20 seconds.</p>
+      <h3>A few checks need a terminal</h3>
+      <p class="mute">A browser can't check the judges' signatures or Intel's report on the sealed box. Those lines say COMMAND LINE, and they never show up as a match. The command below checks everything in about 20 seconds.</p>
       <pre id="cmd"></pre>
       <div class="copyrow"><button type="button" class="btn ghost" id="copy">Copy the command</button><span class="mute" id="copied" role="status"></span></div>
-      <p class="mute" style="font-size:.9rem">One line is red on purpose today: the contract still holds one access key, which its owner keeps until the final deletion. Once it is deleted, that line turns to MATCH by itself.</p>
+      <p class="mute" style="font-size:.9rem">One line shows red today, and I expect it to. The contract still has one access key, and I'm keeping it until I give the go to delete it. Once that key is gone, the line turns to MATCH on its own.</p>
     </div>
   </div>
 </section>
@@ -68,20 +68,20 @@
 <section class="band" id="how">
   <div class="sec-head"><div><p class="label">How it works</p><h2>What happens to a sentence</h2></div></div>
   <ol class="how">
-    <li><b>A writer puts a bond on it.</b> The writer picks a word (is, very likely, likely, disputed) and locks money behind the sentence.</li>
-    <li><b>A sealed court reads the evidence.</b> A program inside Intel's chip fetches two web pages from a short approved list. It is a locked box that even we cannot open.</li>
-    <li><b>Three AI judges answer.</b> They see the sentence only as quoted text, so an order hidden in it is not obeyed. Each judge signs its answer.</li>
-    <li><b>A contract pays or fines.</b> One fixed public rule moves the money. A liar loses part of the bond.</li>
+    <li><b>A writer puts money on it.</b> They pick one word for how sure they are (is, very likely, likely or disputed), and the contract locks their money behind the sentence.</li>
+    <li><b>A sealed court reads the evidence.</b> My program runs inside an Intel chip, in a locked box that even I can't open. It fetches two web pages itself, from a short approved list.</li>
+    <li><b>Three AI judges answer.</b> Each one sees the sentence only as quoted text. So if someone hides an order in it, the judges read the order and don't follow it. Every answer is signed.</li>
+    <li><b>The contract pays or fines.</b> The same public rule moves the money on every round. A writer who lied loses part of the bond.</li>
   </ol>
 </section>
 
 <section class="band" id="not">
   <div class="sec-head"><div><p class="label">Honest limits</p><h2>What this is not</h2></div></div>
   <div class="nots">
-    <div><b>Not a prediction market.</b><p>The confidence number is called bond-backed confidence. It comes from the word a writer picked and the money behind it, not from trading.</p></div>
-    <div><b>Not on the main network yet.</b><p>Every round here is on the NEAR test network with test money, and each case is labelled Testnet.</p></div>
-    <div><b>Not open to any source.</b><p>The court reads pages from an approved list of 10 that we control.</p></div>
-    <div><b>Not a swarm or a live market.</b><p>Those are ideas on the roadmap. They are not built and are not claimed.</p></div>
+    <div><b>Not a prediction market.</b><p>The number beside each sentence is bond-backed confidence. It comes from the word the writer picked and the money they put behind it. Nobody trades it.</p></div>
+    <div><b>Not on the main network yet.</b><p>Every round here ran on the NEAR test network with test money. Each case page says Testnet at the top.</p></div>
+    <div><b>Not open to any source.</b><p>The court only reads pages from an approved list of 10, and I control that list.</p></div>
+    <div><b>Not a swarm or a live market.</b><p>Both are on my roadmap. Neither is built, and nothing on this site claims them.</p></div>
   </div>
 </section>
 </main>
@@ -110,13 +110,13 @@ Site.allRounds().then(({ rounds, live, savedAt }) => {
 
   const acc = Site.CFG.accuracy; const ex = fines[0];
   const rows = [
-    ['group', 'On the chain, NEAR test network. Read live from the contract.'],
+    ['group', 'On the chain. Read live from the contract on the NEAR test network.'],
     [ruled.length, 'rounds the court has ruled', `<a href="ledger.html">The ledger</a>, straight from ${esc(Site.CFG.contract)}`],
     [lies.length, 'lies planted on purpose and sent to the court', `<a href="ledger.html?show=lies">The ledger, lies only</a>`],
     [through.length, 'lies that got through, ruled TRUE', through.length ? `<a href="case.html?round=${through[0].id}">Round ${through[0].id}</a>` : `<a href="ledger.html?show=lies">The ledger, lies only</a>. Every one was stopped.`],
     [fines.length, `bonds that lost money, ${Site.near(fined)} NEAR in all`, ex ? `<a href="case.html?round=${ex.r.id}">Round ${ex.r.id}</a> is one of them` : ''],
-    ['group', `Accuracy test, run off the chain on ${esc(acc.date)} against the same three judges. This is not a chain number.`],
-    [`${acc.right} of ${acc.total}`, 'sentences ruled correctly, 100 true and 100 false', 'The accuracy tool in the code, with truth taken from Wikidata'],
+    ['group', `Accuracy test. I ran it off the chain on ${esc(acc.date)} with the same three judges, so these numbers are not on the chain.`],
+    [`${acc.right} of ${acc.total}`, 'sentences ruled correctly, 100 true and 100 false', 'The accuracy tool in the code. The right answers come from Wikidata'],
     [acc.wrong, 'ruled wrongly, and ' + acc.noRuling + ' got no ruling', 'The same test'],
     [acc.cost, 'total cost of the 600 judge calls', 'The same test'],
   ];

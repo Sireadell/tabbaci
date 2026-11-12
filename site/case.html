@@ -18,10 +18,10 @@
     <ul class="checks" id="chk-list" aria-live="polite"></ul>
     <p class="sum" id="chk-sum"></p>
   </div>
-  <p class="mute">Lines marked COMMAND LINE need the signature maths or Intel's report, which a browser cannot do. This one command checks everything:</p>
+  <p class="mute">A few lines say COMMAND LINE. They need the signature maths or Intel's report, and a browser can't do either. This one command checks everything:</p>
   <pre id="cmd"></pre>
   <div class="copyrow"><button type="button" class="btn ghost" id="copy">Copy the command</button><span class="mute" id="copied" role="status"></span></div>
-  <p class="mute" style="font-size:.9rem">The contract still holds one access key that its owner keeps until the final deletion, so "no access keys" shows red today on purpose.</p>
+  <p class="mute" style="font-size:.9rem">The "no access keys" line shows red today, and I expect it to. The contract still has one access key, and I'm keeping it until I give the go to delete it.</p>
   <div class="print-row"><button type="button" class="btn ghost" onclick="window.print()">Print this record</button><a class="btn ghost" href="ledger.html">Back to the ledger</a></div>
 </section>
 </main>
@@ -65,15 +65,15 @@ async function show() {
     return `<div><span class="mono">${esc(s.u)}</span><br><span class="mute">${got ? (got.x !== undefined && got.x !== '' ? 'the sealed run read <b>' + esc(got.x) + '</b>' : 'fetched, HTTP ' + esc(got.c)) : 'not fetched yet'}${got ? ', fingerprint <span class="mono">' + esc(got.h.slice(0, 10)) + '</span>' : ''}</span>${sv && sv.excerpt ? `<div class="excerpt">${oneLine(sv.excerpt)}</div>` : ''}</div>`;
   }).join('') || '<span class="mute">None recorded.</span>';
 
-  const judges = v && v.j && v.j.length ? `<ul class="jl">${v.j.map((j) => { const a = j.a === 'T' ? 'TRUE' : j.a === 'F' ? 'FALSE' : 'UNSURE'; return `<li>${Site.stamp(a, 'small')}<span>${esc(Site.modelName(models[j.m]) || 'judge ' + j.m)}${j.g ? ', reply signed' : ', no signed reply, counted as unsure'}</span></li>`; }).join('')}</ul>${isData ? `<p class="mute" style="margin:6px 0 0;font-size:.9rem">This sentence is about a number. The numbers the sources returned decide it. The judges only confirm the sentence states that number${input.cv ? ' (' + esc(input.cv) + ')' : ''}.</p>` : ''}` : '<span class="mute">No judge answers yet.</span>';
+  const judges = v && v.j && v.j.length ? `<ul class="jl">${v.j.map((j) => { const a = j.a === 'T' ? 'TRUE' : j.a === 'F' ? 'FALSE' : 'UNSURE'; return `<li>${Site.stamp(a, 'small')}<span>${esc(Site.modelName(models[j.m]) || 'judge ' + j.m)}${j.g ? ', reply signed' : ', no signed reply, counted as unsure'}</span></li>`; }).join('')}</ul>${isData ? `<p class="mute" style="margin:6px 0 0;font-size:.9rem">This sentence is about a number, so the numbers the sources returned decide it. The judges only confirm that the sentence states that number${input.cv ? ' (' + esc(input.cv) + ')' : ''}.</p>` : ''}` : '<span class="mute">No judge answers yet.</span>';
 
-  const bonds = (r.bonds || []).length ? `<ul class="jl">${r.bonds.map((b) => `<li><span class="mono">${esc(b.writer)}</span> put <b>${Site.near(b.stake)} NEAR</b> on the word <b>${esc(b.word)}</b></li>`).join('')}</ul><p class="mute" style="margin:6px 0 0;font-size:.9rem">The bond-backed confidence of this sentence is ${(Site.WORDS[r.bonds[0].word] / 100).toFixed(0)} in 100. It comes from the word chosen and the money behind it, not from market trading.</p>` : '<span class="mute">No money behind this sentence.</span>';
+  const bonds = (r.bonds || []).length ? `<ul class="jl">${r.bonds.map((b) => `<li><span class="mono">${esc(b.writer)}</span> put <b>${Site.near(b.stake)} NEAR</b> on the word <b>${esc(b.word)}</b></li>`).join('')}</ul><p class="mute" style="margin:6px 0 0;font-size:.9rem">The bond-backed confidence of this sentence is ${(Site.WORDS[r.bonds[0].word] / 100).toFixed(0)} in 100. It comes from the word the writer chose and the money behind it. Nobody trades it.</p>` : '<span class="mute">No money behind this sentence.</span>';
   const money = (r.bonds || []).length ? `<ul class="jl">${r.bonds.map((b) => { const m = Site.bondMoney(b); return `<li><span class="${m.kind === 'fine' ? 'neg' : m.kind === 'gain' ? 'pos' : ''}">${esc(m.text)}</span></li>`; }).join('')}</ul>` : '<span class="mute">Nothing to pay.</span>';
   const blocks = Site.blocksOf(r);
   const sealed = Site.CFG.sealed[id];
   const proofRow = sealed
-    ? row('Sealed-run proof', `The sealed run was checked with Intel's report and the evidence saved. The program that ran has fingerprint <span class="mono">2c8e24a5...</span>, the one the contract stores.<br><span class="mute">OutLayer task ${sealed.task}. Check it offline:</span><pre>outlayer-verify bundle proofs/finalenc2/round-${id}.bundle.json --offline</pre>`)
-    : row('Sealed-run proof', '<span class="mute">Not saved for this round. The command below checks it live.</span>');
+    ? row('Sealed-run proof', `I checked this sealed run against Intel's report and saved the evidence. The program that ran has fingerprint <span class="mono">2c8e24a5...</span>, the same one the contract stores.<br><span class="mute">OutLayer task ${sealed.task}. Check it offline:</span><pre>outlayer-verify bundle proofs/finalenc2/round-${id}.bundle.json --offline</pre>`)
+    : row('Sealed-run proof', '<span class="mute">I didn\'t save a proof for this round. The command below checks it live.</span>');
 
   rec.innerHTML = `<div class="rec-top"><span>Court record · round ${id}</span><span class="tn">Testnet</span></div>
   <div class="rec-body">
@@ -81,7 +81,7 @@ async function show() {
     <p class="rec-claim">${claimHtml}</p>
     <div class="rec-verdict">${Site.stamp(word, 'big')}<span class="mute">${esc(Site.plainOutcome(r))}</span></div>
     <dl class="rec-grid">
-      ${row('Kind', Site.isLie(r) ? 'A lie planted on purpose, to see if the court stops it' : r.challenger ? 'A challenge round' : 'A page sentence')}
+      ${row('Kind', Site.isLie(r) ? 'A lie I planted on purpose, to see if the court stops it' : r.challenger ? 'A challenge round' : 'A page sentence')}
       ${row('Evidence', sources)}
       ${row('Three answers', judges)}
       ${row('Writer and bond', bonds)}
