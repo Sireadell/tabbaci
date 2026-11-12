@@ -3,6 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "description": "Read-only access to Tabbaci's verified rulings on NEAR testnet, as a JavaScript library and an MCP server.",
+  "license": "MIT",
+  "author": "Sireadell",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sireadell/tabbaci.git",
+    "directory": "packages/tabbaci-mcp"
+  },
   "type": "module",
   "main": "./src/index.mjs",
   "exports": {
@@ -15,7 +22,8 @@
   "files": [
     "src",
     "bin",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=20"
@@ -23,5 +31,13 @@
   "scripts": {
     "test": "node --test"
   },
-  "keywords": ["mcp", "model-context-protocol", "near", "verified-facts", "fact-checking", "ai-agents", "encyclopedia"]
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "near",
+    "verified-facts",
+    "fact-checking",
+    "ai-agents",
+    "encyclopedia"
+  ]
 }
