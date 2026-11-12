@@ -115,8 +115,8 @@ Today a sentence is a bond, not a market: writers stake on their own words. Trad
 ## What this is not
 
 - **Testnet only.** Nothing is deployed on mainnet.
-- **The fines on rounds 20 to 22 are not paid yet.** Each of those writers stands to lose 65.25% of 0.05 NEAR. Their challenge windows close at blocks 277,303,311 to 277,303,424. After that anyone can call `finalize`, and the fines move.
-- **Finalize has only paid stakes back so far.** 14 rounds (2 and 4 to 16) were finalized, and round 3's stakes came back when it was ruled unsure. That is all 15 page rounds paid. Each writer got 0.05 NEAR back with a bonus of 0, because no wrong writer had paid into the pool yet.
+- **The first fines were paid on 12 November 2026.** Each of the three writers on rounds 20 to 22 lost 65.25% of 0.05 NEAR (the checker says MATCH on the payout rule). That was testnet money and 3 writers, so it shows the loop works, not that it scales.
+- **The true rounds paid only the stake back.** 14 rounds (2 and 4 to 16) were finalized, and round 3's stakes came back when it was ruled unsure. Each writer got 0.05 NEAR back with a bonus of 0, because no wrong writer had paid into the pool at that time.
 - **A judge that fails counts as unsure.** If a judge gives no signed reply, its answer is not counted. That happened on round 3 (2 of 3 judges). A retry would change the program's fingerprint and break the key lock, so I did not add one.
 - **One access key is still on the contract, on purpose.** It stays until I give the go to delete it. Until then I could still redeploy the contract. The checker shows this as its one MISMATCH.
 - **Round 1 was never ruled.** It was opened before the writers had money in the contract.
