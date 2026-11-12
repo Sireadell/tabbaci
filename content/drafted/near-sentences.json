@@ -1,0 +1,87 @@
+{
+  "slug": "near-sentences",
+  "title": "NEAR Protocol and Nigerian Geography",
+  "text": "NEAR is a blockchain platform [round 4]. On 7 November 2026, its mainnet runs protocol version 88 [round 2]. This same protocol version 88 is active on 12 November 2026 [round 32]. Developers use specific libraries to interact with the network. The near-sdk is a Rust library for contracts [round 5]. Its newest release is in major version 5 [round 5]. This release requires Rust 1.95 or newer [round 6]. The library is released under the MIT or Apache 2.0 licence, at the user's choice [round 7].\n\nFor JavaScript developers, near-api-js is the relevant library [round 8]. It allows talking to NEAR through its RPC API [round 10]. The newest release is in major version 7 [round 8]. This version needs Node.js 22 or newer [round 9]. These tools facilitate interaction with the platform's infrastructure.\n\nIn Nigeria, Abuja is the capital [round 11]. Lagos is the largest city in the country [round 12]. Lagos served as a former capital until Abuja replaced it in 1991 [round 13]. Geographically, Lagos lies about 6.46 degrees north of the equator [round 14]. It is located about 3.39 degrees east of Greenwich [round 15]. Abuja lies about 9.06 degrees north of the equator [round 16].",
+  "drafted_by": "Qwen/Qwen3.8-27B",
+  "drafted_on": "2026-11-12",
+  "label": "This page was drafted by the NEAR AI model Qwen/Qwen3.8-27B from the sentences below. Every sentence is one the court ruled true, and the script that made it rejects a draft that holds a number or a round that is not in them. Read it beside the rulings, not instead of them: the draft leaves out some dates that the rulings state, and I did not edit its wording.",
+  "from_rounds": [
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    32
+  ],
+  "sentences": [
+    {
+      "round": 2,
+      "sentence": "On 7 November 2026, NEAR mainnet runs protocol version 88."
+    },
+    {
+      "round": 4,
+      "sentence": "NEAR is a blockchain platform."
+    },
+    {
+      "round": 5,
+      "sentence": "On 8 November 2026, the newest release of near-sdk, NEAR's Rust library for contracts, is in major version 5."
+    },
+    {
+      "round": 6,
+      "sentence": "On 8 November 2026, the newest near-sdk release needs Rust 1.95 or newer."
+    },
+    {
+      "round": 7,
+      "sentence": "near-sdk is released under the MIT or Apache 2.0 licence, at the user's choice."
+    },
+    {
+      "round": 8,
+      "sentence": "On 8 November 2026, the newest release of near-api-js, NEAR's JavaScript library, is in major version 7."
+    },
+    {
+      "round": 9,
+      "sentence": "On 8 November 2026, the newest near-api-js release needs Node.js 22 or newer."
+    },
+    {
+      "round": 10,
+      "sentence": "near-api-js is a JavaScript library for talking to NEAR through its RPC API."
+    },
+    {
+      "round": 11,
+      "sentence": "On 8 November 2026, Abuja is the capital of Nigeria."
+    },
+    {
+      "round": 12,
+      "sentence": "Lagos is the largest city in Nigeria."
+    },
+    {
+      "round": 13,
+      "sentence": "Lagos is a former capital of Nigeria. Abuja replaced it in 1991."
+    },
+    {
+      "round": 14,
+      "sentence": "Lagos lies about 6.46 degrees north of the equator."
+    },
+    {
+      "round": 15,
+      "sentence": "Lagos lies about 3.39 degrees east of Greenwich."
+    },
+    {
+      "round": 16,
+      "sentence": "Abuja lies about 9.06 degrees north of the equator."
+    },
+    {
+      "round": 32,
+      "sentence": "On 12 November 2026, NEAR mainnet runs protocol version 88."
+    }
+  ]
+}
