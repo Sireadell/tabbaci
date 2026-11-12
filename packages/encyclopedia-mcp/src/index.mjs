@@ -1,4 +1,4 @@
-// Read-only client for the Living Encyclopedia contract. No dependencies, Node 20+.
+// Read-only client for Tabbaci contract. No dependencies, Node 20+.
 // Every call is a NEAR view call: no key, no account, nothing is ever written.
 
 export const DEFAULTS = {

@@ -1,6 +1,6 @@
-# living-encyclopedia-mcp
+# tabbaci-mcp
 
-Read-only access to the Living Encyclopedia's rulings on `finalenc2.testnet` (NEAR testnet), as a small JavaScript library and an MCP server. I built it so other AI agents and developers can ask "what did the court rule on this sentence?" and get the outcome, the money state and the command to check it themselves.
+Read-only access to Tabbaci's rulings on `finalenc2.testnet` (NEAR testnet), as a small JavaScript library and an MCP server. I built it so other AI agents and developers can ask "what did the court rule on this sentence?" and get the outcome, the money state and the command to check it themselves.
 
 Nothing here writes to the chain. No keys, no account, no dependencies. Node 20 or newer.
 
@@ -21,9 +21,9 @@ From a local copy of this repo:
 ```json
 {
   "mcpServers": {
-    "living-encyclopedia": {
+    "tabbaci": {
       "command": "node",
-      "args": ["C:/path/to/encyclopedia/packages/encyclopedia-mcp/bin/living-encyclopedia-mcp.mjs"]
+      "args": ["C:/path/to/encyclopedia/packages/encyclopedia-mcp/bin/tabbaci-mcp.mjs"]
     }
   }
 }
@@ -34,7 +34,7 @@ Once the package is published under its final name, the config will look like th
 ```json
 {
   "mcpServers": {
-    "living-encyclopedia": { "command": "npx", "args": ["-y", "living-encyclopedia-mcp"] }
+    "tabbaci": { "command": "npx", "args": ["-y", "tabbaci-mcp"] }
   }
 }
 ```

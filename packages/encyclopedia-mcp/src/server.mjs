@@ -44,7 +44,7 @@ export function rulingText(r) {
 }
 
 export const HOW_TO = [
-  'To re-check a ruling without trusting the people who made it, get a copy of the Living Encyclopedia repo (Node 18 or newer, no account, no keys) and run, from its root:',
+  'To re-check a ruling without trusting the people who made it, get a copy of the Tabbaci repo (Node 18 or newer, no account, no keys) and run, from its root:',
   '',
   '{CMD}',
   '',
@@ -104,8 +104,8 @@ export function createServer(client = createClient()) {
     switch (msg.method) {
       case 'initialize': {
         const want = msg.params && msg.params.protocolVersion;
-        return reply({ protocolVersion: SUPPORTED.includes(want) ? want : PROTOCOL, capabilities: { tools: {} }, serverInfo: { name: 'living-encyclopedia-mcp', version: '0.1.0' },
-          instructions: 'Read-only access to verified rulings on the Living Encyclopedia contract (NEAR testnet). Always report the outcome, whether the fine is paid, and that data-kind rounds cannot be re-matched later.' });
+        return reply({ protocolVersion: SUPPORTED.includes(want) ? want : PROTOCOL, capabilities: { tools: {} }, serverInfo: { name: 'tabbaci-mcp', version: '0.1.0' },
+          instructions: 'Read-only access to verified rulings on the Tabbaci contract (NEAR testnet). Always report the outcome, whether the fine is paid, and that data-kind rounds cannot be re-matched later.' });
       }
       case 'ping': return reply({});
       case 'tools/list': return reply({ tools: TOOLS });

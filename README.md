@@ -1,4 +1,4 @@
-# Living Encyclopedia
+# Tabbaci
 
 On 11 November 2026, a writer on NEAR testnet staked 0.05 NEAR on this sentence and picked the surest word, *is*:
 
@@ -30,7 +30,7 @@ What this does not show yet: it is testnet money only, I still keep that one acc
 
 ## What it is
 
-Living Encyclopedia is an encyclopedia on NEAR where every checkable sentence has money behind it, and a program sealed inside an Intel chip decides whether it is true.
+Tabbaci is an encyclopedia on NEAR where every checkable sentence has money behind it, and a program sealed inside an Intel chip decides whether it is true.
 
 I built it because I wanted to read a fact online and check, myself, who decided it was true and on what evidence, without having to trust them.
 

@@ -1,8 +1,8 @@
 {
-  "name": "living-encyclopedia-mcp",
+  "name": "tabbaci-mcp",
   "version": "0.1.0",
   "private": true,
-  "description": "Read-only access to the Living Encyclopedia's verified rulings on NEAR testnet, as a JavaScript library and an MCP server.",
+  "description": "Read-only access to Tabbaci's verified rulings on NEAR testnet, as a JavaScript library and an MCP server.",
   "type": "module",
   "main": "./src/index.mjs",
   "exports": {
@@ -10,7 +10,7 @@
     "./server": "./src/server.mjs"
   },
   "bin": {
-    "living-encyclopedia-mcp": "./bin/living-encyclopedia-mcp.mjs"
+    "tabbaci-mcp": "./bin/tabbaci-mcp.mjs"
   },
   "files": [
     "src",

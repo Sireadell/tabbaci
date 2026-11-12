@@ -1,4 +1,4 @@
-# Hosting the Living Encyclopedia demo
+# Hosting Tabbaci demo
 
 ## What is ready now
 
