@@ -129,6 +129,7 @@ Today a sentence is a bond, not a market: writers stake on their own words. Trad
 | Accuracy test | `tools/accuracy` | 200 sentences (100 true, 100 false) with truth from Wikidata, run against the 3 real judges on 9 November 2026. The 3-judge ruling was right on 198, wrong on 0, no ruling on 2. Cost: $0.0173 for 600 judge calls. |
 | Pages | `content/pages/` | `near-chain` (rounds 2 to 4), `near-tools` (rounds 5 to 10), `lagos-abuja` (rounds 11 to 16), and the planted lies (rounds 20 to 22). |
 | Site | `site/` | Try to lie to it, a live ledger of every ruling, the pages, and a one-page court paper for each ruling (`certificate.html?round=20`). |
+| Agent access | `packages/encyclopedia-mcp` | Read-only library and MCP server so other AI agents can ask for a ruling, its fine state and the check command (not published yet). |
 
 ## What this is not
 

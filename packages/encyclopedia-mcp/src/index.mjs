@@ -1,0 +1,199 @@
+// Read-only client for the Living Encyclopedia contract. No dependencies, Node 20+.
+// Every call is a NEAR view call: no key, no account, nothing is ever written.
+
+export const DEFAULTS = {
+  contract: 'finalenc2.testnet',
+  network: 'testnet',
+  rpcs: ['https://test.rpc.fastnear.com', 'https://rpc.testnet.near.org'],
+};
+
+const WORD = { T: 'true', F: 'false', U: 'unsure', D: 'judges split' };
+
+// Same approach as site/app.js: try each node, wait, try again.
+export function makeTransport({ rpcs = DEFAULTS.rpcs, fetchImpl = globalThis.fetch, tries = 3 } = {}) {
+  return async function rpc(method, params) {
+    for (let round = 0; round < tries; round++) {
+      for (const url of rpcs) {
+        try {
+          const r = await fetchImpl(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) });
+          if (!r.ok) continue;
+          const j = await r.json();
+          if (j.error) { const e = new Error('rpc error'); e.rpc = j.error; throw e; }
+          return j.result;
+        } catch (e) { if (e.message === 'rpc error') throw e; }
+      }
+      await new Promise((ok) => setTimeout(ok, 800 * (round + 1)));
+    }
+    throw new Error('no NEAR node answered');
+  };
+}
+
+export function createClient(opts = {}) {
+  const contract = opts.contract || DEFAULTS.contract;
+  const network = opts.network || DEFAULTS.network;
+  const rpc = opts.rpc || makeTransport(opts);
+  const explorer = `https://${network === 'mainnet' ? '' : 'testnet.'}nearblocks.io`;
+
+  async function view(method, args = {}) {
+    const res = await rpc('query', { request_type: 'call_function', finality: 'final', account_id: contract, method_name: method, args_base64: Buffer.from(JSON.stringify(args)).toString('base64') });
+    if (res.error) throw new Error(String(res.error).slice(0, 200));
+    return JSON.parse(Buffer.from(res.result).toString());
+  }
+
+  // The ruling transaction is not stored on the round. Look for the "attempt" call
+  // in the few blocks before the last attempt started. Old blocks may be gone from public nodes.
+  async function findRulingTx(startBlock) {
+    for (let h = startBlock - 1; h >= startBlock - 3; h--) {
+      try {
+        const blk = await rpc('block', { block_id: h });
+        for (const c of blk.chunks) {
+          if (c.tx_root === '11111111111111111111111111111111') continue;
+          const ch = await rpc('chunk', { chunk_id: c.chunk_hash });
+          const t = ch.transactions.find((x) => x.receiver_id === contract && x.actions.some((a) => a.FunctionCall && a.FunctionCall.method_name === 'attempt'));
+          if (t) return t.hash;
+        }
+      } catch { /* node may not keep this block */ }
+    }
+    return null;
+  }
+
+  return {
+    contract, network, explorer,
+    view,
+    getContractInfo: () => getContractInfo(view, contract, network),
+    listRounds: (o) => listRounds(view, contract, network, o),
+    getRuling: (round, o = {}) => getRuling(view, findRulingTx, { contract, network, explorer }, round, o),
+    findSentence: (text, o) => findSentence(view, contract, network, text, o),
+    checkCommand: (round) => checkCommand(round, { contract, network }),
+  };
+}
+
+export function checkCommand(round, { contract = DEFAULTS.contract, network = DEFAULTS.network } = {}) {
+  const n = Number(round);
+  if (!Number.isInteger(n) || n < 1) throw new Error('round must be a whole number, 1 or higher');
+  return `node tools/verify/verify.mjs --contract ${contract} --round ${n} --network ${network} --archive archive`;
+}
+
+const parse = (s) => { try { return JSON.parse(s); } catch { return null; } };
+const bigNear = (y) => (Number(BigInt(y) / 10n ** 18n) / 1e6).toFixed(4);
+
+export function describeOutcome(r) {
+  if (r.status === 'open') return { letter: 'open', label: 'waiting for a ruling' };
+  if (r.status === 'void') return { letter: 'void', label: r.void_reason === 'SRC_DISAGREE' ? 'cancelled: the pages disagree' : 'cancelled: 3 failed runs' };
+  return { letter: r.outcome, label: WORD[r.outcome] || r.outcome };
+}
+
+// Plain-words money state for one bond. Mirrors site/certificate.html.
+export function bondState(b, outcome) {
+  const stake = BigInt(b.stake);
+  const base = { writer: b.writer, word: b.word, stake_near: bigNear(stake), stake_yocto: String(b.stake) };
+  if (!b.payout) {
+    const ruled = outcome === 'F' || outcome === 'T';
+    return { ...base, paid: false, payout_near: null, state: ruled ? 'not paid yet: paid after the 12 hour challenge window closes and someone calls finalize' : 'waiting for a ruling' };
+  }
+  const p = BigInt(b.payout);
+  const pct = (n) => (Number((n * 10000n) / stake) / 100).toFixed(2) + '%';
+  const state = p === stake ? 'stake paid back in full, no gain'
+    : p < stake ? `fined ${bigNear(stake - p)} NEAR (${pct(stake - p)} of the stake)`
+    : `gained ${bigNear(p - stake)} NEAR (${pct(p - stake)} of the stake)`;
+  return { ...base, paid: true, payout_near: bigNear(p), payout_yocto: String(b.payout), state };
+}
+
+export function parseRound(id, r, { network = DEFAULTS.network, contract = DEFAULTS.contract } = {}) {
+  const input = parse(r.input) || {};
+  const verdict = parse(r.verdict);
+  const models = input.m || [];
+  const { letter, label } = describeOutcome(r);
+  const kind = input.kind === 'data' ? 'data' : 'prose';
+  const judges = verdict && verdict.j ? verdict.j.map((j) => ({ model: models[j.m] || `judge ${j.m}`, answer: j.a, signed: Boolean(j.g) })) : [];
+  const sources = verdict && verdict.s ? verdict.s.map((s) => {
+    const src = (input.src || []).find((x) => x.i === s.i);
+    return { url: src ? src.u : `source ${s.i}`, http_status: s.c, read_value: s.x !== undefined ? s.x : null };
+  }) : [];
+  const done = r.attempts.filter((a) => a.end_block);
+  const last = r.attempts[r.attempts.length - 1];
+  const bonds = (r.bonds || []).map((b) => bondState(b, r.outcome));
+  return {
+    round: id,
+    contract, network,
+    sentence: r.claim,
+    outcome: letter,
+    outcome_words: label,
+    status: r.status,
+    kind,
+    kind_note: kind === 'data'
+      ? 'Data round: decided by numbers read from live status pages. Those pages change, so this round cannot be re-matched later; the stored record is the proof.'
+      : 'Page round: decided by judges reading archived page text, which can be re-checked later.',
+    tag: r.tag,
+    writer: r.bonds && r.bonds[0] ? r.bonds[0].writer : r.opener,
+    opener: r.opener,
+    bonds,
+    fine_paid: bonds.length ? bonds.every((b) => b.paid) : null,
+    challenger: r.challenger || null,
+    judges,
+    sources,
+    judges_confirm_value: kind === 'data' && input.cv ? input.cv : null,
+    judge_note: kind === 'data' ? 'On a data round the sources decide the outcome. A judge answer of T only confirms the sentence states the number in judges_confirm_value; it does not say that number is right.' : null,
+    opened_block: r.opened_block,
+    attempts: r.attempts.map((a) => ({ n: a.n, start_block: a.start_block, end_block: a.end_block || null, result: a.result })),
+    ruled_in_blocks: done.length ? done[done.length - 1].end_block - done[done.length - 1].start_block : null,
+    last_block: last ? (last.end_block || last.start_block) : null,
+    ruling_tx: null,
+    ruling_tx_url: null,
+  };
+}
+
+export async function getRuling(view, findRulingTx, ctx, round, { includeTx = true } = {}) {
+  const n = Number(round);
+  if (!Number.isInteger(n) || n < 1) throw new Error('round must be a whole number, 1 or higher');
+  const r = await view('get_round', { round: n });
+  if (!r) return null;
+  const out = parseRound(n, r, ctx);
+  out.check_command = checkCommand(n, ctx);
+  const last = r.attempts[r.attempts.length - 1];
+  if (includeTx && last) {
+    const hash = await findRulingTx(last.start_block);
+    if (hash) { out.ruling_tx = hash; out.ruling_tx_url = `${ctx.explorer}/txns/${hash}`; }
+    else out.ruling_tx_url = `${ctx.explorer}/address/${ctx.contract}`;
+  }
+  return out;
+}
+
+export async function getContractInfo(view, contract, network) {
+  const [count, courtroom, models, dao, stake, reserve, sources] = await Promise.all([
+    view('round_count'), view('courtroom'), view('models'), view('dao'), view('stake'), view('reserve'), view('sources'),
+  ]);
+  return {
+    contract, network,
+    round_count: count,
+    courtroom_program: courtroom,
+    judges: models,
+    dao,
+    stake_near: bigNear(stake),
+    reserve_near: bigNear(reserve),
+    approved_sources: sources,
+    read_only: true,
+  };
+}
+
+export async function listRounds(view, contract, network, { limit } = {}) {
+  const n = await view('round_count');
+  const out = [];
+  for (let hi = n; hi >= 1; hi -= 4) {
+    const ids = [hi, hi - 1, hi - 2, hi - 3].filter((i) => i >= 1);
+    const rs = await Promise.all(ids.map((i) => view('get_round', { round: i }).then((r) => (r ? { id: i, r } : null))));
+    for (const x of rs.filter(Boolean)) {
+      const p = parseRound(x.id, x.r, { network, contract });
+      out.push({ round: p.round, sentence: p.sentence, outcome: p.outcome, outcome_words: p.outcome_words, kind: p.kind, writer: p.writer, fine_paid: p.fine_paid });
+    }
+    if (limit && out.length >= limit) break;
+  }
+  return limit ? out.slice(0, limit) : out;
+}
+
+export async function findSentence(view, contract, network, text, o = {}) {
+  const q = String(text || '').trim().toLowerCase();
+  if (!q) throw new Error('give some text to search for');
+  const all = await listRounds(view, contract, network, o);
+  return all.filter((r) => r.sentence.toLowerCase().includes(q));
+}
