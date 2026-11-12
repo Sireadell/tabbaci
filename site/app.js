@@ -31,6 +31,8 @@ function outcomeOf(r) {
   return [word[r.outcome] || r.outcome, r.outcome === 'T' ? 't-T' : r.outcome === 'F' ? 't-F' : 't-other'];
 }
 const verifyCmd = (id) => `node tools/verify/verify.mjs --contract ${CFG.contract} --round ${id} --network ${CFG.network} --archive archive`;
+// Same check, plus each judge's signature matched to a key Intel vouches for (run npm ci --prefix privacy/tools once).
+const fullCheckCmd = (id) => `${verifyCmd(id)} --attested-judges`;
 const blocksOf = (r) => r.attempts.filter((a) => a.end_block).map((a) => a.end_block - a.start_block);
 const isLie = (r) => r.tag === 'lie_attempt' || (CFG.plantedLies || []).includes(Number(r.id));
 const kindOf = (r) => (isLie(r) ? 'lie tried' : 'page sentence');
@@ -68,6 +70,7 @@ function roundRow(r) {
   const b = blocksOf(r);
   return `<article class="lrow"><div class="lhead"><span class="rid">#${r.id}</span><span class="claim">${esc(r.claim)}</span><b class="verdict ${cls}">${label}</b></div>
   <div class="meta">${kindOf(r)} · ${r.attempts.length} run(s)${b.length ? ` · ${b.join(', ')} blocks` : ''}${r.bonds.length ? ' · ' + r.bonds.map(bondLine).join(' · ') : ''}</div>
+  <p class="meta"><a href="certificate.html?round=${r.id}">Open the court paper for round ${r.id}</a></p>
   <details><summary>Check this ruling yourself</summary>
   <p class="mute">From a copy of the code, run:</p><pre>${esc(verifyCmd(r.id))}</pre>
   ${r.bonds.length ? `<p class="mute">Money behind it</p><table>${r.bonds.map((x) => `<tr><td>${esc(x.writer)}</td><td>${esc(x.word)}</td><td>${near(x.stake)} in</td><td>${x.payout ? near(x.payout) + ' out' : 'waiting'}</td></tr>`).join('')}</table>` : ''}
@@ -77,4 +80,4 @@ function roundRow(r) {
 }
 
 const CFGnear = (y) => near(y);
-window.Site = { isLie, CFGnear, view, allRounds, roundRow, rulingItem, bondLine, outcomeOf, verifyCmd, esc, CFG };
+window.Site = { rpc, fullCheckCmd, isLie, CFGnear, view, allRounds, roundRow, rulingItem, bondLine, outcomeOf, verifyCmd, esc, CFG };

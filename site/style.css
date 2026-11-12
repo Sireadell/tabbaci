@@ -95,3 +95,18 @@ td{border-bottom:1px solid var(--line);padding:6px 4px;vertical-align:top;overfl
   .lhead .verdict{grid-column:2}
   nav a{padding:8px 6px}
 }
+
+.paper{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;margin:20px 0}
+.paper .claimline{font-size:1.25rem;line-height:1.4;margin:.2em 0 .6em;overflow-wrap:anywhere}
+.ruling{font-size:clamp(1.8rem,7vw,2.6rem);font-weight:700;letter-spacing:-.02em;line-height:1.1;margin:.1em 0}
+.ruling small{font-size:.5em;font-weight:500;letter-spacing:0}
+.facts{display:grid;grid-template-columns:minmax(0,11em) minmax(0,1fr);gap:0;margin:16px 0 0;border-top:1px solid var(--line)}
+.facts dt,.facts dd{margin:0;padding:10px 4px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.facts dt{color:var(--mute);font-size:.9rem}
+.judges{list-style:none;padding:0;margin:0}.judges li{margin:0 0 6px}
+.copyrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+@media (max-width:480px){
+  .paper{padding:16px}
+  .facts{grid-template-columns:1fr}
+  .facts dt{border-bottom:0;padding-bottom:0}
+}

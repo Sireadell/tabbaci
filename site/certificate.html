@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Court paper</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="top"><div class="wrap"><a class="brand" href="index.html">Living Encyclopedia</a>
+<nav><a href="index.html">Try to lie</a><a href="ledger.html">Ledger</a><a href="pages.html">Pages</a></nav></div></header>
+<main class="wrap narrow">
+<section class="paper" id="paper" aria-live="polite">
+  <p class="label" id="label">Court paper</p>
+  <p class="mute" id="status">Reading the contract...</p>
+</section>
+<section id="check" hidden>
+  <h2>Check this ruling yourself</h2>
+  <p class="mute">You need Node 18 or newer and a copy of the code. No account and no keys. Install Intel's quote checker once, then run the check:</p>
+  <pre id="cmd"></pre>
+  <div class="copyrow"><button type="button" id="copy">Copy the commands</button><span class="mute" id="copied"></span></div>
+  <p class="mute">Each line prints MATCH, MISMATCH or CANNOT VERIFY. Today one MISMATCH is expected on every round: I keep the contract's last access key until I give the go to delete it.</p>
+</section>
+<p class="mute"><a href="ledger.html">Back to every ruling</a></p>
+</main>
+<script src="config.js"></script><script src="app.js"></script>
+<script>
+const S = Site;
+const id = Number(new URLSearchParams(location.search).get('round'));
+const paper = document.getElementById('paper');
+const yocto = (y) => BigInt(y || 0);
+const nearOf = (y) => S.CFGnear(y);
+const pct = (num, den) => (Number((num * 10000n) / den) / 100).toFixed(2) + '%';
+const explorer = 'https://' + (S.CFG.network === 'mainnet' ? '' : 'testnet.') + 'nearblocks.io';
+const parse = (s) => { try { return JSON.parse(s); } catch { return null; } };
+
+function money(b, outcome) {
+  const s = yocto(b.stake);
+  if (!b.payout) {
+    if (outcome === 'F' || outcome === 'T') return 'Not paid yet. It is paid once the 12 hour challenge window has closed and someone calls finalize.';
+    return 'Waiting for a ruling.';
+  }
+  const p = yocto(b.payout);
+  if (p === s) return `Stake paid back in full (${nearOf(p)} NEAR), no gain.`;
+  if (p < s) return `Fined ${nearOf(s - p)} NEAR (${pct(s - p, s)} of the stake). Got ${nearOf(p)} NEAR back.`;
+  return `Gained ${nearOf(p - s)} NEAR (${pct(p - s, s)} of the stake). Got ${nearOf(p)} NEAR back.`;
+}
+
+// The ruling transaction is not stored on the round, so look for the "attempt" call
+// in the few blocks just before the attempt started. Old blocks may be gone from public nodes.
+async function findAttemptTx(startBlock) {
+  for (let h = startBlock - 1; h >= startBlock - 3; h--) {
+    try {
+      const blk = await S.rpc('block', { block_id: h });
+      for (const c of blk.chunks) {
+        if (c.tx_root === '11111111111111111111111111111111') continue;
+        const ch = await S.rpc('chunk', { chunk_id: c.chunk_hash });
+        const t = ch.transactions.find((x) => x.receiver_id === S.CFG.contract && x.actions.some((a) => a.FunctionCall && a.FunctionCall.method_name === 'attempt'));
+        if (t) return t.hash;
+      }
+    } catch (e) { /* node may not keep this block; fall back to the block link */ }
+  }
+  return null;
+}
+
+function row(dt, dd) { return `<dt>${dt}</dt><dd>${dd}</dd>`; }
+
+async function show() {
+  if (!Number.isInteger(id) || id < 1) { document.getElementById('status').textContent = 'Add ?round= and a round number to the address, for example certificate.html?round=20.'; return; }
+  const r = await S.view('get_round', { round: id });
+  if (!r) { document.getElementById('status').textContent = `There is no round ${id} on ${S.CFG.contract}.`; return; }
+  r.id = id;
+  document.title = `Court paper, round ${id}`;
+  const [label, cls] = S.outcomeOf(r);
+  const input = parse(r.input) || {};
+  const v = parse(r.verdict);
+  const models = input.m || [];
+  const isData = input.kind === 'data';
+  const letter = r.status === 'settled' ? r.outcome : r.status === 'void' ? 'void' : 'open';
+
+  const judges = v && v.j ? `<ul class="judges">${v.j.map((j) => `<li>${S.esc(models[j.m] || 'judge ' + j.m)}: ${isData && j.a === 'T' && input.cv ? `confirmed the sentence claims <b>${S.esc(input.cv)}</b>` : `answered <b>${S.esc(j.a)}</b>`}${j.g ? ', reply signed' : ', no signed reply, counted as unsure'}</li>`).join('')}</ul>` : '<span class="mute">No judge answers yet.</span>';
+  const sources = v && v.s ? `<ul class="judges">${v.s.map((s) => { const src = (input.src || []).find((x) => x.i === s.i); return `<li>${S.esc(src ? src.u : 'source ' + s.i)}: ${s.x !== undefined ? 'read <b>' + S.esc(s.x) + '</b>' : 'status ' + S.esc(s.c)}</li>`; }).join('')}</ul>` : '<span class="mute">Not fetched yet.</span>';
+  const writers = r.bonds.length ? `<ul class="judges">${r.bonds.map((b) => `<li>${S.esc(b.writer)} put ${nearOf(b.stake)} NEAR on <b>${S.esc(b.word)}</b></li>`).join('')}</ul>` : '<span class="mute">No money behind this sentence.</span>';
+  const fines = r.bonds.length ? `<ul class="judges">${r.bonds.map((b) => `<li>${S.esc(b.writer)}: ${money(b, r.outcome)}</li>`).join('')}</ul>` : '<span class="mute">Nothing to pay.</span>';
+  const blocks = r.attempts.filter((a) => a.end_block).map((a) => a.end_block - a.start_block);
+
+  paper.innerHTML = `<p class="label">Court paper · round ${id} · ${S.esc(S.CFG.contract)}</p>
+  <p class="claimline">${S.esc(r.claim)}</p>
+  <p class="ruling ${cls}">${S.esc(letter)} <small class="mute">${S.esc(label)}</small></p>
+  <dl class="facts">
+    ${row('Kind', S.isLie(r) ? 'A lie planted on purpose' : 'A page sentence')}
+    ${row('Decided by', isData ? 'The numbers the sources returned. The judges only confirm the sentence states that number.' : 'Three judges reading the sources')}
+    ${row('Evidence', sources)}
+    ${row('Judges', judges)}
+    ${row('Writer and bond', writers)}
+    ${row('Fine or payout', fines)}
+    ${r.challenger ? row('Challenge', `${S.esc(r.challenger)} challenged with ${nearOf(r.bond)} NEAR`) : ''}
+    ${row('Runs', `${r.attempts.length} run(s)${blocks.length ? ', ruled in ' + blocks.join(', ') + ' blocks' : ''}`)}
+    ${row('Ruling transaction', r.attempts.length ? `<span id="tx" class="mute">Looking it up...</span>` : '<span class="mute">Not run yet.</span>')}
+  </dl>`;
+
+  document.getElementById('cmd').textContent = `npm ci --prefix privacy/tools\n${S.fullCheckCmd(id)}`;
+  document.getElementById('check').hidden = false;
+
+  const last = r.attempts[r.attempts.length - 1];
+  if (last) {
+    const hash = await findAttemptTx(last.start_block);
+    document.getElementById('tx').outerHTML = hash
+      ? `<a href="${explorer}/txns/${hash}" rel="noopener">${hash}</a>`
+      : `Ruled in block ${last.end_block}. <a href="${explorer}/address/${S.CFG.contract}" rel="noopener">See the contract's transactions</a>`;
+  }
+}
+
+document.getElementById('copy').addEventListener('click', async () => {
+  const msg = document.getElementById('copied');
+  try { await navigator.clipboard.writeText(document.getElementById('cmd').textContent); msg.textContent = 'Copied.'; }
+  catch { msg.textContent = 'Select the text above and copy it.'; }
+});
+show().catch(() => { paper.innerHTML = '<p class="label">Court paper</p><p>Could not reach the chain. Try again in a moment.</p>'; });
+</script>
+</body></html>
