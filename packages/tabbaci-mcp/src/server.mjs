@@ -23,7 +23,7 @@ export const TOOLS = [
 const fineLine = (r) => {
   if (r.fine_paid === null) return 'No money is bonded on this sentence, so there is no fine.';
   if (r.fine_paid) return `Fine or payout is already settled: ${r.bonds.map((b) => `${b.writer} ${b.state}`).join('; ')}.`;
-  if (r.outcome === 'F' || r.outcome === 'T') return 'Fine is NOT paid yet. It is paid once the 12 hour challenge window has closed and someone calls finalize.';
+  if (r.outcome === 'F' || r.outcome === 'T') return 'Fine is NOT paid yet. It is paid once the 5.8 hour challenge window has closed and someone calls finalize.';
   return 'Fine is not paid: the round has no final ruling yet.';
 };
 

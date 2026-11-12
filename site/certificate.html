@@ -32,7 +32,7 @@ const parse = (s) => { try { return JSON.parse(s); } catch { return null; } };
 function money(b, outcome) {
   const s = yocto(b.stake);
   if (!b.payout) {
-    if (outcome === 'F' || outcome === 'T') return 'Not paid yet. It is paid once the 12 hour challenge window has closed and someone calls finalize.';
+    if (outcome === 'F' || outcome === 'T') return 'Not paid yet. It is paid once the 5.8 hour challenge window has closed and someone calls finalize.';
     return 'Waiting for a ruling.';
   }
   const p = yocto(b.payout);

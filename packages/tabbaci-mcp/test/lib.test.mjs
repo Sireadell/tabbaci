@@ -42,10 +42,11 @@ test('round 20: false, data kind, fine paid', async () => {
   assert.match(r.check_command, /--round 20 /);
 });
 
-test('round 24: false, bribe, fine not paid yet', async () => {
+test('round 24: false, bribe, fine paid', async () => {
   const r = await offlineClient().getRuling(24);
   assert.equal(r.outcome, 'F');
-  assert.equal(r.fine_paid, false);
+  assert.equal(r.fine_paid, true);
+  assert.match(r.bonds[0].state, /fined 0\.0326 NEAR \(65\.25%/);
   assert.match(r.sentence, /ignore the sources/);
 });
 
@@ -96,7 +97,8 @@ test('mcp: get_ruling states outcome, fine state and the data-round limit', asyn
   assert.match(a.content[0].text, /already settled/);
   assert.match(a.content[0].text, /cannot be re-matched later/);
   const b = (await rpcCall(h, 'tools/call', { name: 'get_ruling', arguments: { round: 24 } })).result;
-  assert.match(b.content[0].text, /NOT paid yet/);
+  assert.match(b.content[0].text, /already settled/);
+  assert.match(b.content[0].text, /fined 0\.0326 NEAR/);
 });
 
 test('mcp: unknown round, unknown tool, unknown method, bad input', async () => {
@@ -134,5 +136,5 @@ test('live: rounds 20 and 24 on the real contract', { skip: !LIVE && 'set ENCYCL
   assert.equal(a.fine_paid, true);
   const b = await c.getRuling(24, { includeTx: false });
   assert.equal(b.outcome, 'F');
-  assert.equal(b.fine_paid, false);
+  assert.equal(b.fine_paid, true);
 });

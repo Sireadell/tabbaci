@@ -11,7 +11,7 @@ TODO (founder): choose and approve a license. None is set in this package yet.
 ## What an answer always says
 
 - The outcome: T true, F false, U unsure, D judges split.
-- Whether the fine is paid yet. A fine is paid only after the 12 hour challenge window closes and someone calls finalize.
+- Whether the fine is paid yet. A fine is paid only after the 5.8 hour challenge window closes and someone calls finalize.
 - That a data round (numbers read from live status pages) cannot be re-matched later, because those pages change. The stored record on the contract is the proof.
 
 ## Use it as an MCP server

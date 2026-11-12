@@ -89,7 +89,7 @@ export function bondState(b, outcome) {
   const base = { writer: b.writer, word: b.word, stake_near: bigNear(stake), stake_yocto: String(b.stake) };
   if (!b.payout) {
     const ruled = outcome === 'F' || outcome === 'T';
-    return { ...base, paid: false, payout_near: null, state: ruled ? 'not paid yet: paid after the 12 hour challenge window closes and someone calls finalize' : 'waiting for a ruling' };
+    return { ...base, paid: false, payout_near: null, state: ruled ? 'not paid yet: paid after the 5.8 hour challenge window closes and someone calls finalize' : 'waiting for a ruling' };
   }
   const p = BigInt(b.payout);
   const pct = (n) => (Number((n * 10000n) / stake) / 100).toFixed(2) + '%';
