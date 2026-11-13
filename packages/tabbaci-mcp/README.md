@@ -1,6 +1,6 @@
 # tabbaci-mcp
 
-Status: ready to publish, not published yet.
+Status: published on npm as tabbaci-mcp.
 
 Tabbaci is a court on NEAR testnet. Writers put money on sentences, a program sealed in an Intel chip fetches the evidence, three NEAR AI models rule, and wrong writers are fined. I built this package so other AI agents and developers can read those rulings.
 

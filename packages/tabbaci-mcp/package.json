@@ -1,7 +1,6 @@
 {
   "name": "tabbaci-mcp",
   "version": "0.1.0",
-  "private": true,
   "description": "Read-only access to Tabbaci's verified rulings on NEAR testnet, as a JavaScript library and an MCP server.",
   "license": "MIT",
   "author": "Sireadell",
