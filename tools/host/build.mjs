@@ -1,7 +1,7 @@
 // Copies site/ into dist/ as a self-contained static folder.
-// Works on any free static host: no server code, no build step, relative links only.
+// Static pages plus one small server function for Vercel. Relative links only.
 // Usage: node tools/host/build.mjs
-import { cp, rm, readFile, readdir, stat } from 'node:fs/promises';
+import { cp, rm, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { join, relative, dirname, resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -32,6 +32,12 @@ async function checkRelativeLinks(files) {
 
 await rm(dist, { recursive: true, force: true });
 await cp(src, dist, { recursive: true });
+
+// The one server function: lets a visitor send a sentence with no wallet (api/write.js). Tests stay out of the upload.
+await cp(join(root, 'api'), join(dist, 'api'), { recursive: true, filter: (f) => !f.endsWith('.test.js') });
+const json = (o) => JSON.stringify(o, null, 2) + String.fromCharCode(10);
+await writeFile(join(dist, 'package.json'), json({ private: true, type: 'module', engines: { node: '22.x' } }));
+await writeFile(join(dist, 'vercel.json'), json({ functions: { 'api/write.js': { maxDuration: 60 } } }));
 
 const files = await walk(dist);
 const bad = await checkRelativeLinks(files);
