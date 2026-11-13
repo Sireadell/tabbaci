@@ -100,7 +100,7 @@ Exit code 0 means everything matched, 1 means something did not, 2 means nothing
 
 On round 24 the judges confirmed the wording and the numbers decided False.
 
-For rounds 35 and 36 the test page is `https://tabbaci.vercel.app/tabbaci-test.html`, added as approved source 11. The court saved a fingerprint of the exact page it read, and the checker prints `source 11 bytes match their fingerprint` MATCH, so editing the page later changes nothing. Source 11 is still on the approved list today. This shows these three judges ignored these orders on these two sentences. It does not show that every trick fails.
+For rounds 35 and 36 the test page is `https://tabbaci.vercel.app/tabbaci-test.html`, added as approved source 11. The court saved a fingerprint of the exact page it read, and the checker prints `source 11 bytes match their fingerprint` MATCH, so editing the page later changes nothing. This shows these three judges ignored these orders on these two sentences. It does not show that every trick fails. I scheduled the test page's removal on 13 November. Because of the 72 hour wait, it leaves the approved list on 16 November at 21:23 UTC, and the contract view `sources` shows that time.
 
 ## How it works
 
