@@ -26,7 +26,7 @@
 </section>
 </main>
 <footer id="foot"></footer>
-<script src="config.js"></script><script src="app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script><script src="judgesig.js"></script><script src="config.js"></script><script src="app.js"></script>
 <script>
 Site.chrome('ledger');
 const id = Number(new URLSearchParams(location.search).get('round'));
@@ -81,7 +81,7 @@ async function show() {
     <h1 class="rec-claim">${claimHtml}</h1>
     <div class="rec-verdict">${Site.stamp(word, 'big')}<span class="mute">${esc(Site.plainOutcome(r))}</span></div>
     <dl class="rec-grid">
-      ${row('Kind', Site.isLie(r) ? 'A lie I planted on purpose, to see if the court stops it' : r.tag === 'visitor' ? 'Sent by a visitor from the try page. The site's own test account opened it and bonded the visitor's word' : r.challenger ? 'A challenge round' : 'A page sentence')}
+      ${row('Kind', Site.isLie(r) ? 'A lie I planted on purpose, to see if the court stops it' : r.tag === 'visitor' ? 'Sent by a visitor from the try page. The site\u0027s own test account opened it and bonded the visitor\u0027s word' : r.challenger ? 'A challenge round' : 'A page sentence')}
       ${row('Evidence', sources)}
       ${row('Three answers', judges)}
       ${row('Writer and bond', bonds)}
