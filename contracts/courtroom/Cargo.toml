@@ -8,8 +8,6 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 near-sdk = "5"
-base64 = "0.22"
-hex = "0.4"
 courtroom-rules = { path = "../rules" }
 bond-payout = { path = "../payout" }
 
@@ -27,3 +25,5 @@ overflow-checks = true
 
 [dev-dependencies]
 near-sdk = { version = "5", features = ["unit-testing"] }
+base64 = "0.22"
+hex = "0.4"

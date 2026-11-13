@@ -851,3 +851,27 @@ fn money_is_never_created_or_lost_and_nothing_stays_locked() {
     eprintln!("scenarios {n}: challenges {c}, top rungs {t}, audits {a}, cases finished {f}");
     assert!(c > 10 && a > 5 && f > 10, "the random scenarios must really use challenges, audits and finishing");
 }
+
+#[test]
+fn the_built_in_encoders_and_audit_draw_match_the_reference_crates() {
+    use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
+    let mut x = 0x9e3779b97f4a7c15u64;
+    for len in 0..70usize {
+        let bytes: Vec<u8> = (0..len)
+            .map(|_| {
+                x ^= x << 13;
+                x ^= x >> 7;
+                x ^= x << 17;
+                x as u8
+            })
+            .collect();
+        assert_eq!(courtroom_rules::base64url(&bytes), URL_SAFE_NO_PAD.encode(&bytes));
+        assert_eq!(courtroom_rules::hex(&bytes), hex::encode(&bytes));
+    }
+    for i in 0..2_000u64 {
+        let mut seed = [0u8; 32];
+        seed[..8].copy_from_slice(&(i * 7919).to_be_bytes());
+        let d = near_sdk::env::sha256(bond_payout::audit_preimage(&seed, i, i + 3));
+        assert_eq!(bond_payout::audit_hit(&d, 3000), bond_payout::audit_drawn(&seed, i, i + 3, 3000));
+    }
+}

@@ -3,10 +3,9 @@
 //! Rules live in the courtroom-rules crate and are tested without a blockchain.
 use courtroom_rules as logic;
 
-use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
 use logic::ladder::{self, AppealIn, Side, Verdict};
 use logic::{judge_output, Judged, State, Status};
-use bond_payout::{audit_drawn, settle, word_bps, Entry, Outcome};
+use bond_payout::{audit_hit, audit_preimage, settle, word_bps, Entry, Outcome};
 use near_sdk::json_types::U128;
 use near_sdk::store::{IterableMap, LookupMap};
 use near_sdk::{env, ext_contract, near, serde_json, AccountId, Gas, NearToken, PanicOnDefault, Promise, PromiseError};
@@ -346,7 +345,7 @@ impl Courtroom {
             v["m"] = m.into();
         }
         let input = v.to_string();
-        let ih = URL_SAFE_NO_PAD.encode(env::sha256(input.as_bytes()));
+        let ih = logic::base64url(&env::sha256(input.as_bytes()));
         (input, ih)
     }
 
@@ -405,14 +404,14 @@ impl Courtroom {
         assert!(kind == "data" || kind == "prose", "kind must be data or prose");
         if kind == "data" {
             let n = cv.as_ref().expect("a number sentence needs cv");
-            assert!(n.parse::<f64>().is_ok(), "cv must be a number");
+            assert!(logic::is_number(n), "cv must be a number");
         }
         assert!(picks.len() >= 2 && picks.len() <= 3, "2 or 3 sources");
         let src = self.validate_picks(&kind, &picks);
 
         let rd = self.next_round;
         self.next_round += 1;
-        let th = hex::encode(env::sha256(claim.as_bytes()));
+        let th = logic::hex(&env::sha256(claim.as_bytes()));
         let seed_bytes = env::sha256(format!("round-{}", rd).as_bytes());
         let seed = u32::from_be_bytes([seed_bytes[0], seed_bytes[1], seed_bytes[2], seed_bytes[3]]) as u64;
         let mut input = serde_json::json!({
@@ -426,7 +425,7 @@ impl Courtroom {
             input["terms"] = serde_json::json!(terms);
         }
         let input = input.to_string();
-        let ih = URL_SAFE_NO_PAD.encode(env::sha256(input.as_bytes()));
+        let ih = logic::base64url(&env::sha256(input.as_bytes()));
         self.rounds.insert(
             rd,
             Round {
@@ -626,7 +625,7 @@ impl Courtroom {
                     };
                     let mut seed = [0u8; 32];
                     seed.copy_from_slice(&env::random_seed());
-                    if audit_drawn(&seed, round, round, self.audit_rate_bps) {
+                    if audit_hit(&env::sha256(&audit_preimage(&seed, round, round)), self.audit_rate_bps) {
                         let id = self.next_round;
                         self.next_round += 1;
                         let (input, ih) = self.rerun_input(&r.input, id, None, None);
