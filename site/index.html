@@ -85,10 +85,23 @@
   </div>
 </section>
 </main>
+<section class="closing" aria-labelledby="close-h">
+  <div class="rain" id="rain" aria-hidden="true"></div>
+  <div class="wrap in">
+    <h2 id="close-h">Do not trust this page.<br>Ask the chain.</h2>
+    <div class="cta"><a class="btn" href="#check">Run the checks</a><a class="btn ghost" href="ledger.html">Read the ledger</a></div>
+  </div>
+</section>
 <footer id="foot"></footer>
 <script src="config.js"></script><script src="app.js"></script>
 <script>
 Site.chrome('home');
+(function () { // faint columns of 0 and 1 behind the closing line, fixed pattern so it never moves
+  const r = document.getElementById('rain'); if (!r) return;
+  let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const cols = Math.min(70, Math.floor(innerWidth / 18));
+  r.innerHTML = Array.from({ length: cols }, () => '<span>' + Array.from({ length: 34 }, () => (rnd() > 0.5 ? '1' : '0')).join('') + '</span>').join('');
+})();
 Site.allRounds().then(({ rounds, live, savedAt }) => {
   const ruled = rounds.filter((r) => r.status !== 'open');
   const lies = rounds.filter(Site.isLie);
