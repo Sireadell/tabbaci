@@ -4,6 +4,7 @@
 import { cp, rm, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { join, relative, dirname, resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { RAW_STATUS, readLive, statusFor } from '../recheck/status.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const src = join(root, 'site');
@@ -38,6 +39,13 @@ await cp(join(root, 'api'), join(dist, 'api'), { recursive: true, filter: (f) =>
 const json = (o) => JSON.stringify(o, null, 2) + String.fromCharCode(10);
 await writeFile(join(dist, 'package.json'), json({ private: true, type: 'module', engines: { node: '22.x' } }));
 await writeFile(join(dist, 'vercel.json'), json({ functions: { 'api/write.js': { maxDuration: 60 } } }));
+
+// /status.json: live numbers from the chain plus the last nightly re-check result (published on the "status" branch).
+let last = null;
+try { const r = await fetch(RAW_STATUS); if (r.ok) last = (await r.json()).last_recheck; } catch { /* the site still builds with no result yet */ }
+const status = statusFor({ report: null, live: await readLive() });
+status.last_recheck = last;
+await writeFile(join(dist, 'status.json'), json(status));
 
 const files = await walk(dist);
 const bad = await checkRelativeLinks(files);
