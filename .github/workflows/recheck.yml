@@ -1,0 +1,20 @@
+name: recheck
+
+# Every day, runs the checker again on finished rounds from a clean copy and reports "N of N re-verified".
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  recheck:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install the checker's one dependency set
+        run: npm ci --prefix privacy/tools
+      - name: Re-check the finished rounds
+        run: node tools/recheck/recheck.mjs --rounds 20,25,33
