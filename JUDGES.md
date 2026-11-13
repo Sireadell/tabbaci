@@ -23,7 +23,7 @@ It takes about 13 seconds. You should see no MISMATCH line, one INFO line (the j
 - If the sealed-box tool is available, the last line is `OVERALL: MATCH` and the exit code is 0.
 - If it is not, one line says `needs outlayer-verify: <reason>`, the last line is `OVERALL: CANNOT VERIFY` and the exit code is 2.
 
-The sealed-box tool is OutLayer's `outlayer-verify`. It checks Intel's report that the program really ran inside a sealed chip (a chip that hides and locks the program while it runs). If it is not installed, the checker fetches a ready-made copy from this repo's GitHub release and refuses it unless its fingerprint (a sha256, a short code that changes completely if a single byte changes) equals the one written in `tools/verify/outlayer-verify.sums.json`. A wrong fingerprint is a MISMATCH.
+The sealed-box tool is OutLayer's `outlayer-verify`. It checks Intel's report that the program really ran inside a sealed chip (a chip that hides and locks the program while it runs). If it is not installed, the checker fetches a ready-made copy from this repo's GitHub release (built for Linux and Windows; on a Mac the line stays at needs outlayer-verify) and refuses it unless its fingerprint (a sha256, a short code that changes completely if a single byte changes) equals the one written in `tools/verify/outlayer-verify.sums.json`. A wrong fingerprint is a MISMATCH.
 
 Swap `--round 25` for `--round 35` or `--round 36` to see `source 11 bytes match their fingerprint` MATCH on the planted order page.
 

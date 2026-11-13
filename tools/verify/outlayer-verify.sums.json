@@ -1,0 +1,15 @@
+{
+  "comment": "Fingerprints of the sealed-box checker builds attached to the release below. The checker refuses any download that does not match.",
+  "source": "https://github.com/out-layer/outlayer-verify at commit 90c27d9d4fc843194ddc6f8ebaafa4eb320c3bb6 (Apache-2.0 or MIT), built by .github/workflows/outlayer-verify-build.yml",
+  "release": "https://github.com/Sireadell/tabbaci/releases/download/outlayer-verify-90c27d9d",
+  "files": {
+    "linux-x64": {
+      "name": "outlayer-verify-linux-x64",
+      "sha256": "42b5615b17e54f4191e74b07dd7db0e2776a110b1230484cca765041fe9928d6"
+    },
+    "windows-x64": {
+      "name": "outlayer-verify-windows-x64.exe",
+      "sha256": "3acf3636da69890211242b0aba90b08bf2d88377a0048c994adcd1b1168f841f"
+    }
+  }
+}
