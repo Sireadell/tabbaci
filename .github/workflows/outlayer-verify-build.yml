@@ -1,6 +1,6 @@
 name: outlayer-verify-build
 
-# Builds OutLayer's public sealed-box checker (Apache-2.0 or MIT) once per system from one pinned commit,
+# Builds OutLayer's public sealed-box checker (Apache-2.0 or MIT) once for Linux and Windows (macOS visitors keep the "needs outlayer-verify" line) from one pinned commit,
 # so visitors do not need Rust. It is run by hand. The fingerprints are then written into
 # tools/verify/outlayer-verify.sums.json, and the checker refuses any download that does not match them.
 on:
@@ -20,9 +20,6 @@ jobs:
         include:
           - key: linux-x64
             os: ubuntu-24.04
-            exe: outlayer-verify
-          - key: macos-arm64
-            os: macos-14
             exe: outlayer-verify
           - key: windows-x64
             os: windows-2022
