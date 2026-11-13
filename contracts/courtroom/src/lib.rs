@@ -11,7 +11,10 @@ use near_sdk::json_types::U128;
 use near_sdk::store::{IterableMap, LookupMap};
 use near_sdk::{env, ext_contract, near, serde_json, AccountId, Gas, NearToken, PanicOnDefault, Promise, PromiseError};
 
+#[cfg(not(feature = "mainnet"))]
 const OUTLAYER: &str = "outlayer.testnet";
+#[cfg(feature = "mainnet")]
+const OUTLAYER: &str = "outlayer.near";
 const CALLBACK_GAS: Gas = Gas::from_tgas(15);
 const OVERHEAD_GAS: Gas = Gas::from_tgas(10);
 /// A removed source stops working 72 hours after the DAO asks.

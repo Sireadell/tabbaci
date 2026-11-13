@@ -14,6 +14,9 @@ courtroom-rules = { path = "../rules" }
 bond-payout = { path = "../payout" }
 
 
+[features]
+mainnet = []
+
 [profile.release]
 codegen-units = 1
 opt-level = "z"
