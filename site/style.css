@@ -56,6 +56,7 @@ footer{border-top:2px solid var(--ink);margin-top:72px;padding:28px 0 48px;font-
 .cta{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 6px}
 .hero-nums{display:flex;gap:28px;flex-wrap:wrap;margin-top:26px;padding-top:18px;border-top:1px solid var(--line2)}
 .hero-nums div{display:flex;flex-direction:column}
+.hero-nums div[hidden]{display:none}
 .hero-nums b{font:700 2rem/1.1 var(--serif);font-variant-numeric:tabular-nums}
 .hero-nums span{font-size:.85rem;color:var(--mute)}
 
