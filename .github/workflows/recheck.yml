@@ -1,10 +1,20 @@
 name: recheck
 
-# Every day, runs the checker again on finished rounds from a clean copy and reports "N of N re-verified".
+# On every push, every night and by hand: run the tests, then re-check every finished ruling against the live chain.
+# The result is kept as a report, and a small result file is published on the "status" branch for the README sticker and the site.
 on:
+  push:
+    branches: [main]
   schedule:
     - cron: '17 6 * * *'
   workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: recheck
+  cancel-in-progress: false
 
 jobs:
   recheck:
@@ -16,5 +26,39 @@ jobs:
           node-version: 22
       - name: Install the checker's one dependency set
         run: npm ci --prefix privacy/tools
-      - name: Re-check the finished rounds
-        run: node tools/recheck/recheck.mjs --rounds 20,25,33
+      - name: Tests, checker and re-check tool
+        run: cd tools/verify && node --test
+      - name: Tests, re-check tool
+        run: node --test tools/recheck/status.test.mjs
+      - name: Tests, judge checks
+        run: cd privacy/tools && node --test
+      - name: Tests, site server function
+        run: node --test api/_lib/rules.test.js
+      - name: Tests, agent package
+        run: cd packages/tabbaci-mcp && node --test
+      - name: Re-check every finished round
+        id: all
+        run: node tools/recheck/recheck.mjs --all --out recheck-report.json
+      - name: Write the sticker and status files
+        if: always()
+        run: node tools/recheck/status.mjs recheck-report.json public-status
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: recheck-report
+          path: |
+            recheck-report.json
+            public-status/
+      - name: Publish the result on the status branch
+        if: always() && github.event_name != 'pull_request'
+        run: |
+          git config user.name "tabbaci-recheck"
+          git config user.email "recheck@users.noreply.github.com"
+          cp -r public-status /tmp/public-status
+          git checkout --orphan status-publish
+          git rm -rf . -q
+          cp /tmp/public-status/* .
+          git add badge.json status.json recheck-report.json
+          git commit -q -m "Nightly re-check result"
+          git push -f origin HEAD:status

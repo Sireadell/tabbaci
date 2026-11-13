@@ -1,0 +1,69 @@
+name: outlayer-verify-build
+
+# Builds OutLayer's public sealed-box checker (Apache-2.0 or MIT) once per system from one pinned commit,
+# so visitors do not need Rust. It is run by hand. The fingerprints are then written into
+# tools/verify/outlayer-verify.sums.json, and the checker refuses any download that does not match them.
+on:
+  workflow_dispatch:
+
+env:
+  UPSTREAM_COMMIT: 90c27d9d4fc843194ddc6f8ebaafa4eb320c3bb6
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - key: linux-x64
+            os: ubuntu-24.04
+            exe: outlayer-verify
+          - key: macos-arm64
+            os: macos-14
+            exe: outlayer-verify
+          - key: windows-x64
+            os: windows-2022
+            exe: outlayer-verify.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Get the pinned source
+        run: |
+          git clone https://github.com/out-layer/outlayer-verify src
+          git -C src checkout ${{ env.UPSTREAM_COMMIT }}
+        shell: bash
+      - name: Build
+        run: cargo build --release --locked
+        working-directory: src
+      - name: Name and fingerprint the file
+        shell: bash
+        run: |
+          NAME="outlayer-verify-${{ matrix.key }}${{ runner.os == 'Windows' && '.exe' || '' }}"
+          cp "src/target/release/${{ matrix.exe }}" "$NAME"
+          sha256sum "$NAME" 2>/dev/null > "$NAME.sha256" || shasum -a 256 "$NAME" > "$NAME.sha256"
+          cat "$NAME.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.key }}
+          path: |
+            outlayer-verify-*
+
+  release:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: files
+          merge-multiple: true
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="outlayer-verify-${UPSTREAM_COMMIT:0:8}"
+          cat files/*.sha256 | tee SHA256SUMS
+          gh release create "$TAG" files/outlayer-verify-* SHA256SUMS --repo "$GITHUB_REPOSITORY" \
+            --title "Sealed-box checker $TAG" \
+            --notes "OutLayer's public outlayer-verify at commit ${UPSTREAM_COMMIT}, built here from source so visitors do not need Rust. Licence: Apache-2.0 or MIT. Fingerprints are in SHA256SUMS and in tools/verify/outlayer-verify.sums.json."

@@ -1,0 +1,29 @@
+name: tests
+
+# The Rust tests: courtroom program, three contracts. Runs on every push to main and by hand.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  rust:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the same Rust version the recorded builds used
+        run: |
+          rustup toolchain install 1.99.1 --profile minimal
+          rustup default 1.99.1
+      - name: Courtroom program
+        run: cargo test --lib
+        working-directory: programs/court
+      - name: Courtroom contract
+        run: cargo test
+        working-directory: contracts/courtroom
+      - name: Rules contract
+        run: cargo test
+        working-directory: contracts/rules
+      - name: Payout contract
+        run: cargo test
+        working-directory: contracts/payout
