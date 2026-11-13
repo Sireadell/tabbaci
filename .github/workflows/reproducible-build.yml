@@ -18,9 +18,9 @@ jobs:
           rustup default 1.99.1
           rustc --version
       - name: Program, build one
-        run: FEATURES=standin ./build/reproduce.sh | tee program1.txt
+        run: FEATURES= ./build/reproduce.sh | tee program1.txt
       - name: Program, build two (different folder, new temp dir)
-        run: FEATURES=standin ./build/reproduce.sh | tee program2.txt
+        run: FEATURES= ./build/reproduce.sh | tee program2.txt
       - name: Contract, build one
         run: ./build/reproduce-contract.sh | tee contract1.txt
       - name: Contract, build two
@@ -29,7 +29,7 @@ jobs:
         run: |
           diff <(cut -d' ' -f1 program1.txt) <(cut -d' ' -f1 program2.txt)
           diff <(cut -d' ' -f1 contract1.txt) <(cut -d' ' -f1 contract2.txt)
-          echo "program  (standin build) $(cut -d' ' -f1 program1.txt)"
+          echo "program  (sealed build) $(cut -d' ' -f1 program1.txt)"
           echo "contract                 $(cut -d' ' -f1 contract1.txt)"
       - name: Compare with the Windows reference (reported, not enforced)
         run: |
