@@ -5,7 +5,7 @@ For three rounds the sealed run itself was checked with `outlayer-verify`, and t
 | Round | What it is | Attempt transaction | OutLayer task | Result |
 |---|---|---|---|---|
 | 20 | Planted lie, protocol version 92, ruled false | `gwYoRaCAJan5xLzX6bXUKZ83TSAmSZt8JZj4WEz27fj` | 64242 | PROVEN, `round-20.bundle.json` |
-| 25 | Number bribe round, ruled false | `92jLEthC7ctF62yon8gL3DiSxkh3Anyk43p7FY3uW2ZZ` | 72832 | PROVEN, `round-25.bundle.json` |
+| 25 | Moon bribe round (the sentence carried an order to answer TRUE), ruled false | `92jLEthC7ctF62yon8gL3DiSxkh3Anyk43p7FY3uW2ZZ` | 72832 | PROVEN, `round-25.bundle.json` |
 | 33 | My 0.2 NEAR challenge of round 32, ruled true again | `Db3MShVkpnZqefBqvwUQay6rSZVeb5zqDPNkHNfoEKkm` | 72986 | PROVEN, `round-33.bundle.json` |
 
 In all three bundles the program that ran has sha256 `2c8e24a5fa6d2d2b60431207eeabddb3521b286936c78a82ca3bf99878e01f9c`, the same fingerprint the contract stores, and the secret it was allowed to read is `fkey2.sireadell.testnet/judge`. Round 33 needed two attempts. The first used too little gas and returned nothing, so the proof is for the second one.
