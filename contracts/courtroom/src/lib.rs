@@ -3,11 +3,13 @@
 //! Rules live in the courtroom-rules crate and are tested without a blockchain.
 use courtroom_rules as logic;
 
+mod store;
+use store::{IterableMap, LookupMap};
+
 use logic::ladder::{self, AppealIn, Side, Verdict};
 use logic::{judge_output, Judged, State, Status};
 use bond_payout::{audit_hit, audit_preimage, settle, word_bps, Entry, Outcome};
 use near_sdk::json_types::U128;
-use near_sdk::store::{IterableMap, LookupMap};
 use near_sdk::{env, ext_contract, near, serde_json, AccountId, Gas, NearToken, PanicOnDefault, Promise, PromiseError};
 
 #[cfg(not(feature = "mainnet"))]
@@ -208,7 +210,7 @@ pub struct Courtroom {
     balances: LookupMap<AccountId, u128>,
     next_round: u64,
     next_source: u32,
-    sources: IterableMap<u32, Source>,
+    sources: IterableMap<Source>,
     rounds: LookupMap<u64, Round>,
 }
 
@@ -280,18 +282,18 @@ impl Courtroom {
 
     pub fn remove_source(&mut self, id: u32) {
         assert_eq!(env::predecessor_account_id(), self.dao, "only the DAO can remove sources");
-        let mut s = self.sources.get(&id).cloned().expect("unknown source");
+        let mut s = self.sources.get(id).expect("unknown source");
         s.removed_at = Some(env::block_timestamp() + REMOVE_DELAY_NS);
         self.sources.insert(id, s);
         event("source_removal_scheduled", serde_json::json!({"id": id}));
     }
 
     pub fn sources(&self) -> Vec<Source> {
-        self.sources.iter().map(|(_, s)| s.clone()).collect()
+        self.sources.values()
     }
 
     fn live_source(&self, id: u32) -> Source {
-        let s = self.sources.get(&id).cloned().expect("source is not on the approved list");
+        let s = self.sources.get(id).expect("source is not on the approved list");
         if let Some(t) = s.removed_at {
             assert!(env::block_timestamp() < t, "source has been removed");
         }
@@ -484,7 +486,7 @@ impl Courtroom {
 
     /// The state change of an attempt: one live attempt at a time, at most three. Returns the stored request bytes and the attempt number.
     fn begin_attempt(&mut self, round: u64) -> (String, u8) {
-        let mut r = self.rounds.get(&round).cloned().expect("unknown round");
+        let mut r = self.rounds.get(&round).expect("unknown round");
         let mut st = r.state();
         if let Err(e) = st.can_start() {
             env::panic_str(e);
@@ -508,7 +510,7 @@ impl Courtroom {
 
     #[private]
     pub fn on_attempt(&mut self, round: u64, n: u8, #[callback_result] result: Result<Option<String>, PromiseError>) {
-        let mut r = self.rounds.get(&round).cloned().expect("unknown round");
+        let mut r = self.rounds.get(&round).expect("unknown round");
         if !r.attempts.iter().any(|a| a.n == n && a.result == "running") {
             // The attempt was already timed out by expire_round, so a late answer changes nothing.
             event("attempt_ignored", serde_json::json!({"round": round, "n": n}));
@@ -550,14 +552,14 @@ impl Courtroom {
     #[payable]
     pub fn deposit(&mut self) {
         let who = env::predecessor_account_id();
-        let cur = self.balances.get(&who).copied().unwrap_or(0);
+        let cur = self.balances.get(&who).unwrap_or(0);
         self.balances.insert(who, cur + env::attached_deposit().as_yoctonear());
     }
 
     /// Take NEAR out of your ledger balance.
     pub fn withdraw(&mut self, amount: U128) -> Promise {
         let who = env::predecessor_account_id();
-        let cur = self.balances.get(&who).copied().unwrap_or(0);
+        let cur = self.balances.get(&who).unwrap_or(0);
         assert!(cur >= amount.0 && amount.0 > 0, "not enough balance");
         self.balances.insert(who.clone(), cur - amount.0);
         Promise::new(who).transfer(NearToken::from_yoctonear(amount.0))
@@ -573,13 +575,13 @@ impl Courtroom {
     /// Only before any attempt has started, so nobody can bond once a ruling is possible.
     pub fn bond(&mut self, round: u64, word: String) {
         let chance = word_bps(&word).expect("word must be: is, very likely, likely or disputed");
-        let mut r = self.rounds.get(&round).cloned().expect("unknown round");
+        let mut r = self.rounds.get(&round).expect("unknown round");
         assert!(r.role == "original", "bonds go on the original ruling only");
         assert!(r.status == "open" && r.attempts.is_empty(), "bonds close when the first attempt starts");
         assert!(r.bonds.len() < MAX_BONDS, "this sentence already has the most bonds allowed");
         let who = env::predecessor_account_id();
         assert!(r.bonds.iter().all(|b| b.writer != who), "you already bonded this sentence");
-        let cur = self.balances.get(&who).copied().unwrap_or(0);
+        let cur = self.balances.get(&who).unwrap_or(0);
         assert!(cur >= self.stake, "deposit first: not enough balance for the stake");
         self.balances.insert(who.clone(), cur - self.stake);
         self.locked += self.stake;
@@ -599,7 +601,7 @@ impl Courtroom {
         self.locked -= total_stake;
         self.reserve = s.reserve_after;
         for (b, p) in r.bonds.iter_mut().zip(s.payouts.iter()) {
-            let cur = self.balances.get(&b.writer).copied().unwrap_or(0);
+            let cur = self.balances.get(&b.writer).unwrap_or(0);
             self.balances.insert(b.writer.clone(), cur + p);
             b.payout = Some(U128(*p));
         }
@@ -643,7 +645,7 @@ impl Courtroom {
             }
             return;
         }
-        let mut case = self.cases.get(&r.root).cloned().expect("case");
+        let mut case = self.cases.get(&r.root).expect("case");
         let standing = Side::from_letter(&case.standing).expect("standing");
         let v = ladder::appeal_verdict(standing, r.outcome.as_deref());
         r.appeal_verdict = Some(v.word().to_string());
@@ -662,20 +664,20 @@ impl Courtroom {
     /// Challenge the ruling that stands. Posts the next bond from your ledger balance (base, then double, then four times).
     /// The picks must keep every earlier source and add at least one. The top rung asks five judges.
     pub fn challenge(&mut self, round: u64, picks: Vec<Pick>) -> u64 {
-        let base_round = self.rounds.get(&round).cloned().expect("unknown round");
+        let base_round = self.rounds.get(&round).expect("unknown round");
         let root = base_round.root;
-        let root_round = self.rounds.get(&root).cloned().expect("unknown round");
-        let mut case = self.cases.get(&root).cloned().expect("this round has no ruling to challenge");
+        let root_round = self.rounds.get(&root).expect("unknown round");
+        let mut case = self.cases.get(&root).expect("this round has no ruling to challenge");
         assert!(!case.finalized, "this case is already finished");
         let last_id = case.rounds.last().copied().unwrap_or(root);
-        let last = self.rounds.get(&last_id).cloned().expect("round");
+        let last = self.rounds.get(&last_id).expect("round");
         assert!(last.status != "open", "a re-run is already open on this case");
         assert!(env::block_height() < case.window_ends, "the challenge window is closed");
         assert!(case.level < ladder::MAX_LEVEL, "the top of the ladder is reached");
         let level = case.level + 1;
         let bond = ladder::challenge_bond(self.challenge_base, level).expect("bond");
         let who = env::predecessor_account_id();
-        let cur = self.balances.get(&who).copied().unwrap_or(0);
+        let cur = self.balances.get(&who).unwrap_or(0);
         assert!(cur >= bond, "deposit first: not enough balance for the challenge bond");
 
         let kind = serde_json::from_str::<serde_json::Value>(&root_round.input).expect("stored input")["kind"]
@@ -713,11 +715,11 @@ impl Courtroom {
     /// Finish a case: pay the sentence bonds on the ruling that stands and settle every challenge bond. Anyone may call this.
     /// It works once the window has closed and no re-run is open, so a pending audit must be run (or time out) first.
     pub fn finalize(&mut self, round: u64) {
-        let root = self.rounds.get(&round).cloned().expect("unknown round").root;
-        let mut case = self.cases.get(&root).cloned().expect("this round has no ruling to finish");
+        let root = self.rounds.get(&round).expect("unknown round").root;
+        let mut case = self.cases.get(&root).expect("this round has no ruling to finish");
         assert!(!case.finalized, "this case is already finished");
         let last_id = case.rounds.last().copied().unwrap_or(root);
-        let last = self.rounds.get(&last_id).cloned().expect("round");
+        let last = self.rounds.get(&last_id).expect("round");
         assert!(last.status != "open", "a re-run is still open: run it or let it time out");
         assert!(env::block_height() >= case.window_ends, "the challenge window is still open");
 
@@ -726,7 +728,7 @@ impl Courtroom {
         let mut ins = vec![];
         let mut reruns = vec![];
         for id in &case.rounds {
-            let a = self.rounds.get(id).cloned().expect("round");
+            let a = self.rounds.get(id).expect("round");
             ins.push(AppealIn {
                 bond: a.bond.0,
                 standing_before: Side::from_letter(a.standing_before.as_deref().unwrap_or("T")).unwrap_or(Side::True),
@@ -742,14 +744,14 @@ impl Courtroom {
         let total_bonds: u128 = ins.iter().map(|i| i.bond).sum();
         for (a, c) in reruns.iter().zip(cs.credits.iter()) {
             if let (Some(who), true) = (&a.challenger, *c > 0) {
-                let cur = self.balances.get(who).copied().unwrap_or(0);
+                let cur = self.balances.get(who).unwrap_or(0);
                 self.balances.insert(who.clone(), cur + c);
             }
         }
         self.locked -= total_bonds;
         self.reserve += cs.to_reserve;
         // Lost challenge bonds are in the reserve first, so they can pay the writers who were right.
-        let mut r0 = self.rounds.get(&root).cloned().expect("root");
+        let mut r0 = self.rounds.get(&root).expect("root");
         self.settle_bonds(&mut r0, Some(outcome));
         self.rounds.insert(root, r0);
         case.finalized = true;
@@ -764,7 +766,7 @@ impl Courtroom {
     /// Nothing gets stuck. Anyone may call this on a round that nobody ran in time (it becomes void and every bond goes back),
     /// or whose run never called back (that run is counted as failed).
     pub fn expire_round(&mut self, round: u64) {
-        let mut r = self.rounds.get(&round).cloned().expect("unknown round");
+        let mut r = self.rounds.get(&round).expect("unknown round");
         assert!(r.status == "open", "round is already closed");
         let mut st = r.state();
         let now = env::block_height();
@@ -792,7 +794,7 @@ impl Courtroom {
 
     pub fn get_case(&self, round: u64) -> Option<Case> {
         let root = self.rounds.get(&round)?.root;
-        self.cases.get(&root).cloned()
+        self.cases.get(&root)
     }
 
     /// (reserve, money locked in open bonds and challenges)
@@ -809,7 +811,7 @@ impl Courtroom {
     }
 
     pub fn balance(&self, account: AccountId) -> U128 {
-        U128(self.balances.get(&account).copied().unwrap_or(0))
+        U128(self.balances.get(&account).unwrap_or(0))
     }
 
     pub fn reserve(&self) -> U128 {
@@ -821,7 +823,7 @@ impl Courtroom {
     }
 
     pub fn get_round(&self, round: u64) -> Option<Round> {
-        self.rounds.get(&round).cloned()
+        self.rounds.get(&round)
     }
 
     pub fn courtroom(&self) -> (String, String) {
