@@ -266,3 +266,7 @@ To build the contract, run `cargo near build non-reproducible-wasm --no-abi` in 
 | `archive` | Page bytes that past rulings saw |
 
 > Who decided this sentence is true, and can I check that without trusting them?
+
+## My other NEAR Hackathon project
+
+Shardfield is my other entry in this hackathon (track 9, Games With Real Economies). It is a daily Minesweeper race on NEAR testnet where everyone gets a fair board, the fastest clean clears win the stakes, and anyone can re-check any finished day with one command. It is a separate project with its own code. Live: https://shardfield.vercel.app  Code: https://github.com/Sireadell/shardfield
