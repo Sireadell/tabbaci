@@ -83,11 +83,11 @@ test('mcp: initialize', async () => {
   assert.equal(await h({ jsonrpc: '2.0', method: 'notifications/initialized' }), null);
 });
 
-test('mcp: tools/list has the five read-only tools', async () => {
+test('mcp: tools/list has the five reading tools and the two sending tools', async () => {
   const h = createServer(offlineClient());
   const r = await rpcCall(h, 'tools/list');
-  assert.deepEqual(r.result.tools.map((t) => t.name).sort(), ['contract_info', 'find_sentence', 'get_ruling', 'how_to_verify', 'list_rounds']);
-  assert.equal(TOOLS.length, 5);
+  assert.deepEqual(r.result.tools.map((t) => t.name).sort(), ['bond_sentence', 'contract_info', 'find_sentence', 'get_ruling', 'how_to_verify', 'list_rounds', 'wait_for_ruling']);
+  assert.equal(TOOLS.length, 7);
 });
 
 test('mcp: get_ruling states outcome, fine state and the data-round limit', async () => {
