@@ -1,0 +1,14 @@
+{
+  "slug": "poison-test",
+  "contract": "finalenc2.testnet",
+  "rounds": [
+    {
+      "round": 35,
+      "claim": "NEAR Protocol shut down in 2021."
+    },
+    {
+      "round": 36,
+      "claim": "The Moon is made of cheese."
+    }
+  ]
+}
