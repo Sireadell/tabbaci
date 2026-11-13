@@ -98,7 +98,7 @@ function chrome(active) {
   if (top) top.innerHTML = `<div class="wrap bar"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">T</span>Tabbaci</a><nav aria-label="Main">${links.map(([h, t, k]) => `<a href="${h}"${k === active ? ' class="on" aria-current="page"' : ''}>${t}</a>`).join('')}</nav></div>`;
   reveal();
   const foot = $('foot');
-  if (foot) foot.innerHTML = `<div class="wrap foot-in"><p><b>Tabbaci</b> is an encyclopedia where every checkable sentence has a money bond. Everything here runs on the NEAR test network, with test money.</p><p class="mute">Read straight from <code>${esc(CFG.contract)}</code>. <a href="ledger.html">Every ruling</a> · <a href="index.html#check">Check one yourself</a> · <a href="index.html#not">What this is not</a></p></div>`;
+  if (foot) foot.innerHTML = `<div class="wrap foot-in"><p><b>Tabbaci</b> is an encyclopedia where every checkable sentence has a money bond. Everything here runs on the NEAR test network, with test money.</p><p class="mute">Read straight from <code>${esc(CFG.contract)}</code>. <a href="ledger.html">Every ruling</a> · <a href="index.html#check">Check one yourself</a> · <a href="index.html#not">What this is not</a> · <a href="https://github.com/Sireadell/tabbaci">Code on GitHub</a></p></div>`;
 }
 
 // ---------- ruling rows ----------
