@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tabbaci: lies cost money</title>
 <meta name="description" content="Tabbaci puts money behind every sentence you can check. A sealed court rules on it, and a writer who lied loses part of the bond. Watch a real ruling, then check it yourself.">
-<link rel="stylesheet" href="style.css"></head>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"></head>
 <body>
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top" id="top"></header>
@@ -100,7 +100,7 @@ Site.chrome('home');
   const r = document.getElementById('rain'); if (!r) return;
   let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
   const cols = Math.min(70, Math.floor(innerWidth / 18));
-  r.innerHTML = Array.from({ length: cols }, () => '<span>' + Array.from({ length: 34 }, () => (rnd() > 0.5 ? '1' : '0')).join('') + '</span>').join('');
+  r.innerHTML = Array.from({ length: cols }, () => `<span data-t="${Array.from({ length: 34 }, () => (rnd() > 0.5 ? "1" : "0")).join("")}"></span>`).join("");
 })();
 Site.allRounds().then(({ rounds, live, savedAt }) => {
   const ruled = rounds.filter((r) => r.status !== 'open');

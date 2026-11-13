@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Court record | Tabbaci</title>
-<link rel="stylesheet" href="style.css"></head>
+<meta name="description" content="One ruling from the Tabbaci court: the sentence, the pages it read, what each judge said, where the money went and how to check it yourself."><title>Court record | Tabbaci</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"></head>
 <body>
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top" id="top"></header>
@@ -78,7 +78,7 @@ async function show() {
   rec.innerHTML = `<div class="rec-top"><span>Court record · round ${id}</span><span class="tn">Testnet</span></div>
   <div class="rec-body">
     <p class="label">The sentence</p>
-    <p class="rec-claim">${claimHtml}</p>
+    <h1 class="rec-claim">${claimHtml}</h1>
     <div class="rec-verdict">${Site.stamp(word, 'big')}<span class="mute">${esc(Site.plainOutcome(r))}</span></div>
     <dl class="rec-grid">
       ${row('Kind', Site.isLie(r) ? 'A lie I planted on purpose, to see if the court stops it' : r.challenger ? 'A challenge round' : 'A page sentence')}

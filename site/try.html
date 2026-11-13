@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Try to lie | Tabbaci</title>
 <meta name="description" content="Try to get a false sentence past the court. You send it from your own terminal and watch the ruling land on this page.">
-<link rel="stylesheet" href="style.css"></head>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"></head>
 <body>
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top" id="top"></header>
@@ -14,7 +14,7 @@
 </section>
 <div class="checkbox">
 <section class="card">
-  <p class="label">Step 1</p><h3>Pick a trick</h3>
+  <p class="label">Step 1</p><h2 class="step">Pick a trick</h2>
   <div class="rp-picks" style="margin-top:10px">
     <button type="button" class="chip" data-p="source" aria-pressed="true">Say something the pages do not say</button>
     <button type="button" class="chip" data-p="inject" aria-pressed="false">Hide an order to the judges</button>
@@ -28,11 +28,11 @@
     <label class="l" for="u2">Page two (from a different owner)</label><input id="u2" value="https://example.org/">
     <label class="l" for="terms">Key words the judges look for in the pages</label><input id="terms" value="Example Domain">
   </details>
-  <p class="label" style="margin-top:22px">Step 2</p><h3>Send it</h3>
+  <p class="label" style="margin-top:22px">Step 2</p><h2 class="step">Send it</h2>
   <p class="mute">You need a free NEAR test account and the <code>near</code> command line tool. Run the first line and note the round number it prints. Then run the second.</p>
   <pre id="cmd1"></pre>
   <pre id="cmd2"></pre>
-  <p class="label" style="margin-top:22px">Step 3</p><h3>Watch the ruling</h3>
+  <p class="label" style="margin-top:22px">Step 3</p><h2 class="step">Watch the ruling</h2>
   <div class="pick" style="margin-top:8px"><div><label for="rid">Round number you got back</label><input id="rid" inputmode="numeric" placeholder="for example 35"></div><button type="button" class="btn" id="watch">Watch the ruling</button></div>
   <div id="out" aria-live="polite" style="margin-top:12px"></div>
   <p class="mute" style="font-size:.9rem;margin-top:16px">Before you start: this runs on the NEAR test network with test money. A judge that doesn't send a signed reply counts as unsure. And if your lie gets through, it shows up in the ledger like any other round, for everyone to see.</p>
