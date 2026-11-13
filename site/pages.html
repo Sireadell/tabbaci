@@ -1,20 +1,29 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pages | Tabbaci</title><link rel="stylesheet" href="style.css"></head>
+<title>Pages | Tabbaci</title>
+<meta name="description" content="Encyclopedia pages where every sentence carries a court stamp and money behind it.">
+<link rel="stylesheet" href="style.css"></head>
 <body>
-<header class="top"><div class="wrap"><a class="brand" href="index.html">Tabbaci</a>
-<nav><a href="index.html">Try to lie</a><a href="ledger.html">Ledger</a><a class="on" href="pages.html">Pages</a></nav></div></header>
-<main class="wrap narrow">
-<section class="hero">
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top" id="top"></header>
+<main id="main" class="wrap">
+<section class="page-head">
+  <p class="label">Pages</p>
   <h1>Pages where every sentence can be wrong</h1>
-  <p class="lead">A writer picks a word for each sentence (is, very likely, likely, disputed) and puts the same amount of money behind it. The court rules, and the money pays out by one fixed public rule. Saying how sure you really are earns the most, and "disputed" always gets the stake back.</p>
+  <p class="lead">For each sentence on these pages, a writer picked one word for how sure they were (is, very likely, likely or disputed) and put money behind it. When the court rules, the same public rule moves the money every time. You'll see the court's stamp next to each sentence.</p>
 </section>
-<div id="list"></div>
+<div class="plist" id="list"><p class="mute">Loading...</p></div>
 </main>
+<footer id="foot"></footer>
+<script src="config.js"></script><script src="app.js"></script>
 <script>
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-fetch('pages/index.json').then((r) => r.json()).then((l) => {
-  document.getElementById('list').innerHTML = l.map((p) => `<a class="card pagelink" href="page.html?p=${encodeURIComponent(p.slug)}"><b>${esc(p.title)}</b><span class="mute">${p.count} checked sentences</span></a>`).join('');
+Site.chrome('pages');
+Promise.all([fetch('pages/index.json').then((r) => r.json()), fetch('data/drafted.json').then((r) => (r.ok ? r.json() : null)).catch(() => null), Site.allRounds()]).then(([l, dr, { rounds }]) => {
+  const lies = rounds.filter(Site.isLie).length;
+  const cards = l.map((p) => `<a class="pagelink" href="page.html?p=${encodeURIComponent(p.slug)}"><b>${esc(p.title)}</b><span class="mute">${p.count} checked sentences</span></a>`);
+  if (dr) cards.push(`<a class="pagelink" href="page.html?p=drafted"><b>${esc(dr.title)}</b><span class="mute">Drafted by an AI model from sentences the court ruled true</span></a>`);
+  cards.push(`<a class="pagelink" href="page.html?p=lies"><b>The struck-out lies</b><span class="mute">${lies} lies I planted, each crossed out next to the fine it cost</span></a>`);
+  $('list').innerHTML = cards.join('');
 });
 </script>
 </body></html>

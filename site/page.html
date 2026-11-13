@@ -1,37 +1,60 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Page | Tabbaci</title><link rel="stylesheet" href="style.css"></head>
+<title>Page | Tabbaci</title>
+<link rel="stylesheet" href="style.css"></head>
 <body>
-<header class="top"><div class="wrap"><a class="brand" href="index.html">Tabbaci</a>
-<nav><a href="index.html">Try to lie</a><a href="ledger.html">Ledger</a><a class="on" href="pages.html">Pages</a></nav></div></header>
-<main class="wrap narrow">
-<section class="hero">
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top" id="top"></header>
+<main id="main" class="wrap narrow">
+<section class="page-head">
+  <p class="label" id="kicker">Page</p>
   <h1 id="title">Loading...</h1>
   <p class="lead" id="intro"></p>
   <p class="mute" id="by"></p>
 </section>
-<p class="mute legend">The word before each sentence is how sure its writer said it was: <b>is</b> (95 in 100), <b>very likely</b> (80), <b>likely</b> (65), <b>disputed</b> (50). A sure word earns more when right and loses more when wrong.</p>
+<div id="draft"></div>
+<p class="mute" id="legend" style="font-size:.92rem"></p>
 <div id="list"></div>
+<p><a href="pages.html">All pages</a></p>
 </main>
+<footer id="foot"></footer>
 <script src="config.js"></script><script src="app.js"></script>
 <script>
+Site.chrome('pages');
 const slug = new URLSearchParams(location.search).get('p') || 'near-chain';
-fetch(`pages/${slug}.json`).then((r) => r.json()).then(async (p) => {
-  document.title = p.title + " | Tabbaci";
-  document.getElementById('title').textContent = p.title;
-  document.getElementById('intro').textContent = p.intro;
-  document.getElementById('by').textContent = 'Written by: ' + p.written_by + '. Network: NEAR ' + Site.CFG.network + '.';
-  const box = document.getElementById('list');
-  for (const s of p.sentences) {
-    const el = document.createElement('article');
-    el.className = 'sentence';
-    el.innerHTML = `<p class="claimline"><span class="word">${Site.esc(s.word)}</span> ${Site.esc(s.claim)}</p><p class="mute">Asking the contract...</p>`;
-    box.appendChild(el);
-    Site.view('get_round', { round: s.round }).then((r) => {
-      const [label, cls] = Site.outcomeOf(r);
-      el.lastElementChild.outerHTML = `<p class="meta">Ruling: <b class="${cls}">${label}</b> · ${s.kind === 'data' ? 'decided by the numbers' : 'decided by the judges'} · ${r.bonds.map(Site.bondLine).join(' · ')}</p><details><summary>Check it yourself (round ${s.round})</summary><pre>${Site.esc(Site.verifyCmd(s.round))}</pre></details>`;
-    }).catch(() => { el.lastElementChild.textContent = 'Could not reach the contract.'; });
+const LEG = 'The word before each sentence is how sure its writer said it was: <b>is</b> (95 in 100), <b>very likely</b> (80), <b>likely</b> (65), <b>disputed</b> (50). This number is the bond-backed confidence, not a market price.';
+function sentence(s, r, strike) {
+  const w = r ? Site.letterOf(r) : 'OPEN';
+  const b = r && (r.bonds || [])[0]; const m = b ? Site.bondMoney(b) : null;
+  const meta = r ? `<p class="meta">${s.kind === 'data' ? 'Decided by the numbers' : 'Decided by the judges'} · ${s.word ? '<span class="wordbox">' + esc(s.word) + '</span>' : ''}${m ? esc(m.text) : 'no bond'} · <a href="case.html?round=${s.round}">Court record, round ${s.round}</a></p>` : '<p class="meta">Round not found.</p>';
+  return `<article class="sent${strike ? ' lie' : ''}">${Site.stamp(w)}<p class="cl">${esc(s.claim)}</p>${meta}</article>`;
+}
+async function main() {
+  const { rounds } = await Site.allRounds();
+  const byId = new Map(rounds.map((r) => [r.id, r]));
+  if (slug === 'lies') {
+    $('kicker').textContent = 'Struck out'; $('title').textContent = 'The lies that were tried'; $('intro').textContent = 'Each sentence below is false and was sent to the court on purpose, with a bond on it. It is crossed out here, and the link shows what it cost.';
+    $('by').textContent = 'Written by: the team, to test the court. Network: NEAR ' + Site.CFG.network + '.';
+    document.title = 'The struck-out lies | Tabbaci';
+    $('list').innerHTML = rounds.filter(Site.isLie).sort((a, b) => a.id - b.id).map((r) => sentence({ claim: r.claim, word: r.bonds && r.bonds[0] && r.bonds[0].word, kind: (Site.parse(r.input) || {}).kind, round: r.id }, r, true)).join('');
+    return;
   }
-});
+  $('legend').innerHTML = LEG;
+  if (slug === 'drafted') {
+    const d = await fetch('data/drafted.json').then((r) => r.json());
+    $('kicker').textContent = 'Drafted page'; $('title').textContent = d.title; document.title = d.title + ' | Tabbaci';
+    $('intro').textContent = 'Written by an AI model, not by a person. Every sentence it uses is one the court ruled true.';
+    $('by').textContent = `Drafted by ${d.drafted_by} on ${d.drafted_on}. Network: NEAR ${Site.CFG.network}.`;
+    const html = d.text.split(/\n\n/).map((p) => `<p class="txt">${esc(p).replace(/\[round (\d+)\]/g, (_, n) => `<sup><a href="case.html?round=${n}" title="Round ${n}">[${n}]</a></sup>`)}</p>`).join('');
+    $('draft').innerHTML = `<div class="drafted"><p class="label">Drafted from the rulings</p>${html}<p class="mute" style="font-size:.9rem">${esc(d.label)}</p></div>`;
+    $('list').innerHTML = '<h2 style="margin-top:28px">The sentences behind it</h2>' + (d.sentences || []).map((s) => { const n = s.round || s.rd; const r = byId.get(Number(n)); return sentence({ claim: s.sentence || s.claim || '', word: s.word, kind: s.kind, round: n }, r, false); }).join('');
+    return;
+  }
+  const p = await fetch(`pages/${encodeURIComponent(slug)}.json`).then((r) => r.json());
+  document.title = p.title + ' | Tabbaci'; $('kicker').textContent = 'Page';
+  $('title').textContent = p.title; $('intro').textContent = p.intro; $('by').textContent = 'Written by: ' + p.written_by + '. Network: NEAR ' + Site.CFG.network + '.';
+  $('list').innerHTML = p.sentences.map((s) => sentence(s, byId.get(s.round), false)).join('');
+}
+main().catch(() => { $('title').textContent = 'This page could not be loaded'; });
 </script>
 </body></html>

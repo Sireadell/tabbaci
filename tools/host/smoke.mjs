@@ -44,15 +44,22 @@ async function getPage(path) {
 }
 const ledger = await getPage('/ledger.html');
 check('ledger.html returns 200', ledger.status === 200, `status ${ledger.status}`);
-for (const id of ['id="rows"', 'id="f"', 'id="n-all"', 'src="config.js"', 'src="app.js"']) {
+for (const id of ['id="rows"', 'id="filters"', 'src="config.js"', 'src="app.js"']) {
   check(`ledger.html has ${id}`, ledger.text.includes(id));
 }
 
-const lie = await getPage('/index.html');
-check('try-to-lie index.html returns 200', lie.status === 200, `status ${lie.status}`);
-for (const s of ['id="claim"', 'id="out"', 'id="cname"', 'data-p="source"', 'data-p="inject"', 'data-p="late"', 'src="config.js"', 'src="app.js"']) {
-  check(`index.html has ${s}`, lie.text.includes(s));
+const lie = await getPage('/try.html');
+check('try-to-lie try.html returns 200', lie.status === 200, `status ${lie.status}`);
+for (const s of ['id="claim"', 'id="out"', 'data-p="source"', 'data-p="inject"', 'data-p="late"', 'src="config.js"', 'src="app.js"']) {
+  check(`try.html has ${s}`, lie.text.includes(s));
 }
+
+const home = await getPage('/index.html');
+check('index.html returns 200', home.status === 200);
+for (const s of ['id="replay"', 'id="chk-run"', 'id="numbody"']) check(`index.html has ${s}`, home.text.includes(s));
+const data = await getPage('/data/rounds.json');
+check('saved rounds copy is served', data.status === 200 && JSON.parse(data.text).rounds.length > 30);
+for (const p of ['/case.html', '/pages.html', '/page.html']) check(`${p} returns 200`, (await getPage(p)).status === 200);
 
 // 4. Testnet RPC: same config file and same call the site makes.
 const cfgSrc = await readFile(join(dist, 'config.js'), 'utf8');

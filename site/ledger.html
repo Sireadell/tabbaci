@@ -1,39 +1,49 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ledger | Tabbaci</title><link rel="stylesheet" href="style.css"></head>
+<title>Ledger | Tabbaci</title>
+<meta name="description" content="Every round the court has ruled, with its stamp, bond and fine. Read from the chain.">
+<link rel="stylesheet" href="style.css"></head>
 <body>
-<header class="top"><div class="wrap"><a class="brand" href="index.html">Tabbaci</a>
-<nav><a href="index.html">Try to lie</a><a class="on" href="ledger.html">Ledger</a><a href="pages.html">Pages</a></nav></div></header>
-<main class="wrap">
-<section class="hero">
-  <h1>Every ruling, and every lie that was tried</h1>
-  <p class="lead">Read live from the contract on NEAR testnet. There is no server in between, so no row can be hidden. Each ruling has a command that checks it from scratch.</p>
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top" id="top"></header>
+<main id="main" class="wrap">
+<section class="page-head">
+  <p class="label">Ledger</p>
+  <h1>Every round, every stamp</h1>
+  <p class="lead">One row per round, newest first. Nothing is hidden: a lie that got through would sit here like any other row.</p>
+  <p class="note-live" id="live-note">Reading the chain...</p>
 </section>
-<section class="strip" aria-label="Live from the contract">
-  <div><span class="big" id="n-all">-</span><span class="mute">rulings so far</span></div>
-  <div><span class="big" id="n-lie">-</span><span class="mute">lies tried</span></div>
-  <div><span class="big" id="n-won">-</span><span class="mute">lies that got through</span></div>
-  <div class="src"><label for="f" class="mute">Show</label><select id="f"><option value="all">All rounds</option><option value="lie_attempt">Only lies that were tried</option><option value="page">Only page sentences</option></select></div>
-</section>
-<div id="rows"><p class="mute">Reading the contract...</p></div>
-<p class="mute">A lie that got through is a round sent as a lie that the court ruled true. If that number is ever above zero, the round is listed here like any other.</p>
+<div class="filters" role="group" aria-label="Filter the rounds" id="filters"></div>
+<div class="tab-scroll"><table class="ledger">
+  <thead><tr><th scope="col">Round</th><th scope="col">Sentence</th><th scope="col">Network</th><th scope="col">Bond</th><th scope="col">Stamp</th><th scope="col">Fine or gain</th></tr></thead>
+  <tbody id="rows"><tr><td colspan="6" class="mute">Reading the chain...</td></tr></tbody>
+</table></div>
+<p class="mute" style="margin-top:14px">A lie that got through is a sentence sent as a lie that the court stamped TRUE. Rounds still open show their stamp once the court has ruled.</p>
 </main>
+<footer id="foot"></footer>
 <script src="config.js"></script><script src="app.js"></script>
 <script>
-let rounds = [];
-function draw() {
-  const only = document.getElementById('f').value;
-  const list = only === 'all' ? rounds : rounds.filter((r) => (r.tag || 'page') === only);
-  document.getElementById('rows').innerHTML = list.map(Site.roundRow).join('') || '<p class="mute">Nothing here yet.</p>';
+Site.chrome('ledger');
+const FILTERS = [['all', 'All'], ['TRUE', 'True'], ['FALSE', 'False'], ['UNSURE', 'Unsure'], ['OPEN', 'Open'], ['lies', 'Lies tried']];
+let rounds = [], cur = new URLSearchParams(location.search).get('show') || 'all';
+if (!FILTERS.some((f) => f[0] === cur)) cur = 'all';
+function bondCell(r) { const b = r.bonds || []; if (!b.length) return '<span class="mute">none</span>'; return b.map((x) => Site.near(x.stake) + ' NEAR').join(', '); }
+function moneyCell(r) {
+  const b = (r.bonds || [])[0]; if (!b) return '<span class="mute">none</span>';
+  const p = b.payout; if (p == null) return '<span class="mute">locked</span>';
+  const s = BigInt(b.stake), q = BigInt(p);
+  return q < s ? `<b class="neg">-${Site.near(s - q)}</b>` : q > s ? `<b class="pos">+${Site.near(q - s)}</b>` : '<span class="mute">returned</span>';
 }
-Site.allRounds().then((rs) => {
-  rounds = rs;
-  const lies = rs.filter((r) => r.tag === 'lie_attempt');
-  document.getElementById('n-all').textContent = rs.filter((r) => r.status !== 'open').length;
-  document.getElementById('n-lie').textContent = lies.length;
-  document.getElementById('n-won').textContent = lies.filter((r) => r.outcome === 'T').length;
-  draw();
-}).catch(() => { document.getElementById('rows').innerHTML = '<p>Could not reach the chain. Try again in a moment.</p>'; });
-document.getElementById('f').addEventListener('change', draw);
+function draw() {
+  const list = rounds.filter((r) => cur === 'all' ? true : cur === 'lies' ? Site.isLie(r) : Site.letterOf(r) === cur || (cur === 'UNSURE' && ['SPLIT', 'VOID'].includes(Site.letterOf(r))));
+  $('rows').innerHTML = list.map((r) => `<tr><td class="rid"><a href="case.html?round=${r.id}">No. ${r.id}</a></td><td class="c">${esc(r.claim)}${Site.isLie(r) ? ' <span class="mute" style="font:.78rem var(--sans)">(a lie, tried on purpose)</span>' : ''}</td><td>Testnet</td><td class="num">${bondCell(r)}</td><td>${Site.stamp(Site.letterOf(r), 'small')}</td><td class="num">${moneyCell(r)}</td></tr>`).join('') || '<tr><td colspan="6" class="mute">Nothing in this view.</td></tr>';
+  document.querySelectorAll('#filters button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.f === cur)));
+}
+$('filters').innerHTML = FILTERS.map(([k, t]) => `<button type="button" class="chip" data-f="${k}" aria-pressed="false">${t}</button>`).join('');
+$('filters').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; cur = b.dataset.f; draw(); });
+Site.allRounds().then(({ rounds: rs, live, savedAt }) => {
+  rounds = rs; draw();
+  $('live-note').textContent = (live ? 'Read from the chain just now' : 'The chain did not answer, so this is the saved copy from ' + (savedAt ? savedAt.slice(0, 10) : 'an earlier day')) + '. ' + rs.length + ' rounds on ' + Site.CFG.contract + ', NEAR test network.';
+});
 </script>
 </body></html>
