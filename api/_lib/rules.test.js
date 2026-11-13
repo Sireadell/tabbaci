@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cleanClaim, cleanTopic, cleanWord, pickTerms, buildRound, countSince, makeLimiter, extractSpan } from './rules.js';
+import { cleanClaim, cleanTopic, cleanWord, pickTerms, buildRound, countSince, makeLimiter, extractSpan, senderOf, PER_AGENT_PER_HOUR, PER_VISITOR_PER_HOUR, CAP_PER_DAY } from './rules.js';
 import { b58decode, b58encode, encodeTx, signTx, loadKey, yocto } from './near.js';
 import { generateKeyPairSync, verify, createHash } from 'node:crypto';
 
@@ -46,6 +46,28 @@ test('the round uses Wikipedia and Wikidata from the approved list', () => {
   assert.equal(r.picks[1].url, 'https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q174/descriptions/en');
   assert.equal(r.tag, 'visitor');
   assert.equal(r.kind, 'prose');
+});
+
+test('an AI sender gets its own tag, anything else stays a visitor', () => {
+  const base = { claim: 'x is y', canonical: 'Lagos', qid: 'Q8673', terms: ['city'] };
+  assert.equal(buildRound({ ...base, from: 'agent' }).tag, 'agent');
+  assert.equal(buildRound(base).tag, 'visitor');
+  for (const f of [undefined, null, '', 'visitor', 'Agent', 'admin', 'lie', 42]) assert.equal(senderOf(f), 'visitor', String(f));
+  assert.equal(senderOf('agent'), 'agent');
+});
+
+test('AI senders get 6 an hour, kept apart from the visitor limit, under the same daily cap', () => {
+  assert.equal(PER_AGENT_PER_HOUR, 6);
+  assert.equal(PER_VISITOR_PER_HOUR, 3);
+  assert.equal(CAP_PER_DAY, 30);
+  const agent = makeLimiter(PER_AGENT_PER_HOUR, 3600_000);
+  const visitor = makeLimiter(PER_VISITOR_PER_HOUR, 3600_000);
+  for (let i = 0; i < 6; i++) assert.ok(agent('ip', i), 'agent ' + i);
+  assert.equal(agent('ip', 6), false);
+  assert.ok(visitor('ip', 6), 'the visitor bucket is separate');
+  // Agent rounds come from the same account, so the chain count covers both.
+  const rounds = [{ opener: 'v', opened_block: 100, tag: 'agent' }, { opener: 'v', opened_block: 100, tag: 'visitor' }];
+  assert.equal(countSince(rounds, 'v', 50), 2);
 });
 
 test('daily count only counts this account inside the window', () => {
