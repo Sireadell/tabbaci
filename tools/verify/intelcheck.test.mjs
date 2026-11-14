@@ -23,7 +23,7 @@ const run = (b, over = {}, round) => IC.checkBundle(b, { qvl, view: chain(b, ove
 const status = (rows) => Object.fromEntries(rows.map((r) => [r.key, r.status]));
 const clone = (b) => JSON.parse(JSON.stringify(b));
 
-for (const [dir, n] of [['finalenc2', 20], ['finalenc2', 25], ['finalenc2', 33], ['tabbaci-court2', 4], ['tabbaci-court2', 5], ['tabbaci-court2', 6], ['tabbaci-court2', 7], ['finalenc1', 2], ['court5', 6]]) {
+for (const [dir, n] of [['finalenc2', 20], ['finalenc2', 25], ['finalenc2', 33], ['finalenc2', 35], ['finalenc2', 36], ['tabbaci-court2', 4], ['tabbaci-court2', 5], ['tabbaci-court2', 6], ['tabbaci-court2', 7], ['finalenc1', 2], ['court5', 6]]) {
   test(`${dir} round ${n}: the saved Intel report passes`, async () => {
     const rows = await run(load(dir, n));
     assert.deepEqual(status(rows), { sig: 'MATCH', bind: 'MATCH', prog: 'MATCH', build: 'MATCH' }, JSON.stringify(rows));
