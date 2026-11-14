@@ -136,7 +136,7 @@ All three rounds are finalized.
 
 **The mainnet copy still has one admin key**, so I can fix or upgrade it while it is tested. The testnet contract `finalenc2.testnet` has 0 keys, and that is the one to judge trust on. On mainnet the judges' NEAR AI key is owned by `sireadell.near` and locked to the program fingerprint.
 
-To check a round, run the checker with `--network mainnet --contract 5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e --round 1` (or 2, 3). It matches the outcome, the contract and program fingerprints, the request hash and the payouts. It prints one MISMATCH on purpose, `contract has no keys` (1 key), so the overall result is MISMATCH. Without an archive folder it cannot verify the judges' signatures or the page bytes. The contract does not check the judges' signatures itself. The output for all three rounds is in `proofs/mainnet/`.
+To check a round, run the checker with `--network mainnet --contract 5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e --round 1` (or 2, 3). It matches the outcome, the contract and program fingerprints, the request hash and the payouts. The only check it does not pass is the "no keys" line, because the pilot has one admin key, as said above. Without an archive folder it cannot verify the judges' signatures or the page bytes. The contract does not check the judges' signatures itself. The output for all three rounds is in `proofs/mainnet/`.
 
 Before this contract existed, I ran the same sealed program three times on mainnet through `outlayer.near`, with no bond. One of those was the bribe sentence, and all 3 judges said False ([tx](https://nearblocks.io/txns/FenA2TpVxBJqiWQT9UorPMDD8uayo5aoiFF7fbofVar3)).
 
