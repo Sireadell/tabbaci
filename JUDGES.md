@@ -77,8 +77,8 @@ Swap `--round 25` for `--round 35` or `--round 36` to see `source 11 bytes match
 
 ## What is not proven
 
-- **Testnet money.** The court, every bond and every fine are on NEAR testnet. Mainnet saw 3 program runs and no bonds.
-- **The contract does not check the judge signatures itself.** The sealed program checks them, the checker and every case page re-check them, and a new contract that checks them too is on the roadmap.
+- **Mostly testnet money.** All but 3 bonds and 1 fine are on NEAR testnet. The mainnet pilot ran 3 bonded rounds with real NEAR and still has one admin key.
+- **The first contract does not check the judge signatures itself.** The sealed program checks them, and the checker and every case page re-check them. Court version 2, `tabbaci-court2.testnet`, checks all three inside the contract, refuses a forged one ([the test](contracts/courtroom-v2/src/tests_v2.rs), run on every push by the [tests workflow](https://github.com/Sireadell/tabbaci/actions/workflows/tests.yml)), and is where the site sends new sentences.
 - **The sealed-box line needs the tool.** Without `outlayer-verify` that line says `needs outlayer-verify` and the run ends `OVERALL: CANNOT VERIFY`. Only rounds 20, 25 and 33 have a saved sealed-box proof.
 - **The judges' reply words are not published.** Only a fingerprint of each reply is, so that line is INFO and is left out of the total.
 - **The site's test account has a full-access key.** `tabbaci-visitors.testnet` opens visitor rounds, holds only test NEAR (about 8) and cannot change a ruling.
