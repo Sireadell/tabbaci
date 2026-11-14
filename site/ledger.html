@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ledger | Tabbaci</title>
+<title>All rounds | Tabbaci</title>
 <meta name="description" content="Every round the court has ruled, with its stamp, bond and fine. Read from the chain.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"></head>
 <body>
@@ -8,14 +8,14 @@
 <header class="top" id="top"></header>
 <main id="main" class="wrap">
 <section class="page-head">
-  <p class="label">Ledger</p>
+  <p class="label">All rounds</p>
   <h1>Every round, every stamp</h1>
   <p class="lead">One row per round, newest first. Nothing is hidden: a lie that got through would sit here like any other row.</p>
   <p class="note-live" id="live-note">Reading the chain...</p>
 </section>
 <div class="filters" role="group" aria-label="Filter the rounds" id="filters"></div>
 <div class="tab-scroll"><table class="ledger">
-  <thead><tr><th scope="col">Round</th><th scope="col">Sentence</th><th scope="col">Network</th><th scope="col">Bond</th><th scope="col">Stamp</th><th scope="col">Fine or gain</th></tr></thead>
+  <thead><tr><th scope="col">Round</th><th scope="col">Sentence</th><th scope="col">Test or real</th><th scope="col">Money at stake</th><th scope="col">Stamp</th><th scope="col">Money lost or won</th></tr></thead>
   <tbody id="rows"><tr><td colspan="6" class="mute">Reading the chain...</td></tr></tbody>
 </table></div>
 <p class="mute" style="margin-top:14px">A lie that got through is a sentence sent as a lie that the court stamped TRUE. Rounds still open show their stamp once the court has ruled.</p>
@@ -24,19 +24,22 @@
 <script src="config.js"></script><script src="app.js"></script>
 <script>
 Site.chrome('ledger');
-const FILTERS = [['all', 'All'], ['TRUE', 'True'], ['FALSE', 'False'], ['UNSURE', 'Unsure'], ['OPEN', 'Open'], ['lies', 'Lies tried'], ['visitors', 'Sent by visitors'], ['agents', 'Sent by AI agents'], ['wiki', 'From Wikipedia']];
+const FILTERS = [['all', 'All'], ['TRUE', 'True'], ['FALSE', 'False'], ['UNSURE', 'Unsure'], ['OPEN', 'Waiting for a ruling'], ['lies', 'Lies tried'], ['visitors', 'Sent by visitors'], ['agents', 'Sent by AI agents'], ['wiki', 'From Wikipedia']];
 let rounds = [], cur = new URLSearchParams(location.search).get('show') || 'all';
 if (!FILTERS.some((f) => f[0] === cur)) cur = 'all';
 function bondCell(r) { const b = r.bonds || []; if (!b.length) return '<span class="mute">none</span>'; return b.map((x) => Site.near(x.stake) + ' NEAR').join(', '); }
 function moneyCell(r) {
   const b = (r.bonds || [])[0]; if (!b) return '<span class="mute">none</span>';
-  const p = b.payout; if (p == null) return '<span class="mute">locked</span>';
+  const p = b.payout; if (p == null) return '<span class="mute">On hold</span>';
   const s = BigInt(b.stake), q = BigInt(p);
-  return q < s ? `<b class="neg">-${Site.near(s - q)}</b>` : q > s ? `<b class="pos">+${Site.near(q - s)}</b>` : '<span class="mute">returned</span>';
+  return q < s ? `<b class="neg">-${Site.near(s - q)}</b>` : q > s ? `<b class="pos">+${Site.near(q - s)}</b>` : '<span class="mute">Given back</span>';
 }
+// Plain words for the two stamp codes visitors found confusing. The codes stay the same for the filters.
+const SHOWN = { VOID: 'Cancelled', OPEN: 'Waiting for a ruling' };
+const shownStamp = (r) => { const w = Site.letterOf(r); return SHOWN[w] || w; };
 function draw() {
   const list = rounds.filter((r) => cur === 'all' ? true : cur === 'lies' ? Site.isLie(r) : cur === 'visitors' ? (r.tag === 'visitor' || r.tag === 'wiki') : cur === 'wiki' ? r.tag === 'wiki' : cur === 'agents' ? r.tag === 'agent' : Site.letterOf(r) === cur || (cur === 'UNSURE' && ['SPLIT', 'VOID'].includes(Site.letterOf(r))));
-  $('rows').innerHTML = list.map((r) => `<tr><td class="rid"><a href="case.html?round=${r.id}${r._c ? '&c=' + r._c : ''}">No. ${r.id}${r._c ? ' (v2)' : ''}</a></td><td class="c">${esc(r.claim)}${Site.isLie(r) ? ' <span class="mute" style="font:.78rem var(--sans)">(a lie, tried on purpose)</span>' : r.tag === 'wiki' ? ' <span class="mute" style="font:.78rem var(--sans)">(Sent from Wikipedia)</span>' : r.tag === 'visitor' ? ' <span class="mute" style="font:.78rem var(--sans)">(sent by a visitor from the try page)</span>' : r.tag === 'agent' ? ' <span class="mute" style="font:.78rem var(--sans)">(sent by an AI agent)</span>' : ''}</td><td>Testnet</td><td class="num">${bondCell(r)}</td><td>${Site.stamp(Site.letterOf(r), 'small')}</td><td class="num">${moneyCell(r)}</td></tr>`).join('') || '<tr><td colspan="6" class="mute">Nothing in this view.</td></tr>';
+  $('rows').innerHTML = list.map((r) => `<tr class="${Site.vKind(shownStamp(r))}"><td class="rid"><a href="case.html?round=${r.id}${r._c ? '&c=' + r._c : ''}">No.&nbsp;${r.id}</a>${r._c ? '<span class="court-of">second court</span>' : '<span class="court-of">first court</span>'}</td><td class="c">${esc(r.claim)}${Site.isLie(r) ? ' <span class="mute" style="font:.78rem var(--sans)">(a lie, tried on purpose)</span>' : r.tag === 'wiki' ? ' <span class="mute" style="font:.78rem var(--sans)">(Sent from Wikipedia)</span>' : r.tag === 'visitor' ? ' <span class="mute" style="font:.78rem var(--sans)">(sent by a visitor from the try page)</span>' : r.tag === 'agent' ? ' <span class="mute" style="font:.78rem var(--sans)">(sent by an AI agent)</span>' : ''}</td><td>Testnet</td><td class="num">${bondCell(r)}</td><td>${Site.stamp(shownStamp(r), 'small')}</td><td class="num">${moneyCell(r)}</td></tr>`).join('') || '<tr><td colspan="6" class="mute">Nothing in this view.</td></tr>';
   document.querySelectorAll('#filters button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.f === cur)));
 }
 $('filters').innerHTML = FILTERS.map(([k, t]) => `<button type="button" class="chip" data-f="${k}" aria-pressed="false">${t}</button>`).join('');
@@ -44,7 +47,7 @@ $('filters').addEventListener('click', (e) => { const b = e.target.closest('butt
 Promise.all([Site.allRounds(), Site.CFG.contractV2 ? Site.allRounds(Site.CFG.contractV2, 'data/rounds-v2.json') : Promise.resolve({ rounds: [] })]).then(([old, v2]) => {
   const { live, savedAt } = old; const rs = [...v2.rounds, ...old.rounds];
   rounds = rs; draw();
-  $('live-note').textContent = (live ? 'Read from the chain just now' : 'The chain did not answer, so this is the saved copy from ' + (savedAt ? savedAt.slice(0, 10) : 'an earlier day')) + '. ' + rs.length + ' rounds on ' + Site.CFG.contract + ', NEAR test network.';
+  $('live-note').textContent = (live ? 'Read from the chain just now' : 'The chain did not answer, so this is the saved copy from ' + (savedAt ? savedAt.slice(0, 10) : 'an earlier day')) + '. ' + rs.length + ' rounds across both courts. Test network, play money.';
 });
 </script>
 </body></html>

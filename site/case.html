@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="One ruling from the Tabbaci court: the sentence, the pages it read, what each judge said, where the money went and how to check it yourself."><title>Court record | Tabbaci</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"></head>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="batch2.css"></head>
 <body>
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top" id="top"></header>
@@ -15,13 +15,16 @@
   <h2>Check this ruling yourself</h2>
   <div class="card">
     <div class="pick"><button type="button" class="btn" id="chk-run">Run the checks in this browser</button></div>
+    <p class="sum b2-top" id="chk-sum" role="status"></p>
     <ul class="checks" id="chk-list" aria-live="polite"></ul>
-    <p class="sum" id="chk-sum"></p>
   </div>
-  <p class="mute">This page now checks the judges' signatures and Intel's signed report on the sealed run (the locked Intel machine that ran the court) right in your browser, with nothing to install. Intel's certificates come from the saved proof file kept with this site, and the program fingerprint and the approved machine list are read live from the NEAR chain. If this round has no saved proof, one line says COMMAND LINE, and this one command checks everything:</p>
+  <p class="mute">This page checks, right in your browser with nothing to install, that the three judges really gave these answers, and that the locked box ran unchanged. The court runs in a locked box inside a computer chip made by Intel, that nobody can open.</p>
+  <details><summary>For developers: check from a command line</summary>
+  <p class="mute">Intel's certificates come from the saved proof file kept with this site, and the program fingerprint and the approved machine list are read live from the NEAR chain. If a line says "Needs a developer's computer", this one command checks everything:</p>
   <pre id="cmd"></pre>
   <div class="copyrow"><button type="button" class="btn ghost" id="copy">Copy the command</button><span class="mute" id="copied" role="status"></span></div>
-  <p class="mute" style="font-size:.9rem">The "no access keys" line shows MATCH. The contract has no access keys left, so nobody, me included, can change its code or its rules.</p>
+  </details>
+  <p class="mute" style="font-size:.9rem">When the line "The contract has no access keys" shows MATCH, it means nobody, me included, can change this court's code or its rules.</p>
   <div class="print-row"><button type="button" class="btn ghost" onclick="window.print()">Print this record</button><a class="btn ghost" href="ledger.html">Back to the ledger</a></div>
 </section>
 </main>
@@ -74,15 +77,15 @@ async function show() {
     const raw = `<details class="jraw"><summary>show raw</summary><div class="mute">The full quote the contract checked:</div><pre>${esc(quote)}</pre>${ctx ? `<div class="mute">Where it sits in the page the court read:</div><div class="mono">${ctx}</div>` : ''}</details>`;
     return `<div class="jq"><b>${esc(word)}</b>, relying on: <mark>${esc(window.V2.readable(quote))}</mark>${j.qx ? '<br><span class="neg">This quote is not on the page, so the court counted this judge as unsure.</span>' : ''}${raw}</div>`;
   };
-  const judges = v && v.j && v.j.length ? `<ul class="jl">${v.j.map((j) => { const a = j.a === 'T' ? 'TRUE' : j.a === 'F' ? 'FALSE' : 'UNSURE'; return `<li>${Site.stamp(a, 'small')}<span>${esc(Site.modelName(models[j.m]) || 'judge ' + j.m)}${j.g ? ', reply signed' : ', no signed reply, counted as unsure'}</span>${quoteHtml(j)}</li>`; }).join('')}</ul>${isData ? `<p class="mute" style="margin:6px 0 0;font-size:.9rem">This sentence is about a number, so the numbers the sources returned decide it. The judges only confirm that the sentence states that number${input.cv ? ' (' + esc(input.cv) + ')' : ''}.</p>` : ''}` : '<span class="mute">No judge answers yet.</span>';
+  const judges = v && v.j && v.j.length ? `<ul class="jl">${v.j.map((j) => { const a = j.a === 'T' ? 'TRUE' : j.a === 'F' ? 'FALSE' : 'UNSURE'; return `<li>${Site.stamp(a, 'small')}<span>${esc(Site.modelName(models[j.m]) || 'judge ' + j.m)}${j.g ? ', reply signed' : '. This judge did not answer properly, so its answer counted as unsure.'}</span>${quoteHtml(j)}</li>`; }).join('')}</ul>${isData ? `<p class="mute" style="margin:6px 0 0;font-size:.9rem">This sentence is about a number, so the numbers the sources returned decide it. The judges only confirm that the sentence states that number${input.cv ? ' (' + esc(input.cv) + ')' : ''}.</p>` : ''}` : '<span class="mute">No judge answers yet.</span>';
 
-  const bonds = (r.bonds || []).length ? `<ul class="jl">${r.bonds.map((b) => `<li><span class="mono">${esc(b.writer)}</span> put <b>${Site.near(b.stake)} NEAR</b> on the word <b>${esc(b.word)}</b></li>`).join('')}</ul><p class="mute" style="margin:6px 0 0;font-size:.9rem">The bond-backed confidence of this sentence is ${(Site.WORDS[r.bonds[0].word] / 100).toFixed(0)} in 100. It comes from the word the writer chose and the money behind it. Nobody trades it.</p>` : '<span class="mute">No money behind this sentence.</span>';
+  const bonds = (r.bonds || []).length ? `<ul class="jl">${r.bonds.map((b) => `<li><span class="mono">${esc(b.writer)}</span> put <b>${Site.near(b.stake)} NEAR</b> on the word <b>${esc(b.word)}</b></li>`).join('')}</ul><p class="mute" style="margin:6px 0 0;font-size:.9rem">This sentence scores ${(Site.WORDS[r.bonds[0].word] / 100).toFixed(0)} in 100. The score shows how sure the writer said they were, and how much money they put on it. Nobody trades it.</p>` : '<span class="mute">No money behind this sentence.</span>';
   const money = (r.bonds || []).length ? `<ul class="jl">${r.bonds.map((b) => { const m = Site.bondMoney(b); return `<li><span class="${m.kind === 'fine' ? 'neg' : m.kind === 'gain' ? 'pos' : ''}">${esc(m.text)}</span></li>`; }).join('')}</ul>` : '<span class="mute">Nothing to pay.</span>';
   const blocks = Site.blocksOf(r);
   const sealed = Site.sealedOf(id);
   const proofRow = sealed
-    ? row('Sealed-run proof', `I checked this sealed run against Intel's report and saved the evidence. The program that ran has fingerprint <span class="mono">${sealed.fp}...</span>, the same one the contract stores.<br><span class="mute">OutLayer task ${sealed.task}. Check it offline:</span><pre>outlayer-verify bundle proofs/${sealed.dir}/round-${id}.bundle.json --offline</pre>`)
-    : row('Sealed-run proof', '<span class="mute">I didn\'t save a proof for this round. The command below checks it live.</span>');
+    ? row('Proof the locked box ran as promised', `I checked this run against Intel's report and saved the evidence. The program that ran is the same one the contract stores.<details><summary class="mute">Details for developers</summary><span class="mute">Program fingerprint <span class="mono">${sealed.fp}...</span>. OutLayer task ${sealed.task}. Check it offline:</span><pre>outlayer-verify bundle proofs/${sealed.dir}/round-${id}.bundle.json --offline</pre></details>`)
+    : row('Proof the locked box ran as promised', '<span class="mute">I didn\'t save a proof for this round. The command in the developers\' section below checks it live.</span>');
 
   rec.innerHTML = `<div class="rec-top"><span>Court record · round ${id}</span><span class="tn">Testnet</span></div>
   <div class="rec-body">
@@ -111,17 +114,16 @@ async function show() {
     findAttemptTx(last.start_block).then((hash) => { $('tx').innerHTML = hash ? `<a href="${ex}/txns/${hash}" rel="noopener">Ruling transaction ${hash.slice(0, 12)}...</a> · <a href="${ex}/address/${Site.CFG.contract}" rel="noopener">Contract</a>` : `Ruled in block ${last.end_block}. <a href="${ex}/address/${Site.CFG.contract}" rel="noopener">See the contract's transactions</a>`; });
   }
 }
+// The top line, a plain line under each check and the folded developer-only checks come from CheckText (v2checks.js).
+// Labels only: runChecks decides every MATCH, MISMATCH and NEEDS exactly as before.
+const checkView = window.CheckText.view($('chk-list'), $('chk-sum'));
 $('chk-run').addEventListener('click', async () => {
   const btn = $('chk-run'); btn.disabled = true; btn.textContent = 'Checking...';
-  $('chk-list').innerHTML = ''; $('chk-sum').textContent = '';
-  const out = await Site.runChecks(id, (name, status, detail) => {
-    const li = document.createElement('li');
-    li.innerHTML = `<span class="res ${status}">${status === 'NEEDS' ? 'COMMAND LINE' : status}</span><span class="name">${esc(name)}</span><span class="det">${esc(detail)}</span>`;
-    $('chk-list').appendChild(li);
-  });
-  const c = (s) => out.filter((x) => x.status === s).length;
-  $('chk-sum').textContent = `${c('MATCH')} matched in your browser, ${c('MISMATCH')} did not, ${c('NEEDS')} need the command line.`;
-  btn.disabled = false; btn.textContent = 'Run the checks again';
+  checkView.reset();
+  try { await Site.runChecks(id, (name, status, detail) => checkView.add(name, status, detail)); } finally {
+    checkView.finish();
+    btn.disabled = false; btn.textContent = 'Run the checks again';
+  }
 });
 $('copy').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText($('cmd').textContent); $('copied').textContent = 'Copied.'; } catch { $('copied').textContent = 'Select the text above and copy it.'; }

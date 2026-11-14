@@ -13,10 +13,12 @@
 </article>
 <section id="check" hidden>
   <h2>Check this ruling yourself</h2>
-  <p class="mute">The first command reads the round from the chain and checks the fingerprint, the three judge signatures, the contract's own check of them and how the ruling follows. The second checks the sealed run against Intel's report, with no network.</p>
+  <details><summary>For developers: check from a command line</summary>
+  <p class="mute">The first command reads the round from the chain and checks the fingerprint, the three judge signatures, the contract's own check of them and how the ruling follows. The second checks the locked box's run against Intel's report, with no network.</p>
   <pre id="cmd"></pre>
   <div class="copyrow"><button type="button" class="btn ghost" id="copy">Copy the commands</button><span class="mute" id="copied" role="status"></span></div>
-  <div class="print-row"><button type="button" class="btn ghost" onclick="window.print()">Print this record</button><a class="btn ghost" href="ledger.html">Back to the ledger</a></div>
+  </details>
+  <div class="print-row"><button type="button" class="btn ghost" onclick="window.print()">Print this record</button><a class="btn ghost" href="ledger.html">Back to all rounds</a></div>
 </section>
 </main>
 <footer id="foot"></footer>
@@ -76,21 +78,21 @@ async function show() {
     ? `<ul class="jl">${v.j.map((j) => {
         const a = j.a === 'T' ? 'TRUE' : j.a === 'F' ? 'FALSE' : 'UNSURE';
         const c = checked[j.m];
-        const note = j.a === 'X' || !j.g ? 'no signed reply, counted as unsure' : c && c.sig_ok ? 'reply signed, and the contract checked the signature' : 'reply signed';
-        return `<li>${Site.stamp(a, 'small')}<span>${esc(Site.modelName(models[j.m]) || 'judge ' + j.m)}, ${note}</span>${j.g ? `<span class="mono mute" title="${esc(j.g)}">${esc(j.g.slice(0, 10))}...</span>` : ''}</li>`;
+        const note = j.a === 'X' || !j.g ? 'did not answer properly, so its answer counted as unsure' : c && c.sig_ok ? 'reply signed, and the contract checked the signature' : 'reply signed';
+        return `<li>${Site.stamp(a, 'small')}<span><span class="seat-j">Judge ${Number(j.m) + 1}</span> ${esc(Site.modelName(models[j.m]) || '')}, ${note}</span>${j.g ? `<span class="mono mute" title="${esc(j.g)}">${esc(j.g.slice(0, 10))}...</span>` : ''}</li>`;
       }).join('')}</ul><p class="mute" style="margin:6px 0 0;font-size:.9rem">Each judge was asked one thing: does this sentence say the number is ${esc(cmp)}? The judges never saw the page. The page bit decides whether the page meets that number.</p>`
     : '<span class="mute">No judge answers yet.</span>';
 
   const attempts = (r.attempts || []).length
     ? `<ul class="jl">${r.attempts.map((a) => {
         const n = a.end_block ? a.end_block - a.start_block : null;
-        const what = a.result === 'ok' ? 'answered' : a.result === 'NULL' ? 'no answer, the shared OutLayer queue did not reach it in time' : esc(a.result);
+        const what = a.result === 'ok' ? 'answered' : a.result === 'NULL' ? 'no answer. The locked box was busy and did not answer in time, so it was tried again' : esc(a.result);
         return `<li><span>Attempt ${esc(a.n)}: ${what}${n != null ? `, ${n} blocks` : ''}</span></li>`;
       }).join('')}</ul><p class="mute" style="margin:6px 0 0;font-size:.9rem">One block is about one second. An attempt with no answer is recorded on the chain as it happened.</p>`
     : '<span class="mute">No attempts yet.</span>';
 
   const tx = ATTEMPT_TX[id];
-  const proof = `The program that ran has fingerprint <span class="mono" title="${PROGRAM}">${PROGRAM.slice(0, 8)}...</span>, the one the contract stores. I saved the sealed-run proof. Check it offline:<pre>outlayer-verify bundle proofs/court-private/round-${id}.bundle.json --offline</pre>`;
+  const proof = `The program that ran is the one the contract stores, and I saved the proof.<details><summary class="mute">Details for developers</summary><span class="mute">Program fingerprint <span class="mono" title="${PROGRAM}">${PROGRAM.slice(0, 8)}...</span>. Check it offline:</span><pre>outlayer-verify bundle proofs/court-private/round-${id}.bundle.json --offline</pre></details>`;
 
   const bonds = (r.bonds || []).length
     ? `<ul class="jl">${r.bonds.map((b) => `<li><span class="mono">${esc(b.writer)}</span> put <b>${Site.near(b.stake)} NEAR</b> on the word <b>${esc(b.word)}</b></li>`).join('')}</ul>`
@@ -105,14 +107,14 @@ async function show() {
     <p class="label">The sentence</p>
     <h1 class="rec-claim">${esc(r.claim)}</h1>
     <div class="rec-verdict">${Site.stamp(word, 'big')}<span class="mute">${esc(Site.plainOutcome(r))}</span></div>
-    <p><b>Nobody, including Tabbaci, saw this page.</b></p>
+    <p><b>A private GitHub project was checked, and nobody, including us, saw it. Only the answer came out.</b></p>
     <dl class="rec-grid">
-      ${row('Source', `Private (read inside the sealed chip with the writer's key)<br><span class="mute">Host <span class="mono">${esc(src.h || '')}</span>, key named <span class="mono">${esc(src.sk || '')}</span>. The key itself never touches the chain.</span>`)}
+      ${row('Source', `Private. It was read inside the locked box with the writer's key.<details><summary class="mute">Details for developers</summary><span class="mute">Host <span class="mono">${esc(src.h || '')}</span>, key named <span class="mono">${esc(src.sk || '')}</span>. The key itself never touches the chain.</span></details>`)}
       ${row('Page fingerprint', fpHtml)}
-      ${row('The one bit', bitHtml)}
+      ${row('The only fact that left the private page', bitHtml)}
       ${row('Three answers', judges)}
       ${row('Attempts', attempts)}
-      ${row('Sealed-run proof', proof)}
+      ${row('Proof the locked box ran as promised', proof)}
       ${row('Writer and bond', bonds)}
       ${row('Payout', money)}
       ${row('On the chain', `${tx ? `<a href="${ex}/txns/${esc(tx)}" rel="noopener">Ruling transaction ${esc(tx.slice(0, 12))}...</a> · ` : ''}<a href="${ex}/address/${PRIVATE}" rel="noopener">Contract</a>`)}
@@ -124,7 +126,7 @@ async function show() {
     try {
       const [c, b] = await Promise.all([Site.view('get_case', { round: id }, PRIVATE), Site.rpc('block', { finality: 'final' })]);
       const left = c && c.window_ends - b.header.height;
-      if (left > 0) $('window').textContent = `Settlement is pending. The challenge window closes in ${left.toLocaleString('en')} blocks (about ${Math.max(1, Math.round(left / 3600))} hours), then the bond pays out.`;
+      if (left > 0) $('window').textContent = `Settlement is pending. The challenge window closes in ${left.toLocaleString('en')} blocks (about ${left < 3600 ? Math.max(1, Math.round(left / 60)) + (Math.round(left / 60) === 1 ? ' minute' : ' minutes') : Math.round(left / 3600) + (Math.round(left / 3600) === 1 ? ' hour' : ' hours')}), then the bond pays out.`;
       else if (c) $('window').textContent = 'The challenge window has closed. The bond pays out when anyone calls finalize.';
     } catch { /* keep the plain line */ }
   }

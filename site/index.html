@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tabbaci: lies cost money</title>
-<meta name="description" content="Tabbaci puts money behind every sentence you can check. A sealed court rules on it, and a writer who lied loses part of the bond. Watch a real ruling, then check it yourself.">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"></head>
+<meta name="description" content="Tabbaci is an encyclopedia that checks itself. Three AI judges check each sentence against Wikipedia, and a writer who got it wrong loses a little play money. Watch a real case, then check it yourself.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="batch2.css"></head>
 <body>
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top" id="top"></header>
@@ -11,29 +11,37 @@
 <section class="hero">
   <div>
     <h1>A lie costs money. The court stamps it <span class="stamp st-false">False</span></h1>
-    <p class="lead">I built Tabbaci so that a sentence you can check comes with money behind it. A sealed court reads the evidence and rules. If the sentence was a lie, the writer pays.</p>
+    <p class="lead">Tabbaci is an encyclopedia that checks itself. You write a sentence. Three AI judges check it against Wikipedia. If it is wrong, the writer loses a little play money.</p>
+    <div class="bench" aria-labelledby="bench-h">
+      <p class="bench-h" id="bench-h"><b>Three AI judges</b> read the evidence for every sentence</p>
+      <ul class="judges">
+        <li class="judge"><span class="j-n">Judge 1</span><span class="j-m">DeepSeek-V4.1-Flash-1017</span></li>
+        <li class="judge"><span class="j-n">Judge 2</span><span class="j-m">Qwen3.8-27B</span></li>
+        <li class="judge"><span class="j-n">Judge 3</span><span class="j-m">Qwen3.6-35B-A3B-FP8</span></li>
+      </ul>
+    </div>
     <div class="cta">
       <a class="btn" href="#replay" id="go-replay">Watch a real ruling</a>
       <a class="btn ghost" href="#check">Check one yourself</a>
       <a class="btn ghost" href="try.html">Try to lie, no wallet</a>
       <a class="btn ghost" href="https://youtu.be/yGT0UdVO5YM" target="_blank" rel="noopener">Watch the demo video</a>
     </div>
-    <div class="hero-nums" aria-label="Live numbers from the chain">
+    <p id="courts-static">Try it now. You don't need to sign up or pay. The site lends you play money for each sentence.</p>
+    <div class="hero-nums" aria-label="Live numbers from the public record">
       <div><b id="h-rulings">49</b><span>rounds ruled</span></div>
       <div><b id="h-lies">18</b><span>lies tried</span></div>
       <div><b id="h-fines">18</b><span>fines paid</span></div>
       <div id="h-vis-box" hidden><b id="h-vis">0</b><span>sent by visitors</span></div>
-      <div id="h-ai-box"><b id="h-ai">10</b><span>sent by AI agents</span></div>
+      <div id="h-ai-box"><b id="h-ai">10</b><span>sent by AI helpers</span></div>
     </div>
-    <p class="note-live" id="live-note">Numbers as of 14 Nov 2026 from finalenc2.testnet. They refresh from the chain when this page loads. Test network, test money.</p>
-    <p id="courts-static">I built Tabbaci as an encyclopedia on NEAR where the writer pays for being wrong, and it runs in four courts. The first, <a href="ledger.html">finalenc2.testnet</a>, has no access keys and has ruled 49 rounds with test money, and none of the 18 lies I planted in it was ruled true. The second, <a href="case.html?round=7&amp;c=tabbaci-court2.testnet">tabbaci-court2.testnet</a>, also has no keys, checks all three judges' signatures and quotes inside the contract itself, and is where the site now sends new sentences. The third is a mainnet pilot, <a href="https://nearblocks.io/address/5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e" style="word-break:break-all">5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e</a>, which ran 3 rounds with real NEAR and still has 1 admin key. The fourth, the <a href="private-case.html?round=1">private court</a>, rules on facts behind a login, such as a private GitHub repo, without anyone seeing the page, and it has no keys either.</p>
+    <p class="note-live" id="live-note">Numbers from the first court, as of 14 Nov 2026. They are read again from the public record when this page loads. Play money only.</p>
     <noscript><p class="mute">The code is at <a href="https://github.com/Sireadell/tabbaci">github.com/Sireadell/tabbaci</a>.</p></noscript>
   </div>
   <div class="rp" id="replay" aria-live="polite"><p class="mute">Loading a real ruling...</p></div>
 </section>
 
 <section class="band" id="latest-sec">
-  <div class="sec-head"><div><p class="label">Latest rulings</p><h2>What the court decided last</h2></div><p><a href="ledger.html">See every round in the ledger</a></p></div>
+  <div class="sec-head"><div><p class="label court">Latest rulings</p><h2>What the court decided last</h2></div><p><a href="ledger.html">See all rounds</a></p></div>
   <ol class="latest" id="latest">
     <li><a class="lrow" href="case.html?round=50"><span class="rid">No. 50</span><span class="claim">Lagos is the current capital of Nigeria.</span><span class="meta">FALSE · sent by an AI agent</span></a></li>
     <li><a class="lrow" href="case.html?round=49"><span class="rid">No. 49</span><span class="claim">Lagos is a former capital of Nigeria.</span><span class="meta">UNSURE · sent by an AI agent</span></a></li>
@@ -43,22 +51,22 @@
   </ol>
 </section>
 
-<section class="band" id="files">
-  <div class="sec-head"><div><p class="label">Court files</p><h2>Three cases worth reading</h2></div><p>All three ran for real on the NEAR test network. Open one and you'll find the sentence, the pages the court read, what each judge said, where the money went and the command to check it yourself.</p></div>
+<section class="band field" id="files">
+  <div class="sec-head"><div><p class="label court">Court files</p><h2>Three cases worth reading</h2></div><p>All three really happened, with play money. Open one and you'll find the sentence, the pages the court read, what each judge said, where the money went and how to check it yourself.</p></div>
   <div class="files" id="files-row"></div>
 </section>
 
 <section class="band" id="proof">
-  <div class="sec-head"><div><p class="label">The numbers</p><h2>What I can show so far</h2></div><p>The top rows are read from the chain as this page loads. The bottom rows come from a separate test I ran off the chain, so I keep the two apart.</p></div>
+  <div class="sec-head"><div><p class="label">The numbers</p><h2>What I can show so far</h2></div><p>The top rows are read from the public record as this page loads. The bottom rows come from a separate test I ran on my own computer, so I keep the two apart.</p></div>
   <div class="tab-scroll"><table class="numtable">
     <thead><tr><th scope="col">Number</th><th scope="col">What it is</th><th scope="col">Where it comes from</th></tr></thead>
     <tbody id="numbody">
-      <tr class="group"><td colspan="3">On the chain. Read live from the contract on the NEAR test network.</td></tr>
-      <tr><td class="n">49</td><td class="w">rounds the court has ruled</td><td class="w mute"><a href="ledger.html">The ledger</a>, straight from finalenc2.testnet</td></tr>
-      <tr><td class="n">18</td><td class="w">lies planted on purpose and sent to the court</td><td class="w mute"><a href="ledger.html?show=lies">The ledger, lies only</a></td></tr>
-      <tr><td class="n">0</td><td class="w">lies that got through, ruled TRUE</td><td class="w mute"><a href="ledger.html?show=lies">The ledger, lies only</a>. Every one was stopped.</td></tr>
-      <tr><td class="n">18</td><td class="w">bonds that lost money, 0.5741 NEAR in all</td><td class="w mute"><a href="case.html?round=20">Round 20</a> is one of them</td></tr>
-      <tr class="group"><td colspan="3">Accuracy test. I ran it off the chain on 9 November 2026 with the same three judges, so these numbers are not on the chain.</td></tr>
+      <tr class="group"><td colspan="3">On the public record. Read live from the first court, play money only.</td></tr>
+      <tr><td class="n">49</td><td class="w">rounds the court has ruled</td><td class="w mute"><a href="ledger.html">All rounds</a>, read from the first court <small>(finalenc2.testnet)</small></td></tr>
+      <tr><td class="n">18</td><td class="w">lies planted on purpose and sent to the court</td><td class="w mute"><a href="ledger.html?show=lies">All rounds, lies only</a></td></tr>
+      <tr><td class="n">0</td><td class="w">lies that got through, ruled TRUE</td><td class="w mute"><a href="ledger.html?show=lies">All rounds, lies only</a>. Every one was stopped.</td></tr>
+      <tr><td class="n">18</td><td class="w">writers who lost money, 0.5741 play money in all</td><td class="w mute"><a href="case.html?round=20">Round 20</a> is one of them</td></tr>
+      <tr class="group"><td colspan="3">Accuracy test. I ran it on my own computer on 9 November 2026 with the same three judges, so these numbers are not on the public record.</td></tr>
       <tr><td class="n">198 of 200</td><td class="w">sentences ruled correctly, 100 true and 100 false</td><td class="w mute">The accuracy tool in the code. The right answers come from Wikidata</td></tr>
       <tr><td class="n">0</td><td class="w">ruled wrongly, and 2 got no ruling</td><td class="w mute">The same test</td></tr>
       <tr><td class="n">$0.0173</td><td class="w">total cost of the 600 judge calls</td><td class="w mute">The same test</td></tr>
@@ -66,48 +74,74 @@
   </table></div>
 </section>
 
-<section class="band" id="check">
-  <div class="sec-head"><div><p class="label">Check it yourself</p><h2>Do not trust this page. Ask the chain.</h2></div><p>Pick a round and press the button. Your own browser fetches that round from the chain and runs each check itself, one line at a time.</p></div>
+<section class="band field" id="check">
+  <div class="sec-head"><div><p class="label">Check it yourself</p><h2>Don't take our word for it. Check it yourself.</h2></div><p>These checks are for people who want proof. If you only want to know what happened, you can skip this part. Pick a case and press the button. Your own browser fetches that case from the public record and runs each check itself, one line at a time.</p></div>
   <div class="checkbox">
     <div class="card">
       <div class="pick">
-        <div><label for="chk-round">Round to check</label><select id="chk-round"><option value="25">Round 25, the bribe</option></select></div>
-        <button type="button" class="btn" id="chk-run">Run the checks</button>
+        <div><label for="chk-round">Pick a case</label><select id="chk-round"><option value="25">Round 25, the bribe</option></select></div>
+        <button type="button" class="btn" id="chk-run">Check this case</button>
       </div>
+      <p class="sum b2-top" id="chk-sum" role="status"></p>
       <ul class="checks" id="chk-list" aria-live="polite"></ul>
-      <p class="sum" id="chk-sum"></p>
     </div>
     <div>
-      <h3>The terminal is now a second way to check</h3>
-      <p class="mute">This page now checks the judges' signatures and Intel's signed report on the sealed run in your browser, using Intel's certificates from the saved proof file served with this site, plus the program fingerprint and approved machine list read live from the NEAR chain. Rounds 20, 25, 33, 35 and 36, and rounds 4 to 7 on court version 2, show every line as MATCH, while any other round has no saved proof, so one line says COMMAND LINE. The command below checks everything live in under a minute.</p>
-      <pre id="cmd"></pre>
-      <div class="copyrow"><button type="button" class="btn ghost" id="copy">Copy the command</button><span class="mute" id="copied" role="status"></span></div>
-      <p class="mute" style="font-size:.9rem">The line "contract has no keys" shows MATCH. The contract has no access keys left, so nobody, me included, can change its code or its rules.</p>
+      <p class="mute">Your browser checks that the three judges really gave these answers, and that the locked box ran unchanged. That box is a locked box inside a computer chip made by Intel, that nobody can open. It also checks that nobody, including me, can change the first court's rules.</p>
+      <details class="devfold">
+        <summary>For developers: check from a command line</summary>
+        <p class="mute">The browser uses Intel's certificates from the saved proof file served with this site, plus the program fingerprint and the approved machine list read live from the public record. Cases 20, 25, 33, 35 and 36 on the first court, and cases 4 to 7 on the second court, pass every line in the browser. Other cases have no saved proof, so a few lines need a developer's computer. The command below checks everything live in under a minute.</p>
+        <pre id="cmd"></pre>
+        <div class="copyrow"><button type="button" class="btn ghost" id="copy">Copy the command</button><span class="mute" id="copied" role="status"></span></div>
+      </details>
     </div>
   </div>
 </section>
 
 <section class="band" id="how">
-  <div class="sec-head"><div><p class="label">How it works</p><h2>What happens to a sentence</h2></div></div>
+  <div class="sec-head"><div><p class="label court">How it works</p><h2>What happens to a sentence</h2></div></div>
   <ol class="how">
-    <li><b>A writer puts money on it.</b> They pick one word for how sure they are (is, very likely, likely or disputed), and the contract locks their money behind the sentence.</li>
-    <li><b>A sealed court reads the evidence.</b> My program runs inside an Intel chip, in a locked box that even I can't open. It fetches two web pages itself, from a short approved list.</li>
-    <li><b>Three AI judges answer.</b> Each one sees the sentence only as quoted text. So if someone hides an order in it, the judges read the order and don't follow it. Every answer is signed.</li>
-    <li><b>The contract pays or fines.</b> The same public rule moves the money on every round. A writer who lied loses part of the bond.</li>
+    <li><b>A writer puts money on it.</b> They pick one word for how sure they are (is, very likely, likely or disputed), and the court holds their money until it decides.</li>
+    <li class="court"><b>A locked court reads the evidence.</b> Three AI judges read the evidence and decide, inside a locked box nobody can open, not even me. The box is part of a computer chip made by Intel. It fetches two web pages itself, from a short approved list.</li>
+    <li class="court"><b>Three AI judges answer.</b> Each one sees the sentence only as quoted text. So if someone hides an order in it, the judges read the order and don't follow it. Each judge signs its answer, so anyone can check it really came from that judge.
+      <ul class="judges">
+          <li class="judge"><span class="j-n">Judge 1</span><span class="j-m">DeepSeek-V4.1-Flash-1017</span></li>
+          <li class="judge"><span class="j-n">Judge 2</span><span class="j-m">Qwen3.8-27B</span></li>
+          <li class="judge"><span class="j-n">Judge 3</span><span class="j-m">Qwen3.6-35B-A3B-FP8</span></li>
+        </ul></li>
+    <li><b>The court pays or fines.</b> The same public rule moves the money every time. A writer who lied loses part of the money they put down.</li>
   </ol>
 </section>
 
-<section class="band" id="wiki-way">
-  <div class="sec-head"><div><p class="label">Three ways in</p><h2>Check a sentence while you read Wikipedia</h2></div></div>
-  <p class="mute" id="three-ways"></p>
+<section class="band field" id="wiki-way">
+  <div class="sec-head"><div><p class="label">Three ways to use it</p><h2>Check a sentence while you read Wikipedia</h2></div></div>
+  <p class="mute" id="three-ways">Three ways to use it: the <a href="try.html">try page</a>, the <a href="#wiki-install">Wikipedia button</a>, or the <a href="#ai-addon">add-on for Claude</a>.</p>
   <div id="wiki-install"></div>
+  <p><a class="btn ghost" href="try.html#wiki">Get the Wikipedia button</a></p>
+  <div class="card ai-card" id="ai-addon">
+    <h3>For people who use Claude</h3>
+    <p>Add Tabbaci to Claude, and Claude can send sentences to the court for you and tell you the stamp.</p>
+    <p>Paste this one line into Claude Code:</p>
+    <pre id="mcp-cmd">claude mcp add tabbaci -- npx -y tabbaci-mcp</pre>
+    <p><a href="https://www.npmjs.com/package/tabbaci-mcp" target="_blank" rel="noopener">See the add-on page</a></p>
+  </div>
+</section>
+
+<section class="band" id="under">
+  <div class="sec-head"><div><p class="label court">Under the hood</p><h2>Under the hood: four courts</h2></div></div>
+  <div class="nots">
+    <div><b>The first court</b><p>The first court has ruled 49 cases with play money. Nobody, including me, can change its rules. I sent it 18 lies on purpose and it caught every one. <a href="ledger.html">See all rounds</a></p><p class="fine-name">finalenc2.testnet</p></div>
+    <div><b>The second court</b><p>The second court is where your sentences go now. It also checks, by itself, that each judge really gave its answer and really quoted the page. <a href="case.html?round=7&amp;c=tabbaci-court2.testnet">See a case from it</a></p><p class="fine-name">tabbaci-court2.testnet</p></div>
+    <div><b>The third court</b><p>The third is a small trial with real money. It ran 3 cases. I can still change it, because it is a trial. <a href="https://nearblocks.io/address/5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e" target="_blank" rel="noopener">See it on the public record</a></p></div>
+    <div><b>The private court</b><p>The fourth is the private court. It checks facts on pages only the owner can open, like a private GitHub project. Nobody, including me, sees the page. <a href="private-case.html?round=1">See a private case</a></p></div>
+  </div>
+  <p class="under-pages"><b>Pages:</b> encyclopedia pages where every sentence has a stamp. <a href="pages.html">Read the pages</a></p>
 </section>
 
 <section class="band" id="not">
   <div class="sec-head"><div><p class="label">Honest limits</p><h2>What this is not</h2></div></div>
   <div class="nots">
-    <div><b>Not a prediction market.</b><p>The number beside each sentence is bond-backed confidence. It comes from the word the writer picked and the money they put behind it. Nobody trades it.</p></div>
-    <div><b>Not on the main network at full scale yet.</b><p>A mainnet pilot ran 3 rounds with real NEAR and still has 1 admin key. Every other round ran on the NEAR test network with test money, and each of those case pages says Testnet at the top.</p></div>
+    <div><b>Not a prediction market.</b><p>The number beside each sentence shows how sure the writer said they were, and how much money they put on it. Nobody trades it.</p></div>
+    <div><b>Not using real money at full scale yet.</b><p>A small trial with real money ran 3 cases, and I can still change it, because it is a trial. Every other case used play money on a test network, and each of those case pages says Testnet at the top.</p></div>
     <div><b>Not open to any source.</b><p>The court only reads pages from an approved list of 11, and I control that list. One of them is my own test page, which leaves the list on 16 November.</p></div>
     <div><b>Not a swarm or a live market.</b><p>Both are on my roadmap. Neither is built, and nothing on this site claims them.</p></div>
   </div>
@@ -116,14 +150,14 @@
 <section class="closing" aria-labelledby="close-h">
   <div class="rain" id="rain" aria-hidden="true"></div>
   <div class="wrap in">
-    <h2 id="close-h">Do not trust this page.<br>Ask the chain.</h2>
-    <div class="cta"><a class="btn" href="#check">Run the checks</a><a class="btn ghost" href="ledger.html">Read the ledger</a></div>
+    <h2 id="close-h">Don't take our word for it.<br>Check it yourself.</h2>
+    <div class="cta"><a class="btn" href="#check">Check a case</a><a class="btn ghost" href="ledger.html">See all rounds</a></div>
   </div>
 </section>
 <footer id="foot"></footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script><script src="judgesig.js"></script><script src="config.js"></script><script src="app.js"></script><script src="wikilink.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script><script src="judgesig.js"></script><script src="v2checks.js"></script><script src="intelcheck.js"></script><script src="config.js"></script><script src="app.js"></script><script src="wikilink.js"></script>
 <script>
-  WikiLink.installBox(document.getElementById('wiki-install')); document.getElementById('three-ways').textContent = WikiLink.TEXT.homeThreeWays;
+  WikiLink.installBox(document.getElementById('wiki-install'));
 Site.chrome('home');
 (function () { // faint columns of 0 and 1 behind the closing line, fixed pattern so it never moves
   const r = document.getElementById('rain'); if (!r) return;
@@ -143,7 +177,7 @@ Site.allRounds().then(({ rounds, live, savedAt }) => {
   const ai = rounds.filter((r) => r.tag === 'agent').length;
   if (ai > 0) { $('h-ai').textContent = ai; $('h-ai-box').hidden = false; }
   $('h-rulings').textContent = ruled.length; $('h-lies').textContent = lies.length; $('h-fines').textContent = fines.length;
-  $('live-note').textContent = live ? 'Read from the chain just now. Test network, test money.' : 'The chain did not answer, so this is the saved copy from ' + (savedAt ? savedAt.slice(0, 10) : 'an earlier day') + '. Test network, test money.';
+  $('live-note').textContent = live ? 'Numbers from the first court, read just now from the public record. Play money only.' : 'The public record did not answer, so this is the saved copy from ' + (savedAt ? savedAt.slice(0, 10) : 'an earlier day') + '. Play money only.';
 
   Site.mountReplay($('replay'), rounds);
   document.getElementById('go-replay').addEventListener('click', () => { const b = $('rp-again'); if (b) setTimeout(() => b.click(), 350); });
@@ -152,17 +186,17 @@ Site.allRounds().then(({ rounds, live, savedAt }) => {
 
   $('files-row').innerHTML = Site.CFG.featured.map((f, i) => {
     const r = rounds.find((x) => x.id === f.round); if (!r) return '';
-    return `<a class="file" data-tab="File ${i + 1} · ${esc(f.title)}" href="case.html?round=${r.id}"><div><h3>Round ${r.id}</h3></div><p class="claim">${esc(r.claim)}</p>${Site.stamp(Site.letterOf(r))}<p class="line">${esc(f.line)}</p><span class="more">Open the court record</span></a>`;
+    return `<a class="file ${Site.vKind(Site.letterOf(r))}" data-tab="File ${i + 1} · ${esc(f.title)}" href="case.html?round=${r.id}"><div><h3>Round ${r.id}</h3></div><p class="claim">${esc(r.claim)}</p>${Site.stamp(Site.letterOf(r))}<p class="line">${esc(f.line)}</p><span class="more">Open the court record</span></a>`;
   }).join('');
 
   const acc = Site.CFG.accuracy; const ex = fines[0];
   const rows = [
-    ['group', 'On the chain. Read live from the contract on the NEAR test network.'],
-    [ruled.length, 'rounds the court has ruled', `<a href="ledger.html">The ledger</a>, straight from ${esc(Site.CFG.contract)}`],
-    [lies.length, 'lies planted on purpose and sent to the court', `<a href="ledger.html?show=lies">The ledger, lies only</a>`],
-    [through.length, 'lies that got through, ruled TRUE', through.length ? `<a href="case.html?round=${through[0].id}">Round ${through[0].id}</a>` : `<a href="ledger.html?show=lies">The ledger, lies only</a>. Every one was stopped.`],
-    [fines.length, `bonds that lost money, ${Site.near(fined)} NEAR in all`, ex ? `<a href="case.html?round=${ex.r.id}">Round ${ex.r.id}</a> is one of them` : ''],
-    ['group', `Accuracy test. I ran it off the chain on ${esc(acc.date)} with the same three judges, so these numbers are not on the chain.`],
+    ['group', 'On the public record. Read live from the first court, play money only.'],
+    [ruled.length, 'rounds the court has ruled', `<a href="ledger.html">All rounds</a>, read from the first court <small>(${esc(Site.CFG.contract)})</small>`],
+    [lies.length, 'lies planted on purpose and sent to the court', `<a href="ledger.html?show=lies">All rounds, lies only</a>`],
+    [through.length, 'lies that got through, ruled TRUE', through.length ? `<a href="case.html?round=${through[0].id}">Round ${through[0].id}</a>` : `<a href="ledger.html?show=lies">All rounds, lies only</a>. Every one was stopped.`],
+    [fines.length, `writers who lost money, ${Site.near(fined)} play money in all`, ex ? `<a href="case.html?round=${ex.r.id}">Round ${ex.r.id}</a> is one of them` : ''],
+    ['group', `Accuracy test. I ran it on my own computer on ${esc(acc.date)} with the same three judges, so these numbers are not on the public record.`],
     [`${acc.right} of ${acc.total}`, 'sentences ruled correctly, 100 true and 100 false', 'The accuracy tool in the code. The right answers come from Wikidata'],
     [acc.wrong, 'ruled wrongly, and ' + acc.noRuling + ' got no ruling', 'The same test'],
     [acc.cost, 'total cost of the 600 judge calls', 'The same test'],
@@ -179,18 +213,15 @@ Site.allRounds().then(({ rounds, live, savedAt }) => {
 });
 
 let running = false;
+// Top line, a plain line under each check and the folded developer-only checks come from CheckText (v2checks.js).
+const cv = CheckText.view($('chk-list'), $('chk-sum'));
 $('chk-run').addEventListener('click', async () => {
   if (running) return; running = true;
   const btn = $('chk-run'); btn.disabled = true; btn.textContent = 'Checking...';
-  const list = $('chk-list'); list.innerHTML = ''; $('chk-sum').textContent = '';
-  const out = await Site.runChecks(Number($('chk-round').value), (name, status, detail) => {
-    const li = document.createElement('li');
-    li.innerHTML = `<span class="res ${status}">${status === 'NEEDS' ? 'COMMAND LINE' : status}</span><span class="name">${esc(name)}</span><span class="det">${esc(detail)}</span>`;
-    list.appendChild(li);
-  });
-  const c = (s) => out.filter((x) => x.status === s).length;
-  $('chk-sum').textContent = `${c('MATCH')} matched in your browser, ${c('MISMATCH')} did not, ${c('NEEDS')} need the command line.`;
-  btn.disabled = false; btn.textContent = 'Run the checks again'; running = false;
+  cv.reset();
+  await Site.runChecks(Number($('chk-round').value), (name, status, detail) => cv.add(name, status, detail));
+  cv.finish();
+  btn.disabled = false; btn.textContent = 'Check this case again'; running = false;
 });
 $('copy').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText($('cmd').textContent); $('copied').textContent = 'Copied.'; } catch { $('copied').textContent = 'Select the text above and copy it.'; }

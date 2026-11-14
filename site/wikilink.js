@@ -103,13 +103,15 @@
     cutNote: 'Your sentence was longer than 280 characters, so it was cut. Check the end still reads right.',
     linksNote: 'Links were taken out, because the court refuses any sentence with a web link in it.',
     summaryDownNote: "We couldn't load the summary just now to check your sentence. The court still decides when you send it.",
-    installTitle: 'Check Wikipedia sentences on Tabbaci',
-    installLead: 'Highlight a sentence on English Wikipedia, click one bookmark, and Tabbaci opens with it filled in. You read it over and press Send.',
-    installStep1: "Show your browser's bookmarks bar (Ctrl+Shift+B, or Cmd+Shift+B on a Mac).",
-    installStep2: 'Drag the button below onto that bar.',
-    installStep3: 'On any English Wikipedia article, highlight one sentence and click the bookmark.',
+    installTitle: 'Check a sentence while you read Wikipedia',
+    installLead: 'Add one button to your browser. Then you can send any sentence from Wikipedia to the court in two clicks.',
+    installStep1: 'Show your bookmarks bar. Press Ctrl, Shift and B together (on a Mac, Cmd, Shift and B). A thin bar appears under the web address.',
+    installStep2: 'With your mouse, drag the "Check on Tabbaci" button below onto that bar. Clicking it here does nothing.',
+    installStep3: 'Open any English Wikipedia page. Highlight one sentence, just one. Then click "Check on Tabbaci" in your bar.',
     installButtonLabel: 'Check on Tabbaci',
+    installUnderButton: 'Drag me to your bookmarks bar.',
     installDragHint: 'Drag this onto your bookmarks bar. Clicking it here does nothing.',
+    installCaption: 'This moving picture shows the steps. It is not a real button.',
     installPhoneNote: "Phones can't drag bookmarks, so this needs a computer. On a phone, use the try page instead.",
     installFine: 'No wallet needed. Test money only, up to 30 free sentences a day, and every sentence stays on the public ledger for good.',
     ledgerLabel: 'Sent from Wikipedia',
@@ -119,11 +121,10 @@
     homeThreeWays: 'Three ways in: the try page on this site, the tabbaci-mcp add-on for your AI, or the Wikipedia button.',
   };
 
-  // The looping picture of the three steps. Text nodes only.
+  // The looping picture of the three steps, with a caption saying it is only a picture. Text nodes only.
   function guide() {
     const mk = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt) n.textContent = txt; return n; };
     const fig = mk('figure', 'wg'); fig.style.margin = '14px 0';
-    fig.setAttribute('role', 'img'); fig.setAttribute('aria-label', TEXT.installLead);
     const win = mk('div', 'wg-win');
     const addr = mk('div', 'wg-addr'); addr.appendChild(mk('span', 'wg-a1', 'tabbaci.vercel.app')); addr.appendChild(mk('span', 'wg-a2', 'en.wikipedia.org/wiki/Lagos')); win.appendChild(addr);
     const bm = mk('div', 'wg-bm'); bm.appendChild(mk('span', 'wg-bmi', TEXT.installButtonLabel)); bm.appendChild(mk('span', 'wg-key', 'Ctrl+Shift+B')); win.appendChild(bm);
@@ -137,6 +138,9 @@
     p3.appendChild(mk('div', 'wg-in', 'Lagos')); p3.appendChild(mk('div', 'wg-in', "As of November 2025, the size of the city's population has been estimated to be between 17 and 21 million residents, making Lagos the largest city in Nigeria, the most populous urban area on the African continent, and one of the fastest-growing megacities in the world.")); win.appendChild(p3);
     win.appendChild(mk('span', 'wg-gh', TEXT.installButtonLabel)); win.appendChild(mk('span', 'wg-cur'));
     const fit = mk('div', 'wg-fit'); fit.appendChild(win); fig.appendChild(fit);
+    // The picture role sits on the drawing only, so screen readers still reach the caption.
+    fit.setAttribute('role', 'img'); fit.setAttribute('aria-label', TEXT.installStep1 + ' ' + TEXT.installStep2 + ' ' + TEXT.installStep3);
+    fig.appendChild(mk('figcaption', 'wg-caption', TEXT.installCaption));
     const scale = () => { const w = fig.clientWidth || 520; const k = Math.min(1, w / 520); win.style.transform = 'scale(' + k + ')'; fit.style.height = Math.round(325 * k) + 'px'; };
     setTimeout(scale, 0); window.addEventListener('resize', scale);
     return fig;
@@ -147,14 +151,37 @@
     if (!el || typeof document === 'undefined') return;
     const mk = (tag, txt, cls) => { const n = document.createElement(tag); if (txt) n.textContent = txt; if (cls) n.className = cls; return n; };
     el.textContent = '';
-    el.appendChild(mk('h2', TEXT.installTitle, 'step'));
-    el.appendChild(guide());
-    const a = mk('a', TEXT.installButtonLabel, 'btn');
+    // Skip our own heading when the section around the box already has the same one (the home page does).
+    const sec = el.closest && el.closest('section');
+    const outer = sec && sec.querySelector('h2');
+    if (!outer || outer.textContent.trim() !== TEXT.installTitle) el.appendChild(mk('h2', TEXT.installTitle, 'step'));
+    el.appendChild(mk('p', TEXT.installLead, 'b2-wl-lead'));
+    // The three written steps sit right beside the real button.
+    const wrap = mk('div', '', 'b2-wl');
+    const ol = mk('ol', '', 'b2-wl-steps');
+    [TEXT.installStep1, TEXT.installStep2, TEXT.installStep3].forEach((t) => ol.appendChild(mk('li', t)));
+    wrap.appendChild(ol);
+    const drag = mk('div', '', 'b2-wl-drag');
+    const a = mk('a', TEXT.installButtonLabel, 'btn b2-wl-btn');
     a.href = bookmarkHref(base || location.origin, TEXT.notEn, TEXT.notArticle);
     a.title = TEXT.installDragHint;
-    a.addEventListener('click', (e) => { e.preventDefault(); hint.hidden = false; });
-    const row = mk('p'); row.appendChild(a); el.appendChild(row);
-    const hint = mk('p', TEXT.installDragHint, 'mute'); hint.hidden = true; el.appendChild(hint);
+    a.setAttribute('aria-describedby', 'b2-wl-hint');
+    const hint = mk('p', TEXT.installUnderButton, 'b2-wl-hint');
+    hint.id = 'b2-wl-hint'; hint.setAttribute('role', 'status');
+    a.addEventListener('click', (e) => { e.preventDefault(); hint.textContent = TEXT.installDragHint; hint.classList.add('b2-wl-hint-on'); });
+    const row = mk('p'); row.appendChild(a); drag.appendChild(row); drag.appendChild(hint);
+    wrap.appendChild(drag);
+    el.appendChild(wrap);
+    el.appendChild(mk('p', TEXT.installPhoneNote, 'mute'));
+    el.appendChild(mk('p', TEXT.installFine, 'mute'));
+    const fig = guide();
+    el.appendChild(fig);
+    // A page that still adds its own caption after this runs would show it twice, so keep only the first.
+    const label = fig.querySelector('.wg-fit').getAttribute('aria-label');
+    setTimeout(() => {
+      fig.querySelectorAll('figcaption').forEach((c, i) => { if (i) c.remove(); });
+      const fit = fig.querySelector('.wg-fit'); if (fit && !fit.getAttribute('aria-label')) fit.setAttribute('aria-label', label);
+    }, 0);
   }
 
   const api = { TEXT, installBox,  cleanText, cleanTopicParam, cleanClaimParam, readParams, keyWords, summaryCheck, introSentences, bookmarkHref, MAX_CLAIM, MAX_TOPIC };

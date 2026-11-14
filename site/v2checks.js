@@ -94,3 +94,87 @@
 
   window.V2 = { readable, norm, quoteIn, parseReply, contentOf, highlight, check, unb64 };
 })();
+
+// How the check results read on screen: one top line, one plain line under each check, and the checks that need a
+// developer's computer folded away in grey. Labels only. What counts as MATCH is decided by the checks themselves.
+(function () {
+  const PLAIN = [
+    [/^Read the round from the chain$/, 'We found this case on the public record.'],
+    [/^The contract has no access keys$/, 'Nobody, including me, can change this court.'],
+    [/^The contract has no way to swap its own code$/, 'Nobody can secretly change the rules.'],
+    [/^The stored request matches its fingerprint$/, 'The question the judges saw is the one that was sent.'],
+    [/^The sentence is the one that was sent$/, 'Nobody changed the sentence after it was sent.'],
+    [/^Bond payouts follow the public rule$/, 'Your browser checked the money sums again.'],
+    [/^The ruling$/, 'This case is still waiting for a ruling.'],
+    [/^The ruling is present$/, 'The ruling is stored with this case.'],
+    [/^The ruling belongs to this round and request$/, 'This ruling is for this case and no other.'],
+    [/^The contract outcome equals the ruling$/, 'The stamp matches what the court decided.'],
+    [/^The saved evidence pages match what the sealed run read$/, 'The pages shown here are the ones the court read.'],
+    [/^The outcome follows from the/, 'The stamp follows from what the judges said.'],
+    [/^The sources really disagree$/, 'The two pages really gave different numbers, so the case was cancelled.'],
+    [/^Each judge signed its own answer$/, 'Each answer really came from that judge.'],
+    [/signature checked by the contract$/, 'This answer really came from this judge.'],
+    [/quote found in the saved page$/, 'The words this judge relied on really are on the page.'],
+    [/quote not on the page, answer turned into unsure$/, 'This judge quoted words that are not on the page, so its answer did not count.'],
+    [/was not counted$/, 'This judge did not answer properly, so it counted as unsure.'],
+    [/^Intel's signature on the sealed box's report$/, 'The locked box signed its report, and Intel vouches for that box.'],
+    [/^Intel's report on the sealed box$/, 'The locked box signed its report, and Intel vouches for that box.'],
+    [/^The report is tied to this exact run and its ruling$/, 'The report is about this case and no other.'],
+    [/^The program in the report is the one the contract stores$/, 'The locked box ran the program it promised to run.'],
+    [/^The sealed machine build is on the approved list$/, 'The locked box is one of the approved ones.'],
+  ];
+  const plain = (name) => { const hit = PLAIN.find(([re]) => re.test(String(name))); return hit ? hit[1] : ''; };
+  const NEEDS_LABEL = "Needs a developer's computer";
+  const ISSUES = 'https://github.com/Sireadell/tabbaci/issues';
+  const checks = (n) => (n === 1 ? '1 check' : `${n} checks`);
+
+  function el(tag, cls, txt) { const n = document.createElement(tag); if (cls) n.className = cls; if (txt) n.textContent = txt; return n; }
+
+  // listEl: the ul the checks go in. topEl: the line above it. Returns { reset, add(name, status, detail), finish() }.
+  function view(listEl, topEl) {
+    const fold = el('details', 'b2-fold'); fold.hidden = true;
+    const sum = el('summary'); fold.appendChild(sum);
+    fold.appendChild(el('p', 'b2-fold-why', 'A web browser cannot do these. They need files and tools that only a developer\'s computer has. The command in the developers\' section on this page runs them.'));
+    const ul = el('ul', 'checks b2-needs'); fold.appendChild(ul);
+    listEl.after(fold);
+    let n = { MATCH: 0, MISMATCH: 0, NEEDS: 0 };
+    const foldTitle = () => `${checks(n.NEEDS)} only a developer's computer can do.${n.MISMATCH ? '' : ' Nothing failed.'}`;
+    return {
+      reset() {
+        listEl.innerHTML = ''; ul.innerHTML = ''; fold.hidden = true; fold.open = false; n = { MATCH: 0, MISMATCH: 0, NEEDS: 0 };
+        topEl.className = 'sum b2-top'; topEl.textContent = 'Checking, one line at a time...';
+      },
+      add(name, status, detail) {
+        const li = el('li');
+        li.appendChild(el('span', `res ${status}`, status === 'NEEDS' ? NEEDS_LABEL : status));
+        li.appendChild(el('span', 'name', String(name)));
+        const p = plain(name); if (p) li.appendChild(el('span', 'det b2-plain', p));
+        if (detail) li.appendChild(el('span', 'det b2-tech', String(detail)));
+        n[status] = (n[status] || 0) + 1;
+        if (status === 'NEEDS') { ul.appendChild(li); fold.hidden = false; sum.textContent = foldTitle(); } else listEl.appendChild(li);
+      },
+      finish() {
+        sum.textContent = foldTitle();
+        topEl.textContent = '';
+        if (n.MISMATCH) {
+          topEl.className = 'sum b2-top b2-top-bad';
+          topEl.append(`${checks(n.MISMATCH)} did not match. Something on this record is not right. Please `);
+          const a = el('a', '', 'tell us on GitHub'); a.href = ISSUES; a.target = '_blank'; a.rel = 'noopener';
+          topEl.append(a, '.');
+        } else if (!n.MATCH) {
+          topEl.className = 'sum b2-top';
+          topEl.textContent = 'Your browser could not check anything just now, because the public record did not answer. Try again in a minute.';
+        } else if (n.NEEDS) {
+          topEl.className = 'sum b2-top b2-top-ok';
+          topEl.textContent = `All ${checks(n.MATCH)} your browser can do passed. ${n.NEEDS} more can only be done on a developer's computer. Nothing failed.`;
+        } else {
+          topEl.className = 'sum b2-top b2-top-ok';
+          topEl.textContent = `All ${checks(n.MATCH)} passed. Nobody changed this record.`;
+        }
+        return Object.assign({}, n);
+      },
+    };
+  }
+
+  window.CheckText = { plain, view, NEEDS_LABEL };
+})();

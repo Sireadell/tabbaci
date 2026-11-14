@@ -68,7 +68,12 @@ const pct = (num, den) => (Number((num * 10000n) / den) / 100).toFixed(2) + '%';
 const parse = (s) => { try { return JSON.parse(s); } catch { return null; } };
 const isLie = (r) => (CFG.plantedLies || []).includes(Number(r.id));
 const letterOf = (r) => (r.status === 'open' ? 'OPEN' : r.status === 'void' ? 'VOID' : r.outcome === 'T' ? 'TRUE' : r.outcome === 'F' ? 'FALSE' : r.outcome === 'D' ? 'SPLIT' : 'UNSURE');
-const clsOf = (word) => ({ TRUE: 'st-true', FALSE: 'st-false' }[word] || 'st-other');
+// Verdict colour for a stamp word: TRUE green, FALSE red, waiting or cancelled grey, anything else amber.
+const WAITING = ['OPEN', 'VOID', 'Cancelled', 'Waiting for a ruling'];
+// MATCHES and DIFFERS are a judge reading a number, not a verdict, so they stay plain.
+const clsOf = (word) => ({ TRUE: 'st-true', FALSE: 'st-false', MATCHES: 'st-plain', DIFFERS: 'st-plain' }[word] || (WAITING.includes(word) ? 'st-wait' : 'st-other'));
+// The same colour as a class for a whole row or card (a coloured left edge or top edge).
+const vKind = (word) => ({ TRUE: 'v-true', FALSE: 'v-false' }[word] || (WAITING.includes(word) ? 'v-wait' : 'v-unsure'));
 const stamp = (word, extra = '') => `<span class="stamp ${clsOf(word)} ${extra}">${esc(word)}</span>`;
 const plainOutcome = (r) => (r.status === 'open' ? 'waiting for a ruling' : r.status === 'void' ? (r.void_reason === 'SRC_DISAGREE' ? 'cancelled: the two pages disagree' : 'cancelled: three failed runs') : { T: 'the court says it is true', F: 'the court says it is false', D: 'the judges split', U: 'the court could not confirm it' }[r.outcome] || r.outcome);
 const modelName = (m) => String(m || '').split('/').pop();
@@ -79,7 +84,7 @@ const fullCheckCmd = (id) => `${verifyCmd(id)} --attested-judges`;
 const WORDS = { is: 9500, 'very likely': 8000, likely: 6500, disputed: 5000 };
 
 function bondMoney(b) {
-  if (b.payout == null) return { text: 'bond locked, payout not made yet', kind: 'wait' };
+  if (b.payout == null) return { text: 'The money is on hold for about 2 minutes, in case someone objects. Then it moves.', kind: 'wait' };
   const p = BigInt(b.payout), s = BigInt(b.stake);
   if (p === s) return { text: `bond returned in full, ${near(p)} NEAR`, kind: 'even' };
   return p > s ? { text: `gained ${near(p - s)} NEAR (${pct(p - s, s)} of the bond)`, kind: 'gain' } : { text: `fined ${near(s - p)} NEAR (${pct(s - p, s)} of the bond)`, kind: 'fine' };
@@ -94,18 +99,18 @@ function reveal() {
   document.querySelectorAll('.sec-head,.closing .in').forEach((el) => { el.classList.add('rv'); io.observe(el); });
 }
 function chrome(active) {
-  const links = [['index.html', 'Home', 'home'], ['ledger.html', 'Ledger', 'ledger'], ['pages.html', 'Pages', 'pages'], ['try.html', 'Try to lie', 'try']];
+  const links = [['index.html', 'Home', 'home'], ['ledger.html', 'All rounds', 'ledger'], ['pages.html', 'Pages', 'pages'], ['try.html', 'Try to lie', 'try']];
   const top = $('top');
-  if (top) top.innerHTML = `<div class="wrap bar"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">T</span>Tabbaci</a><nav aria-label="Main">${links.map(([h, t, k]) => `<a href="${h}"${k === active ? ' class="on" aria-current="page"' : ''}>${t}</a>`).join('')}</nav></div>`;
+  if (top) top.innerHTML = `<div class="wrap bar"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">T</span>Tabbaci</a><nav aria-label="Main">${links.map(([h, t, k]) => `<a href="${h}" class="${k === 'try' ? 'nav-try' : ''}${k === active ? ' on" aria-current="page' : ''}">${t}</a>`).join('')}</nav></div>`;
   reveal();
   const foot = $('foot');
-  if (foot) foot.innerHTML = `<div class="wrap foot-in"><p><b>Tabbaci</b> is an encyclopedia where every checkable sentence has a money bond. Everything here runs on the NEAR test network, with test money.</p><p class="mute">Read straight from <code>${esc(CFG.contract)}</code>. <a href="ledger.html">Every ruling</a> · <a href="index.html#check">Check one yourself</a> · <a href="index.html#not">What this is not</a> · <a href="https://github.com/Sireadell/tabbaci">Code on GitHub</a></p></div>`;
+  if (foot) foot.innerHTML = `<div class="wrap foot-in"><div class="foot-main"><p><b>Tabbaci</b> is an encyclopedia where every sentence you can check has money behind it. Everything here uses play money on a test network.</p><p class="mute">Every ruling is read straight from the public record, from the first court and the second court.</p><p class="foot-small">finalenc2.testnet · ${esc(CFG.contractV2 || '')}</p></div><nav class="foot-links" aria-label="More on this site"><a href="ledger.html">All rounds</a><a href="index.html#check">Check one yourself</a><a href="index.html#not">What this is not</a><a href="https://github.com/Sireadell/tabbaci" target="_blank" rel="noopener">Code on GitHub</a></nav></div>`;
 }
 
 // ---------- ruling rows ----------
 function latestItem(r) {
   const b = blocksOf(r);
-  return `<li><a class="lrow" href="case.html?round=${r.id}${r._c ? '&c=' + r._c : ''}"><span class="rid">No. ${r.id}</span><span class="claim">${esc(r.claim)}</span>${stamp(letterOf(r), 'small')}<span class="meta">${isLie(r) ? 'a lie, tried on purpose' : r.tag === 'wiki' ? 'via Wikipedia' : r.tag === 'visitor' ? 'sent by a visitor, no wallet' : r.tag === 'agent' ? 'sent by an AI agent' : 'a page sentence'}${b.length ? ` · ruled in ${b[b.length - 1]} blocks` : ''}</span></a></li>`;
+  return `<li><a class="lrow ${vKind(letterOf(r))}" href="case.html?round=${r.id}${r._c ? '&c=' + r._c : ''}"><span class="rid">No. ${r.id}</span><span class="claim">${esc(r.claim)}</span>${stamp(letterOf(r), 'small')}<span class="meta">${isLie(r) ? 'a lie, tried on purpose' : r.tag === 'wiki' ? 'via Wikipedia' : r.tag === 'visitor' ? 'sent by a visitor, no wallet' : r.tag === 'agent' ? 'sent by an AI agent' : 'a page sentence'}${b.length ? ` · ruled in ${b[b.length - 1]} blocks` : ''}</span></a></li>`;
 }
 
 // ---------- the checks that run in the browser ----------
@@ -233,7 +238,7 @@ async function runChecks(id, show, opts = {}) {
         for (const x of sources) { const f = old && old._saved && old._saved[x.i]; try { bytes.push(f ? new Uint8Array(await (await fetch('data/archive/' + f.file)).arrayBuffer()) : null); } catch { bytes.push(null); } }
       }
       let keys = null;
-      try { keys = (await (await fetch('data/judge-keys.json')).json()).keys; } catch { /* the line then says COMMAND LINE */ }
+      try { keys = (await (await fetch('data/judge-keys.json')).json()).keys; } catch { /* the line then says it needs a developer's computer */ }
       const sig = await window.JudgeSig.check(input, v, bytes, keys);
       add('Each judge signed its own answer', sig.state === 'NEEDS' ? 'NEEDS' : sig.state, sig.detail);
     } else add('Each judge signed its own answer', 'NEEDS', 'the signature code did not load. Run the command below.');
@@ -254,7 +259,7 @@ function mountReplay(root, rounds, startId) {
   let cur = picks.find((p) => p.round === startId) || picks[0];
   let timers = [];
   const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  root.innerHTML = `<div class="rp-head"><p class="label">A real ruling, replayed from the chain</p><div class="rp-picks" role="group" aria-label="Pick a case">${picks.map((p) => `<button type="button" class="chip" data-r="${p.round}">${esc(p.title)}</button>`).join('')}</div></div><div class="rp-stage" id="rp-stage"></div><div class="rp-foot"><button type="button" class="btn ghost" id="rp-again">Replay</button><a id="rp-open" href="#">Open the full court record</a></div>`;
+  root.innerHTML = `<div class="rp-head"><p class="label">A real case, replayed from the public record</p><div class="rp-picks" role="group" aria-label="Pick a case">${picks.map((p) => `<button type="button" class="chip" data-r="${p.round}">${esc(p.title)}</button>`).join('')}</div></div><div class="rp-stage" id="rp-stage"></div><div class="rp-foot"><button type="button" class="btn ghost" id="rp-again">Replay</button><a id="rp-open" href="#">Open the full court record</a></div>`;
   const stage = root.querySelector('#rp-stage');
   const clear = () => { timers.forEach(clearTimeout); timers = []; };
   function play() {
@@ -268,18 +273,18 @@ function mountReplay(root, rounds, startId) {
     const b = (r.bonds || [])[0];
     const blocks = blocksOf(r); const last = blocks[blocks.length - 1]; const secs = last ? Math.round(last * 1.1) : null;
     const srcs = (input.src || []).map((s) => { const got = (v.s || []).find((x) => x.i === s.i); return `<li><span class="mono">${esc(s.u.replace(/^https?:\/\//, ''))}</span><span class="mute">${got ? (got.x !== undefined && got.x !== '' ? 'read ' + esc(got.x) : 'fetched, HTTP ' + esc(got.c)) : ''}</span></li>`; }).join('');
-    const seats = (v.j || []).map((j) => `<div class="seat"><span class="seat-n">${esc(modelBrief(models[j.m]))}</span>${stamp(input.kind === 'data' ? (j.a === 'T' ? 'MATCHES' : j.a === 'F' ? 'DIFFERS' : 'UNSURE') : (j.a === 'T' ? 'TRUE' : j.a === 'F' ? 'FALSE' : 'UNSURE'), 'seat-stamp')}<span class="mono sig">${j.g ? 'signed ' + esc(j.g.slice(0, 10)) + '...' : 'no signed reply'}</span></div>`).join('');
+    const seats = (v.j || []).map((j) => `<div class="seat"><span class="seat-j">Judge ${Number(j.m) + 1}</span><span class="seat-n">${esc(modelBrief(models[j.m]))}</span>${stamp(input.kind === 'data' ? (j.a === 'T' ? 'MATCHES' : j.a === 'F' ? 'DIFFERS' : 'UNSURE') : (j.a === 'T' ? 'TRUE' : j.a === 'F' ? 'FALSE' : 'UNSURE'), 'seat-stamp')}<span class="mono sig">${j.g ? 'signed ' + esc(j.g.slice(0, 10)) + '...' : 'did not answer properly'}</span></div>`).join('');
     let money = '';
     if (b && b.payout != null) {
       const s = BigInt(b.stake), p = BigInt(b.payout); const back = Number((p * 1000n) / s) / 10; const w = Math.max(0, Math.min(100, back));
-      money = `<div class="split-bar" aria-hidden="true"><i class="keep" style="width:${w}%"></i><i class="lose" style="width:${100 - w}%"></i></div><p class="split-txt">${p < s ? `Bond ${near(s)} NEAR. <b class="neg">${near(s - p)} lost</b>, ${near(p)} given back. ${pct(s - p, s)} of the bond is gone.` : p > s ? `Bond ${near(s)} NEAR. <b class="pos">${near(p - s)} gained</b>.` : `Bond ${near(s)} NEAR given back in full.`}</p>`;
-    } else if (r.challenger) money = `<p class="split-txt">Challenged by <span class="mono">${esc(r.challenger)}</span> with ${near(r.bond)} NEAR. The court ruled again.</p>`;
-    else if (b) money = `<p class="split-txt">Bond ${near(b.stake)} NEAR, locked until the challenge window closes.</p>`;
+      money = `<div class="split-bar" aria-hidden="true"><i class="keep" style="width:${w}%"></i><i class="lose" style="width:${100 - w}%"></i></div><p class="split-txt">${p < s ? `${near(s)} was at stake. The writer <b class="neg">lost ${near(s - p)}</b> and got ${near(p)} back.` : p > s ? `${near(s)} was at stake. The writer <b class="pos">won ${near(p - s)}</b> on top.` : `${near(s)} was at stake, and all of it was given back.`}</p>`;
+    } else if (r.challenger) money = `<p class="split-txt">Someone (<span class="mono">${esc(r.challenger)}</span>) put down ${near(r.bond)} play money and asked the court to look again. The court ruled again.</p>`;
+    else if (b) money = `<p class="split-txt">${near(b.stake)} is at stake. The money is on hold for about 2 minutes, in case someone objects. Then it moves.</p>`;
     stage.innerHTML = `
-      <div class="beat"><p class="bl">The sentence${b ? ` <span class="tag">${near(b.stake)} NEAR bond · "${esc(b.word)}"</span>` : ''}</p><p class="rp-claim">${claimHtml}</p></div>
+      <div class="beat"><p class="bl">The sentence${b ? ` <span class="tag">${near(b.stake)} play money at stake. The writer said "${esc(b.word)}"${b.word === 'is' ? ': fully sure' : ''}.</span>` : ''}</p><p class="rp-claim">${claimHtml}</p></div>
       <div class="beat"><p class="bl">The evidence the court reads</p><ul class="srcs">${srcs || '<li class="mute">Two pages from the approved list</li>'}</ul>${split.length > 1 ? '<p class="warn">The sentence carries an order to the judges. They see it only as quoted text.</p>' : ''}</div>
-      <div class="beat"><div class="seal"><div class="box" aria-hidden="true"><span class="lid"></span></div><p class="bl">Sealed in an Intel chip${secs ? `, ruled in ${last} blocks (about ${secs} s)` : ''}</p></div></div>
-      <div class="beat"><p class="bl">Three judges answer${input.kind === 'data' ? ': does the sentence state the number ' + esc(input.cv) + '?' : ''}</p><div class="seats">${seats || '<p class="mute">No judge answers yet.</p>'}</div></div>
+      <div class="beat"><div class="seal"><div class="box" aria-hidden="true"><span class="lid"></span></div><p class="bl">Decided inside a locked box nobody can open.${secs ? ` It took about ${secs} seconds.` : ''}</p></div></div>
+      <div class="beat"><p class="bl">Three AI judges answer${input.kind === 'data' ? ': does the sentence state the number ' + esc(input.cv) + '?' : ''}</p><div class="seats">${seats || '<p class="mute">No judge answers yet.</p>'}</div></div>
       <div class="beat"><div class="verdict-row">${stamp(letterOf(r), 'big')}<span class="mute">${esc(plainOutcome(r))}${input.kind === 'data' ? '. The numbers the sources returned decide this one.' : ''}</span></div>${money}</div>`;
     const beats = [...stage.querySelectorAll('.beat')];
     const seatEls = [...stage.querySelectorAll('.seat-stamp')];
@@ -307,4 +312,4 @@ function useContract(c) {
   if (c && c === CFG.contractV2) { CFG.contract = c; CFG.savedFile = 'data/rounds-v2.json'; }
 }
 
-window.Site = { useContract, sealedOf, CFG, $, esc, rpc, view, allRounds, getRound, near, pct, parse, isLie, letterOf, stamp, plainOutcome, modelName, blocksOf, explorer, verifyCmd, fullCheckCmd, bondMoney, chrome, latestItem, runChecks, mountReplay, saved, WORDS };
+window.Site = { useContract, sealedOf, CFG, $, esc, rpc, view, allRounds, getRound, near, pct, parse, isLie, letterOf, stamp, vKind, plainOutcome, modelName, blocksOf, explorer, verifyCmd, fullCheckCmd, bondMoney, chrome, latestItem, runChecks, mountReplay, saved, WORDS };

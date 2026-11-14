@@ -2,6 +2,15 @@
   color-scheme:dark;
   --bg:#000;--paper:#000;--paper2:#0e0e10;--ink:#fff;--mute:rgba(255,255,255,.7);--line:rgba(255,255,255,.12);--line2:rgba(255,255,255,.22);
   --ox:#fff;--ox-ink:#0e0e10;--oxtext:rgba(255,255,255,.8);--red:#ff7a6b;--green:#68cc58;--ochre:#d4b144;--mark:#3a3220;
+  /* Colour system. Each colour has one job, and the text label always stays next to it.
+     Ground and ink: the page itself. --act: anything you can press or follow (buttons, links).
+     --court: the courtroom (judges, the locked box, court records), kept apart from the money parts.
+     Verdict colours, the same everywhere a ruling shows: TRUE green, FALSE red, UNSURE amber,
+     grey for waiting or cancelled. Money uses weight and figures, not a colour of its own. */
+  --ground:#0b0c0f;--surface:#14161b;--surface2:#1b1e25;--text:#f3f2ee;--text-mute:#b3b6bd;
+  --act:#86b7ff;--act-hover:#a8cbff;--act-ink:#08111f;--act-line:rgba(134,183,255,.55);
+  --court:#c3a8e2;--court-bg:rgba(195,168,226,.09);--court-line:rgba(195,168,226,.42);
+  --v-true:#68cc58;--v-false:#ff7a6b;--v-unsure:#d4b144;--v-wait:#a4a7ae;
   --serif:"Glegoo","Iowan Old Style",Georgia,serif;
   --sans:"Geist",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:"Geist Mono",ui-monospace,"Cascadia Mono",Consolas,Menlo,monospace;
@@ -389,3 +398,114 @@ main.wrap{padding-bottom:48px}
 @keyframes wgc2{0%,14%{opacity:0}16%,50%{opacity:1}52%,100%{opacity:0}}
 @keyframes wgc3{0%,51%{opacity:0}53%,96%{opacity:1}98%,100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.wg-win *,.wg-win{animation:none!important}.wg-bm{transform:none}.wg-bmi{opacity:1}.wg-p1,.wg-p2{opacity:0}.wg-a1{opacity:1}.wg-hl{transform:none}.wg-p3{opacity:1}.wg-cur{display:none}.wg-cap span{opacity:1;position:static;display:block}.wg-cap{height:auto}}
+/* home: developer fold, under the hood, AI add-on card, picture caption */
+.devfold{margin-top:12px}.devfold summary{cursor:pointer;font-weight:600;padding:6px 0}
+.fine-name{margin:4px 0 0;font:.78rem var(--mono);color:var(--mute);overflow-wrap:anywhere}
+.under-pages{margin:16px 0 0}
+.ai-card{margin-top:22px;max-width:640px}.ai-card h3{margin-top:0}.ai-card p{margin:6px 0}
+.wg-caption{color:var(--mute);font-size:.88rem;margin-top:6px}
+
+/* ==== Colour with meaning, clearer hierarchy, footer at the bottom (14 Nov) ==== */
+/* page frame: the footer always sits at the bottom, even on a short page */
+html{background:var(--ground)}
+body{background:var(--ground);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+body>main{flex:1 0 auto;width:100%}
+body>.top,body>footer,body>.closing{flex-shrink:0;width:100%}
+.top{background:var(--ground)}
+.mute,.lead,.sec-head p,.note-live,.hero-nums span,.lrow .meta,.sent .meta,.checks .det{color:var(--text-mute)}
+
+/* actions: one blue, used only on things you can press or follow */
+a{color:var(--act)}a:hover{color:var(--act-hover)}
+:focus-visible{outline:2px solid var(--text);outline-offset:3px}
+.btn,button.btn{background:var(--act);border-color:var(--act);color:var(--act-ink);font-weight:600}
+.btn:hover{background:var(--act-hover);border-color:var(--act-hover);color:var(--act-ink);box-shadow:none}
+.btn:focus-visible{outline:2px solid var(--text);outline-offset:3px}
+.btn.ghost{background:transparent;color:var(--text);border-color:rgba(255,255,255,.28);font-weight:500}
+.btn.ghost:hover{background:var(--surface2);border-color:var(--act-line);color:var(--text)}
+nav a{color:var(--text-mute)}nav a:hover{color:var(--text)}
+nav a.on{color:var(--text);box-shadow:inset 0 -2px 0 var(--act)}
+nav a.nav-try{color:var(--act);margin-left:6px}
+nav a.nav-try:hover{color:var(--act-hover)}
+.chip:hover{background:var(--surface2)}
+.chip[aria-pressed="true"]{background:var(--text);color:var(--ground);border-color:var(--text)}
+.file .more{color:var(--act)}
+
+/* hierarchy: headings carry weight, big numbers stand apart from their small labels */
+h1,h2{font-weight:700;letter-spacing:-.03em}
+h3,.nots b,.pagelink b{font-weight:700;letter-spacing:-.01em}
+.label{color:var(--text-mute)}
+.label.court{color:var(--court)}
+.hero-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px}
+.hero-nums div{background:var(--surface);border:1px solid var(--line);padding:10px 12px 9px;min-width:0}
+.hero-nums b{font:700 2rem/1.1 var(--serif);color:var(--text);white-space:nowrap}
+.numtable td.n{font-weight:700;color:var(--text)}
+.split-txt b,.money{font-variant-numeric:tabular-nums;font-weight:700}
+.ledger .num{font-family:var(--mono);font-size:.86rem}
+.ledger .num b{font-weight:600}
+
+/* verdict colours: stamps get a light fill of their own colour, lists get a coloured left edge */
+.st-plain{color:var(--text)}.st-true{color:var(--v-true)}.st-false{color:var(--v-false)}.st-other{color:var(--v-unsure)}.st-wait{color:var(--v-wait)}
+.stamp{background:color-mix(in srgb,currentColor 13%,transparent)}
+.neg{color:var(--v-false)}.pos{color:var(--v-true)}
+.checks .res.MATCH{color:var(--v-true)}.checks .res.MISMATCH{color:var(--v-false)}.checks .res.NEEDS{color:var(--v-wait)}
+.lrow{border-left:3px solid transparent;padding-left:12px}
+.lrow.v-true{border-left-color:var(--v-true)}.lrow.v-false{border-left-color:var(--v-false)}.lrow.v-unsure{border-left-color:var(--v-unsure)}.lrow.v-wait{border-left-color:var(--v-wait)}
+.file.v-true{border-top:3px solid var(--v-true)}.file.v-false{border-top:3px solid var(--v-false)}.file.v-unsure{border-top:3px solid var(--v-unsure)}.file.v-wait{border-top:3px solid var(--v-wait)}
+.sent{border-left:3px solid transparent;padding-left:14px}
+.sent.v-true{border-left-color:var(--v-true)}.sent.v-false{border-left-color:var(--v-false)}.sent.v-unsure{border-left-color:var(--v-unsure)}.sent.v-wait{border-left-color:var(--v-wait)}
+.ledger tr.v-true td:first-child{box-shadow:inset 3px 0 0 var(--v-true)}.ledger tr.v-false td:first-child{box-shadow:inset 3px 0 0 var(--v-false)}
+.ledger tr.v-unsure td:first-child{box-shadow:inset 3px 0 0 var(--v-unsure)}.ledger tr.v-wait td:first-child{box-shadow:inset 3px 0 0 var(--v-wait)}
+.ledger td.rid{padding-left:12px}
+/* ledger filters: the four verdict filters wear their verdict colour, the rest stay plain */
+.chip[data-f="TRUE"]{color:var(--v-true);border-color:color-mix(in srgb,var(--v-true) 55%,transparent)}
+.chip[data-f="FALSE"]{color:var(--v-false);border-color:color-mix(in srgb,var(--v-false) 55%,transparent)}
+.chip[data-f="UNSURE"]{color:var(--v-unsure);border-color:color-mix(in srgb,var(--v-unsure) 55%,transparent)}
+.chip[data-f="OPEN"]{color:var(--v-wait);border-color:color-mix(in srgb,var(--v-wait) 55%,transparent)}
+.chip[data-f="TRUE"][aria-pressed="true"]{background:var(--v-true);border-color:var(--v-true);color:var(--ground)}
+.chip[data-f="FALSE"][aria-pressed="true"]{background:var(--v-false);border-color:var(--v-false);color:var(--ground)}
+.chip[data-f="UNSURE"][aria-pressed="true"]{background:var(--v-unsure);border-color:var(--v-unsure);color:var(--ground)}
+.chip[data-f="OPEN"][aria-pressed="true"]{background:var(--v-wait);border-color:var(--v-wait);color:var(--ground)}
+
+/* the court: judges, the locked box and court records share one muted colour */
+.bench{margin:18px 0 4px;padding:12px 14px 14px;background:var(--court-bg);border:1px solid var(--court-line);border-radius:2px}
+.bench-h{margin:0 0 10px;font:600 1rem/1.35 var(--sans);color:var(--text)}
+.bench-h b{color:var(--court)}
+.judges{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.judge{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border:1px solid var(--court-line);background:var(--ground);min-width:0}
+.judge .j-n{font:700 .95rem/1.2 var(--sans);color:var(--court)}
+.judge .j-m{font:400 .8rem/1.3 var(--mono);color:var(--text-mute);overflow-wrap:anywhere}
+.how .judges{margin-top:10px;max-width:640px}
+.how li.court::before{border-color:var(--court);color:var(--court)}
+.seat{border-color:var(--court-line);background:var(--court-bg)}
+.seat-j{font:700 .85rem/1.2 var(--sans);color:var(--court)}
+.box.shut{box-shadow:inset 0 -6px 0 var(--court)}
+.box,.box .lid{border-color:var(--court)}
+.record .rec-top{background:var(--court-bg);color:var(--court)}
+.record .rec-top .tn{color:var(--text-mute)}
+
+/* section bands: two sections sit on a lighter full-width field so the page has chapters */
+section.band.field{background:var(--surface);box-shadow:0 0 0 100vmax var(--surface);clip-path:inset(0 -100vmax);padding-bottom:72px;margin-top:96px;padding-top:72px}
+section.band.field + section.band{padding-top:96px}
+section.band.field .card,section.band.field .judge{background:var(--ground)}
+
+/* footer: a proper bottom bar */
+footer{border-top:1px solid var(--line);background:var(--surface);margin-top:0;padding:32px 0 28px;font-size:.92rem}
+.foot-in{display:flex;justify-content:space-between;align-items:flex-start;gap:16px 40px;flex-wrap:wrap}
+.foot-in p{margin:0 0 6px}
+.foot-main{max-width:62ch}
+.foot-links{display:flex;flex-wrap:wrap;gap:4px 18px;padding-top:2px}
+.foot-links a{padding:0;font-size:.92rem;color:var(--text);text-decoration:none;min-height:32px;display:inline-flex;align-items:center}
+.foot-links a:hover{color:var(--act-hover);text-decoration:underline}
+.foot-small{font:.8rem/1.5 var(--mono);color:var(--text-mute);margin:0}
+main.wrap{padding-bottom:56px}
+
+@media (max-width:900px){.judges{grid-template-columns:1fr}.judge{flex-direction:row;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+  section.band.field{padding-top:56px;padding-bottom:56px;margin-top:64px}section.band.field + section.band{padding-top:64px}}
+@media (max-width:560px){.ledger tr[class^="v-"] td:first-child{box-shadow:none}
+  .ledger tr.v-true{box-shadow:inset 3px 0 0 var(--v-true)}.ledger tr.v-false{box-shadow:inset 3px 0 0 var(--v-false)}.ledger tr.v-unsure{box-shadow:inset 3px 0 0 var(--v-unsure)}.ledger tr.v-wait{box-shadow:inset 3px 0 0 var(--v-wait)}
+  .ledger tr{padding-left:12px}}
+@media print{body{display:block;background:#fff}footer{display:none}}
+.file{background:var(--ground)}.file::before{background:var(--ground)}
+.ledger th{top:69px;z-index:2;background:var(--ground)}
+.ledger td.rid{white-space:nowrap}
+.court-of{display:block;font:400 .78rem/1.3 var(--sans);color:var(--text-mute);white-space:nowrap;margin-top:2px}

@@ -10,7 +10,7 @@
 <section class="page-head">
   <p class="label">Pages</p>
   <h1>Pages where every sentence can be wrong</h1>
-  <p class="lead">For each sentence on these pages, a writer picked one word for how sure they were (is, very likely, likely or disputed) and put money behind it. When the court rules, the same public rule moves the money every time. You'll see the court's stamp next to each sentence.</p>
+  <p class="lead">These are encyclopedia pages. Every sentence has a stamp from the court, and money behind it. Click a stamp to see the case.</p>
 </section>
 <div class="plist" id="list"><p class="mute">Loading...</p></div>
 </main>
@@ -21,7 +21,7 @@ Site.chrome('pages');
 Promise.all([fetch('pages/index.json').then((r) => r.json()), fetch('data/drafted.json').then((r) => (r.ok ? r.json() : null)).catch(() => null), Site.allRounds()]).then(([l, dr, { rounds }]) => {
   const lies = rounds.filter(Site.isLie).length;
   const cards = l.map((p) => `<a class="pagelink" href="page.html?p=${encodeURIComponent(p.slug)}"><b>${esc(p.title)}</b><span class="mute">${p.count} checked sentences</span></a>`);
-  if (dr) cards.push(`<a class="pagelink" href="page.html?p=drafted"><b>${esc(dr.title)}</b><span class="mute">Drafted by an AI model from sentences the court ruled true</span></a>`);
+  if (dr) cards.push(`<a class="pagelink" href="page.html?p=drafted"><b>${esc(dr.title)}</b><span class="mute">Written by an AI, using only sentences the court stamped TRUE</span></a>`);
   cards.push(`<a class="pagelink" href="page.html?p=lies"><b>The struck-out lies</b><span class="mute">${lies} lies I planted, each crossed out next to the fine it cost</span></a>`);
   $('list').innerHTML = cards.join('');
 });

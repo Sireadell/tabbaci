@@ -22,12 +22,12 @@
 <script>
 Site.chrome('pages');
 const slug = new URLSearchParams(location.search).get('p') || 'near-chain';
-const LEG = 'The word before each sentence is how sure its writer said it was: <b>is</b> (95 in 100), <b>very likely</b> (80), <b>likely</b> (65), <b>disputed</b> (50). This number is the bond-backed confidence, not a market price.';
+const LEG = 'The word before each sentence is how sure its writer said it was: <b>is</b> (95 in 100), <b>very likely</b> (80), <b>likely</b> (65), <b>disputed</b> (50). This number shows how sure the writer said they were, and how much money they put on it. It is not a market price.';
 function sentence(s, r, strike) {
   const w = r ? Site.letterOf(r) : 'OPEN';
   const b = r && (r.bonds || [])[0]; const m = b ? Site.bondMoney(b) : null;
-  const meta = r ? `<p class="meta">${s.kind === 'data' ? 'Decided by the numbers' : 'Decided by the judges'} · ${s.word ? '<span class="wordbox">' + esc(s.word) + '</span>' : ''}${m ? esc(m.text) : 'no bond'} · <a href="case.html?round=${s.round}">Court record, round ${s.round}</a></p>` : '<p class="meta">Round not found.</p>';
-  return `<article class="sent${strike ? ' lie' : ''}">${Site.stamp(w)}<p class="cl">${esc(s.claim)}</p>${meta}</article>`;
+  const meta = r ? `<p class="meta">${s.kind === 'data' ? 'Settled by a figure' : 'Settled by the three judges'} · ${s.word ? 'Writer said <span class="wordbox">' + esc(s.word) + '</span> · ' : ''}${m ? 'Result: ' + esc(m.text) : 'No money behind it'} ·<a href="case.html?round=${s.round}">Court record, round ${s.round}</a></p>` : '<p class="meta">Round not found.</p>';
+  return `<article class="sent ${Site.vKind(w)}${strike ? ' lie' : ''}">${Site.stamp(w)}<p class="cl">${esc(s.claim)}</p>${meta}</article>`;
 }
 async function main() {
   const { rounds } = await Site.allRounds();
