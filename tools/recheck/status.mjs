@@ -21,31 +21,40 @@ export function badgeFor(report) {
   return { schemaVersion: 1, label: 'every ruling re-checked', message, color: bad ? 'red' : 'brightgreen' };
 }
 
-async function rpcView(rpc, contract, method, args = {}) {
+const sleep = ms => new Promise(res => setTimeout(res, ms));
+
+async function rpcView(rpc, contract, method, args = {}, tries = 0) {
   const r = await fetch(rpc, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'query', params: { request_type: 'call_function', finality: 'final', account_id: contract, method_name: method, args_base64: Buffer.from(JSON.stringify(args)).toString('base64') } }) });
   const j = await r.json();
+  if (j.error && tries < 4) { await sleep(1500); return rpcView(rpc, contract, method, args, tries + 1); }
   return JSON.parse(Buffer.from(j.result.result).toString());
 }
 
 export const COURT2 = 'tabbaci-court2.testnet';
 export const MAINNET_PILOT = '5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e';
 
-async function keyCount(rpc, account) {
+async function keyCount(rpc, account, tries = 0) {
   const k = await fetch(rpc, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'query', params: { request_type: 'view_access_key_list', finality: 'final', account_id: account } }) });
-  return (await k.json()).result.keys.length;
+  const j = await k.json();
+  if (j.error && tries < 4) { await sleep(1500); return keyCount(rpc, account, tries + 1); }
+  return j.result.keys.length;
 }
 
 // Court 2 and the mainnet pilot, read from the chain (read only). Either one is null when its node does not answer.
-export async function readCourts(testRpc = 'https://test.rpc.fastnear.com', mainRpc = 'https://rpc.mainnet.near.org') {
+export async function readCourts(testRpc = 'https://test.rpc.fastnear.com', mainRpc = 'https://free.rpc.fastnear.com') {
   let court2 = null, mainnet = null;
   try {
     const rounds = await rpcView(testRpc, COURT2, 'round_count');
+    const keys = await keyCount(testRpc, COURT2);
     let lastSettled = null, settled = 0;
     for (let i = 1; i <= rounds; i++) {
-      const r = await rpcView(testRpc, COURT2, 'get_round', { round: i });
-      if (r && r.status === 'settled') { settled++; lastSettled = i; }
+      try {
+        const r = await rpcView(testRpc, COURT2, 'get_round', { round: i });
+        if (r && r.status === 'settled') { settled++; lastSettled = i; }
+      } catch { /* skip this round */ }
+      await sleep(700);
     }
-    court2 = { rounds, settled, lastSettled, keys: await keyCount(testRpc, COURT2) };
+    court2 = { rounds, settled, lastSettled, keys };
   } catch { /* leave null */ }
   try {
     mainnet = { rounds: await rpcView(mainRpc, MAINNET_PILOT, 'round_count'), keys: await keyCount(mainRpc, MAINNET_PILOT) };

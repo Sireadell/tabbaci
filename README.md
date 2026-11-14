@@ -60,6 +60,8 @@ I recorded the demo video on 13 November. Finished after it: court version 2 on 
 
 ## What you can check
 
+[Pages](https://tabbaci.vercel.app/pages.html) lists the encyclopedia pages (`lagos-abuja`, `near-chain` and `near-tools`), each opened at `page.html?p=<name>`. They are built by `tools/site/make-pages.mjs` from `content/pages/*.json`. Every sentence on a page was bonded as its own round, and its link goes to that round's court record.
+
 | What you can check | How |
 |---|---|
 | The testnet contract has 0 access keys, so nobody, me included, can change its code or its rules | The round 25 check below prints `MATCH contract has no keys` |
@@ -124,6 +126,8 @@ For rounds 35 and 36 the test page is `https://tabbaci.vercel.app/tabbaci-test.h
 ## An AI that bonds its own words
 
 An AI can now put money behind what it writes. I added three tools to the `tabbaci-mcp` add-on: one shows the AI the exact text the court will read, one bonds a sentence, and one waits for the ruling. If the AI says *is* or *very likely* and it is wrong, it gets fined like any other writer.
+
+The `tabbaci-mcp` server gives an AI 8 tools: `get_ruling`, `list_rounds`, `find_sentence`, `contract_info`, `how_to_verify`, `read_evidence`, `bond_sentence` and `wait_for_ruling`.
 
 Install it in Claude Code with one line (version 0.2.0 is on npm):
 
@@ -405,8 +409,12 @@ Run each line from the repo root. On Windows without the Microsoft C++ linker, a
 | `privacy` | Judge report checks and sealed bets (built and tested, not deployed) |
 | `content` | The pages and the drafted page |
 | `packages/tabbaci-mcp` | A library and MCP server that reads rulings and lets an AI bond its own sentences |
-| `proofs` | Run notes and saved sealed-box proofs for rounds 20, 25, 33, 35 and 36 |
-| `docs` | The payout rule, the sealed-box proof, the poisoned-evidence runbook |
+| `proofs` | Run notes and saved sealed-box proofs: `finalenc2` (rounds 20, 25, 33, 35 and 36, plus `checker-all-rounds.md`, the checker run on rounds 2 to 16), `tabbaci-court2` (rounds 4 to 7), `finalenc1` (rounds 2 and 3), `court5` (round 6), `court-private` and `mainnet` |
+| `docs` | `PAYOUT_RULE.md`, `SEALED_BOX_PROOF.md` (how to re-check a saved sealed-box proof offline) and `POISONED_EVIDENCE_RUNBOOK.md` (run with `tools/poison/prepare.mjs`, which checks the test page and prints what the judges will see) |
+| `build` | Scripts that rebuild the courtroom program and the contracts, so you can compare fingerprints |
+| `.github/workflows/reproducible-build.yml`, `.github/workflows/outlayer-verify-build.yml` | The first builds the program and contract twice from clean copies on Linux and fails if the fingerprints differ. The second builds OutLayer's public sealed-box checker from one pinned commit, run by hand, so visitors do not need Rust |
+| `tools/lockkey`, `tools/final/delete-keys.ps1` | `lockkey` locks the AI key to one exact program build and removes the keys on its owner account. `delete-keys.ps1` deletes every access key on a contract account so nobody can change it (not reversible) |
+| `tools/site/snapshot.mjs`, `tools/archive/archive.mjs`, `tools/v2/rounds.mjs`, `tools/private-deploy` | Save every round into the site's data file, save the exact page bytes a ruling read, open and run test rounds on court version 2, and the notes for deploying the private court |
 | `site` | The live site |
 | `archive` | Page bytes that past rulings read |
 
