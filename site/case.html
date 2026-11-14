@@ -71,16 +71,17 @@ async function show() {
     const [word, quote] = window.V2.parseReply(window.V2.contentOf(window.V2.unb64(j.r)) || '');
     if (word !== 'TRUE' && word !== 'FALSE') return '<div class="jq mute">Unsure, so no quote.</div>';
     const ctx = window.V2.highlight(v.ex || '', quote, esc);
-    return `<div class="jq"><b>${esc(word)}</b>, relying on: ${ctx ? `<span class="mono">${ctx}</span>` : `<mark>${esc(quote)}</mark>`}${j.qx ? '<br><span class="neg">This quote is not on the page, so the court counted this judge as unsure.</span>' : ''}</div>`;
+    const raw = `<details class="jraw"><summary>show raw</summary><div class="mute">The full quote the contract checked:</div><pre>${esc(quote)}</pre>${ctx ? `<div class="mute">Where it sits in the page the court read:</div><div class="mono">${ctx}</div>` : ''}</details>`;
+    return `<div class="jq"><b>${esc(word)}</b>, relying on: <mark>${esc(window.V2.readable(quote))}</mark>${j.qx ? '<br><span class="neg">This quote is not on the page, so the court counted this judge as unsure.</span>' : ''}${raw}</div>`;
   };
   const judges = v && v.j && v.j.length ? `<ul class="jl">${v.j.map((j) => { const a = j.a === 'T' ? 'TRUE' : j.a === 'F' ? 'FALSE' : 'UNSURE'; return `<li>${Site.stamp(a, 'small')}<span>${esc(Site.modelName(models[j.m]) || 'judge ' + j.m)}${j.g ? ', reply signed' : ', no signed reply, counted as unsure'}</span>${quoteHtml(j)}</li>`; }).join('')}</ul>${isData ? `<p class="mute" style="margin:6px 0 0;font-size:.9rem">This sentence is about a number, so the numbers the sources returned decide it. The judges only confirm that the sentence states that number${input.cv ? ' (' + esc(input.cv) + ')' : ''}.</p>` : ''}` : '<span class="mute">No judge answers yet.</span>';
 
   const bonds = (r.bonds || []).length ? `<ul class="jl">${r.bonds.map((b) => `<li><span class="mono">${esc(b.writer)}</span> put <b>${Site.near(b.stake)} NEAR</b> on the word <b>${esc(b.word)}</b></li>`).join('')}</ul><p class="mute" style="margin:6px 0 0;font-size:.9rem">The bond-backed confidence of this sentence is ${(Site.WORDS[r.bonds[0].word] / 100).toFixed(0)} in 100. It comes from the word the writer chose and the money behind it. Nobody trades it.</p>` : '<span class="mute">No money behind this sentence.</span>';
   const money = (r.bonds || []).length ? `<ul class="jl">${r.bonds.map((b) => { const m = Site.bondMoney(b); return `<li><span class="${m.kind === 'fine' ? 'neg' : m.kind === 'gain' ? 'pos' : ''}">${esc(m.text)}</span></li>`; }).join('')}</ul>` : '<span class="mute">Nothing to pay.</span>';
   const blocks = Site.blocksOf(r);
-  const sealed = Site.CFG.sealed[id];
+  const sealed = Site.sealedOf(id);
   const proofRow = sealed
-    ? row('Sealed-run proof', `I checked this sealed run against Intel's report and saved the evidence. The program that ran has fingerprint <span class="mono">2c8e24a5...</span>, the same one the contract stores.<br><span class="mute">OutLayer task ${sealed.task}. Check it offline:</span><pre>outlayer-verify bundle proofs/finalenc2/round-${id}.bundle.json --offline</pre>`)
+    ? row('Sealed-run proof', `I checked this sealed run against Intel's report and saved the evidence. The program that ran has fingerprint <span class="mono">${sealed.fp}...</span>, the same one the contract stores.<br><span class="mute">OutLayer task ${sealed.task}. Check it offline:</span><pre>outlayer-verify bundle proofs/${sealed.dir}/round-${id}.bundle.json --offline</pre>`)
     : row('Sealed-run proof', '<span class="mute">I didn\'t save a proof for this round. The command below checks it live.</span>');
 
   rec.innerHTML = `<div class="rec-top"><span>Court record · round ${id}</span><span class="tn">Testnet</span></div>

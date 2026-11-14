@@ -352,3 +352,4 @@ main.wrap{padding-bottom:48px}
 
 .jq{flex-basis:100%;font-size:.9rem;padding:2px 0 6px 0;line-height:1.5}
 .jq mark{padding:0 2px}
+.jraw{margin-top:4px}.jraw summary{cursor:pointer;color:var(--mute,#8a8a8a);font-size:.85rem}.jraw pre{white-space:pre-wrap;word-break:break-word;margin:4px 0 8px;font-size:.82rem}.jraw .mono{font-size:.82rem;word-break:break-word}
