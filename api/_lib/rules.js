@@ -3,6 +3,7 @@
 export const WORDS = ['is', 'very likely', 'likely', 'disputed'];
 export const CAP_PER_DAY = 30;
 export const PER_VISITOR_PER_HOUR = 3;
+export const PER_AGENT_PER_HOUR = 6; // an AI sending a short list of facts needs more than a person typing one
 export const DAY_BLOCKS = 150_000; // testnet makes a block about every 0.59 s, so this is a little over 24 h
 export const WIKI = 'https://en.wikipedia.org/api/rest_v1/page/summary/';
 export const WIKIDATA = 'https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/';
@@ -86,8 +87,13 @@ export function wikiTitleForUrl(canonical) {
   return encodeURIComponent(canonical).replace(/%2F/g, '/');
 }
 
+// Who sent it: a person on the try page, or an AI through the add-on. Anything else counts as a person.
+export function senderOf(from) {
+  return from === 'agent' ? 'agent' : 'visitor';
+}
+
 // Source ids differ from contract to contract, so the sender looks them up by address on the contract it uses (see write.js).
-export function buildRound({ claim, canonical, qid, terms, ids = {} }) {
+export function buildRound({ claim, canonical, qid, terms, from = 'visitor', ids = {} }) {
   return {
     claim,
     kind: 'prose',
@@ -97,7 +103,7 @@ export function buildRound({ claim, canonical, qid, terms, ids = {} }) {
       { id: ids.wikidata ?? SOURCE_WIKIDATA, url: `${WIKIDATA}${qid}/descriptions/en`, x: '', tol: 0 },
     ],
     terms,
-    tag: 'visitor',
+    tag: senderOf(from),
   };
 }
 

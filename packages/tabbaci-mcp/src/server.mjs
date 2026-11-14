@@ -1,4 +1,5 @@
-// MCP server over stdio (newline-delimited JSON-RPC 2.0, hand-rolled, no dependencies). Read-only.
+// MCP server over stdio (newline-delimited JSON-RPC 2.0, hand-rolled, no dependencies).
+// Reads rulings, and can send a sentence to the court with play money through the site's free sender.
 import { createInterface } from 'node:readline';
 import { createClient } from './index.mjs';
 
@@ -18,6 +19,16 @@ export const TOOLS = [
     inputSchema: { type: 'object', properties: {}, additionalProperties: false } },
   { name: 'how_to_verify', description: 'Explain how to re-check a ruling yourself: returns the exact command and what MATCH, MISMATCH and CANNOT VERIFY mean. Optionally pass a round number.',
     inputSchema: { type: 'object', properties: { round: { type: 'integer', minimum: 1 } }, additionalProperties: false } },
+  { name: 'read_evidence', description: 'Show the exact text the Tabbaci court will read for a Wikipedia page: the opening summary of the page and its one-line Wikidata description. The court reads nothing else, so a sentence about something not in this text comes back UNSURE. Call this before bond_sentence. Free, reads Wikipedia only.',
+    inputSchema: { type: 'object', properties: { wikipedia_page: { type: 'string', description: 'The exact English Wikipedia page, for example "Lagos".' } }, required: ['wikipedia_page'], additionalProperties: false } },
+  { name: 'bond_sentence', description: 'Send one sentence you wrote to the Tabbaci court and bond it with play money (NEAR testnet, through the site\'s free sender: you need no wallet and spend nothing real). Say how sure you are: "is" (sure), "very likely", "likely", or "disputed". The court reads only the opening summary of the Wikipedia page you name and its one-line Wikidata description (see read_evidence), three AI judges rule, and a sentence ruled false is fined in line with how sure you said you were. "disputed" puts nothing at risk, so it can never be fined: to test whether the court catches a wrong sentence, bond it with "is" or "very likely". Returns the round number and links. The ruling takes about 4 minutes, then call wait_for_ruling. One sentence per call. The site allows 6 an hour from one place and 30 a day in total.',
+    inputSchema: { type: 'object', properties: {
+      sentence: { type: 'string', minLength: 8, maxLength: 280, description: 'One plain sentence, 8 to 280 characters, no links.' },
+      wikipedia_page: { type: 'string', description: 'The exact English Wikipedia page the court should read, for example "Lagos".' },
+      sureness: { type: 'string', enum: ['is', 'very likely', 'likely', 'disputed'], description: 'How sure you are. More sure means a bigger gain if true and a bigger fine if false.' },
+    }, required: ['sentence', 'wikipedia_page', 'sureness'], additionalProperties: false } },
+  { name: 'wait_for_ruling', description: 'Wait for the court to rule on a round (checks every 5 seconds, for up to about 10 minutes). Returns the outcome, what each judge said, and whether the sentence was fined. The money moves when the 5.8 hour challenge window closes.',
+    inputSchema: { type: 'object', properties: { round: { type: 'integer', minimum: 1, description: 'Round number from bond_sentence.' } }, required: ['round'], additionalProperties: false } },
 ];
 
 const fineLine = (r) => {
@@ -53,7 +64,6 @@ export const HOW_TO = [
   '- MISMATCH: that check failed.',
   '- CANNOT VERIFY: the check could not be run (for example an old block is no longer kept by public nodes).',
   'Exit code 0 means everything matched, 1 means a mismatch, 2 means something could not be checked.',
-  'One MISMATCH is expected on every round today: the contract still has one access key that its keeper has not deleted yet, so the "contract cannot be changed" check reports MISMATCH on purpose.',
   NO_REMATCH,
 ].join('\n');
 
@@ -86,6 +96,41 @@ export async function callTool(client, name, a = {}) {
       const cmd = a.round ? client.checkCommand(a.round) : client.checkCommand(1).replace(/--round 1/, '--round <round number>');
       return ok(HOW_TO.replace('{CMD}', cmd), { command: cmd });
     }
+    if (name === 'read_evidence') {
+      const e = await client.readEvidence(a.wikipedia_page);
+      const text = [
+        `The court reads only this for Wikipedia "${e.page}":`,
+        `Wikipedia summary: ${e.wikipedia_summary || '(empty)'}`,
+        `Wikidata description: ${e.wikidata_description || '(none)'}`,
+        'A sentence about anything not stated here comes back UNSURE.',
+      ].join('\n');
+      return ok(text, e);
+    }
+    if (name === 'bond_sentence') {
+      const b = await client.bondSentence(a);
+      const text = [
+        `Sent. Round ${b.round}: "${b.sentence}", bonded with the word "${b.word}" (play money on NEAR testnet, sent for you by ${b.sent_by}).`,
+        `The court reads Wikipedia "${b.page}" and its Wikidata entry.`,
+        b.court_started ? 'The court has started.' : `The court did not start yet (${b.court_error}). wait_for_ruling will ask again.`,
+        `Ruling in about 4 minutes. Court record: ${b.record_url}`,
+        b.bond_tx_url ? `Bond transaction: ${b.bond_tx_url}` : '',
+        typeof b.free_left_today === 'number' ? `${b.free_left_today} of ${b.cap} free sentences left today.` : '',
+      ].filter(Boolean).join('\n');
+      return ok(text, b);
+    }
+    if (name === 'wait_for_ruling') {
+      const w = await client.waitForRuling(a.round);
+      if (!w.settled) return ok(`Round ${w.round}: no ruling after ${w.waited_seconds} s. ${w.note} ${w.record_url}`, w);
+      const verb = { T: 'TRUE', F: 'FALSE', U: 'UNSURE', D: 'JUDGES SPLIT', void: 'CANCELLED' }[w.outcome] || w.outcome;
+      const text = [
+        `Round ${w.round}: ${verb}. "${w.sentence}"`,
+        `Judges: ${w.judges.join('; ') || 'none'}.`,
+        w.fined ? `Fined: it was said with "${w.word}" and ruled false.` : 'Not fined.',
+        w.money,
+        `Court record: ${w.record_url}`,
+      ].join('\n');
+      return ok(text, w);
+    }
     return fail(`Unknown tool: ${name}`);
   } catch (e) {
     return fail(`Could not complete that: ${e.message}`);
@@ -104,8 +149,8 @@ export function createServer(client = createClient()) {
     switch (msg.method) {
       case 'initialize': {
         const want = msg.params && msg.params.protocolVersion;
-        return reply({ protocolVersion: SUPPORTED.includes(want) ? want : PROTOCOL, capabilities: { tools: {} }, serverInfo: { name: 'tabbaci-mcp', version: '0.1.0' },
-          instructions: 'Read-only access to verified rulings on the Tabbaci contract (NEAR testnet). Always report the outcome, whether the fine is paid, and that data-kind rounds cannot be re-matched later.' });
+        return reply({ protocolVersion: SUPPORTED.includes(want) ? want : PROTOCOL, capabilities: { tools: {} }, serverInfo: { name: 'tabbaci-mcp', version: '0.2.0' },
+          instructions: 'Verified rulings on the Tabbaci contract (NEAR testnet), and a way to bond your own sentences with play money. When you bond a sentence, pick the word that matches how sure you really are, then call wait_for_ruling. Always report the outcome, whether the fine is paid, and that data-kind rounds cannot be re-matched later.' });
       }
       case 'ping': return reply({});
       case 'tools/list': return reply({ tools: TOOLS });
