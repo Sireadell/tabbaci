@@ -9,23 +9,25 @@
 - Three NEAR AI judges read the evidence, and each one signs its reply: deepseek-ai/DeepSeek-V4.1-Flash-1017, Qwen/Qwen3.8-27B and Qwen/Qwen3.6-35B-A3B-FP8.
 - The contract pays or fines. A writer who staked "is" on a false sentence loses 65.25% of the stake.
 
-## The three courts
+## The four courts
 
 | Court | Contract | Keys | What it adds | Best round |
 |---|---|---|---|---|
 | Court 1 | finalenc2.testnet (NEAR testnet) | 0 access keys | 28 methods, none can replace the code, keys or owner. 50 rounds, 49 ruled. 18 planted lies, 0 ruled true, 17 of those bonds lost money (0.5546 NEAR in all). Program fingerprint starts 2c8e24a5. | [Round 25](https://tabbaci.vercel.app/case.html?round=25): the sentence ends with an order to answer TRUE, all 3 judges said FALSE |
 | Court 2 | tabbaci-court2.testnet (NEAR testnet) | 0 access keys (deleted) | The contract itself checks all three judges' signatures and checks that each judge's quote really appears in the page text. 7 rounds, rounds 2 to 7 settled, round 1 void. Program fingerprint starts 129b36ec. The live site now sends new sentences here. | [Round 7](https://tabbaci.vercel.app/case.html?round=7&c=tabbaci-court2.testnet): "Mount Everest is the highest mountain above sea level." ruled True, 3 of 3 signatures and quotes checked, sent from the site with no wallet |
 | Mainnet pilot | 5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e (NEAR mainnet) | 1 admin key | 3 rounds with real NEAR, 0.05 NEAR each, bonded by sireadell.near. Same sealed program 2c8e24a5. | [Checker outputs](https://github.com/Sireadell/tabbaci/tree/main/proofs/mainnet): a true sentence got its bond back, a planted lie was fined 0.0326 NEAR, a number round paid a 0.0124 NEAR bonus |
+| Private court | court-private.sireadell.testnet (NEAR testnet) | 0 access keys (deleted) | Rules on facts behind a login without anyone seeing them. The sealed program reads a private GitHub repo with the writer's read-only key, the judges rule, and only the verdict, a page fingerprint and the judges' signatures leave. The contract checks all three signatures. A canary test shows a real commit ID from the private repo never reached any public transaction. | [Round 1](https://tabbaci.vercel.app/private-case.html?round=1): "at least 2 commits in November 2026" ruled True. [Round 2](https://tabbaci.vercel.app/private-case.html?round=2): planted lie "more than 50 commits" ruled Unsure, bond returned, not accepted as true |
 
 Everything on testnet uses test money.
 
 More court 1 rounds: [round 35](https://tabbaci.vercel.app/case.html?round=35) and [round 36](https://tabbaci.vercel.app/case.html?round=36) (pages that order the judges, planted on purpose), [round 20](https://tabbaci.vercel.app/case.html?round=20) (a fine), [round 33](https://tabbaci.vercel.app/case.html?round=33) (a challenge). Court 2 [round 4](https://tabbaci.vercel.app/case.html?round=4&c=tabbaci-court2.testnet): the page orders TRUE, ruled False.
 
-## Three ways to use it
+## Four ways to use it
 
 1. The site, no wallet needed: [try.html](https://tabbaci.vercel.app/try.html). Send a sentence and the site bonds it for you.
 2. AI add-on: npm package tabbaci-mcp 0.2.0. Install with `claude mcp add tabbaci -- npx -y tabbaci-mcp`. An AI can read the evidence, bond its own sentence with play money and wait for the ruling. Court 1 rounds 46 to 50 were sent this way (tag: agent).
-3. Check any ruling yourself with the command line checker. No account, no wallet.
+3. Check any ruling yourself: every case page checks the judges' signatures and Intel's signed report on the sealed run in your browser, or use the command line checker. No account, no wallet.
+4. Wikipedia button: a bookmark that sends a highlighted sentence from an English Wikipedia article straight to the court.
 
 ## One-minute check (Node 18+)
 
