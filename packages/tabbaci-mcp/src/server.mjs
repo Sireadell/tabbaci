@@ -64,7 +64,6 @@ export const HOW_TO = [
   '- MISMATCH: that check failed.',
   '- CANNOT VERIFY: the check could not be run (for example an old block is no longer kept by public nodes).',
   'Exit code 0 means everything matched, 1 means a mismatch, 2 means something could not be checked.',
-  'One MISMATCH is expected on every round today: the contract still has one access key that its keeper has not deleted yet, so the "contract cannot be changed" check reports MISMATCH on purpose.',
   NO_REMATCH,
 ].join('\n');
 

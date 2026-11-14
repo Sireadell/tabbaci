@@ -125,7 +125,7 @@ test('mcp: find_sentence, list_rounds, contract_info, how_to_verify', async () =
   const v = (await rpcCall(h, 'tools/call', { name: 'how_to_verify', arguments: { round: 20 } })).result;
   assert.match(v.content[0].text, /--round 20/);
   assert.match(v.content[0].text, /MISMATCH/);
-  assert.match(v.content[0].text, /One MISMATCH is expected/);
+  assert.doesNotMatch(v.content[0].text, /access key that its keeper/);
 });
 
 const LIVE = process.env.ENCYCLOPEDIA_LIVE === '1';
