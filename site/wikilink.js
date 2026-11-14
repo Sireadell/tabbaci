@@ -119,24 +119,39 @@
     homeThreeWays: 'Three ways in: the try page on this site, the tabbaci-mcp add-on for your AI, or the Wikipedia button.',
   };
 
+  // The looping picture of the three steps. Text nodes only.
+  function guide() {
+    const mk = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt) n.textContent = txt; return n; };
+    const fig = mk('figure', 'wg'); fig.style.margin = '14px 0';
+    fig.setAttribute('role', 'img'); fig.setAttribute('aria-label', TEXT.installLead);
+    const win = mk('div', 'wg-win');
+    const addr = mk('div', 'wg-addr'); addr.appendChild(mk('span', '', 'tabbaci.vercel.app')); win.appendChild(addr);
+    const bm = mk('div', 'wg-bm'); bm.appendChild(mk('span', 'wg-bmi', TEXT.installButtonLabel)); bm.appendChild(mk('span', 'wg-key', 'Ctrl+Shift+B')); win.appendChild(bm);
+    const p1 = mk('div', 'wg-pg wg-p1'); p1.appendChild(mk('h4', '', TEXT.installTitle)); p1.appendChild(mk('span', 'wg-btn', TEXT.installButtonLabel)); win.appendChild(p1);
+    const p2 = mk('div', 'wg-pg wg-p2'); p2.appendChild(mk('h4', '', 'Lagos'));
+    const para = mk('p'); para.appendChild(mk('span', 'wg-hl', 'Lagos, or Lagos City, is a large metropolitan port city in southwestern Nigeria.')); p2.appendChild(para); win.appendChild(p2);
+    const p3 = mk('div', 'wg-pg wg-p3'); const sent = mk('div', 'wg-sent'); sent.appendChild(mk('strong', '', TEXT.sentBarTitle)); p3.appendChild(sent);
+    p3.appendChild(mk('div', 'wg-in', 'Lagos')); p3.appendChild(mk('div', 'wg-in', 'Lagos is a large metropolitan port city in southwestern Nigeria.')); win.appendChild(p3);
+    win.appendChild(mk('span', 'wg-gh', TEXT.installButtonLabel)); win.appendChild(mk('span', 'wg-cur'));
+    const fit = mk('div', 'wg-fit'); fit.appendChild(win); fig.appendChild(fit);
+    const scale = () => { const w = fig.clientWidth || 520; const k = Math.min(1, w / 520); win.style.transform = 'scale(' + k + ')'; fit.style.height = Math.round(325 * k) + 'px'; };
+    setTimeout(scale, 0); window.addEventListener('resize', scale);
+    return fig;
+  }
+
   // Fills an empty element with the install box. Built from text nodes only.
   function installBox(el, base) {
     if (!el || typeof document === 'undefined') return;
     const mk = (tag, txt, cls) => { const n = document.createElement(tag); if (txt) n.textContent = txt; if (cls) n.className = cls; return n; };
     el.textContent = '';
     el.appendChild(mk('h2', TEXT.installTitle, 'step'));
-    el.appendChild(mk('p', TEXT.installLead));
-    const ol = mk('ol');
-    [TEXT.installStep1, TEXT.installStep2, TEXT.installStep3].forEach((t) => ol.appendChild(mk('li', t)));
-    el.appendChild(ol);
+    el.appendChild(guide());
     const a = mk('a', TEXT.installButtonLabel, 'btn');
     a.href = bookmarkHref(base || location.origin, TEXT.notEn, TEXT.notArticle);
     a.title = TEXT.installDragHint;
     a.addEventListener('click', (e) => { e.preventDefault(); hint.hidden = false; });
     const row = mk('p'); row.appendChild(a); el.appendChild(row);
     const hint = mk('p', TEXT.installDragHint, 'mute'); hint.hidden = true; el.appendChild(hint);
-    el.appendChild(mk('p', TEXT.installPhoneNote, 'mute'));
-    el.appendChild(mk('p', TEXT.installFine, 'mute'));
   }
 
   const api = { TEXT, installBox,  cleanText, cleanTopicParam, cleanClaimParam, readParams, keyWords, summaryCheck, introSentences, bookmarkHref, MAX_CLAIM, MAX_TOPIC };
