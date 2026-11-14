@@ -225,3 +225,26 @@ fn the_contract_accepts_what_the_real_program_code_produced() {
     assert!(checked.iter().all(|c| c.sig_ok));
     assert_eq!(checked[2].answer, "U");
 }
+
+#[test]
+fn a_new_round_asks_the_program_for_version_2() {
+    let as_ = |who: &str| {
+        let mut b = VMContextBuilder::new();
+        b.predecessor_account_id(who.parse().unwrap()).current_account_id("court.t".parse().unwrap()).block_height(5);
+        testing_env!(b.build());
+    };
+    as_("dao.t");
+    let models: Vec<String> = vec!["m1".into(), "m2".into(), "m3".into()];
+    let ladder = LadderConfig { top_models: models.clone(), challenge_base: U128(1), window_blocks: 1, run_deadline_blocks: 1, pending_timeout_blocks: 1, audit_rate_bps: 0 };
+    let mut c = Courtroom::new("dao.t".parse().unwrap(), "u".into(), "a".repeat(64), models, vec![], None, None, U128(1), ladder);
+    c.add_source("https://s1.example/".into(), "g1".into());
+    c.add_source("https://s2.example/".into(), "g2".into());
+    as_("opener.t");
+    let picks = vec![
+        Pick { id: 1, url: "https://s1.example/x".into(), x: "".into(), tol: 0.0 },
+        Pick { id: 2, url: "https://s2.example/x".into(), x: "".into(), tol: 0.0 },
+    ];
+    let id = c.open_round("The Moon is made of cheese.".into(), "prose".into(), None, picks, vec!["Moon".into()], None);
+    let input: serde_json::Value = serde_json::from_str(&c.get_round(id).unwrap().input).unwrap();
+    assert_eq!(input["v"], 2);
+}

@@ -441,7 +441,7 @@ impl Courtroom {
         let seed_bytes = env::sha256(format!("round-{}", rd).as_bytes());
         let seed = u32::from_be_bytes([seed_bytes[0], seed_bytes[1], seed_bytes[2], seed_bytes[3]]) as u64;
         let mut input = serde_json::json!({
-            "v": 1, "rd": rd, "kind": kind, "th": th, "claim": claim,
+            "v": 2, "rd": rd, "kind": kind, "th": th, "claim": claim,
             "src": src, "m": self.models, "seed": seed, "asof": env::block_height(),
         });
         if let Some(c) = cv {
