@@ -105,7 +105,7 @@ function chrome(active) {
 // ---------- ruling rows ----------
 function latestItem(r) {
   const b = blocksOf(r);
-  return `<li><a class="lrow" href="case.html?round=${r.id}${r._c ? '&c=' + r._c : ''}"><span class="rid">No. ${r.id}</span><span class="claim">${esc(r.claim)}</span>${stamp(letterOf(r), 'small')}<span class="meta">${isLie(r) ? 'a lie, tried on purpose' : r.tag === 'visitor' ? 'sent by a visitor, no wallet' : 'a page sentence'}${b.length ? ` · ruled in ${b[b.length - 1]} blocks` : ''}</span></a></li>`;
+  return `<li><a class="lrow" href="case.html?round=${r.id}${r._c ? '&c=' + r._c : ''}"><span class="rid">No. ${r.id}</span><span class="claim">${esc(r.claim)}</span>${stamp(letterOf(r), 'small')}<span class="meta">${isLie(r) ? 'a lie, tried on purpose' : r.tag === 'visitor' ? 'sent by a visitor, no wallet' : r.tag === 'agent' ? 'sent by an AI agent' : 'a page sentence'}${b.length ? ` · ruled in ${b[b.length - 1]} blocks` : ''}</span></a></li>`;
 }
 
 // ---------- the checks that run in the browser ----------

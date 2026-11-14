@@ -1,0 +1,20 @@
+MISMATCH      contract has no keys                                      1 access key(s)
+MATCH         contract has no upgrade method                            28 exported methods, none can replace code, keys or owners
+MATCH         contract code fingerprint                                 sha256 fb3eab3410a4bf5abbf0903db7e5acba6454087486c9cfb32a37af0b908e7e38
+MATCH         courtroom program matches its fingerprint                 contract says 2c8e24a5fa6d..., file is 2c8e24a5fa6d...
+MATCH         stored request matches its hash                           ih e2tGhKJp13QZ...
+MATCH         sentence text matches the stored request                  
+MATCH         attempt list is consistent                                1 attempt(s) published: #1 ok in 20 blocks; round is settled
+MATCH         bond payouts follow the rule                              is -6525bp
+MATCH         verdict belongs to this round and request                 733 bytes, o=F
+MATCH         contract outcome equals the verdict                       verdict F, contract F
+CANNOT VERIFY source 1 bytes match their fingerprint                    no --archive folder given
+CANNOT VERIFY source 5 bytes match their fingerprint                    no --archive folder given
+CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature  cannot rebuild the question without the archived sources
+CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature                      cannot rebuild the question without the archived sources
+CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature              cannot rebuild the question without the archived sources
+MATCH         outcome follows from the judges                           answers FFF give F
+CANNOT VERIFY judge reply words match the answers                       reply bytes are not published, only their fingerprint
+CANNOT VERIFY sealed-box attestation (outlayer-verify)                  no saved proof at C:\Users\DELL\hackathons\near\enc-write\proofs\5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e\round-2.bundle.json; pass --tx <attempt transaction hash> (add --save-proof to keep it) and install outlayer-verify
+
+OVERALL: MISMATCH

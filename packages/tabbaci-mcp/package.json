@@ -1,7 +1,7 @@
 {
   "name": "tabbaci-mcp",
-  "version": "0.1.0",
-  "description": "Read-only access to Tabbaci's verified rulings on NEAR testnet, as a JavaScript library and an MCP server.",
+  "version": "0.2.0",
+  "description": "Tabbaci's verified rulings on NEAR testnet, as a JavaScript library and an MCP server. An AI can also bond its own sentences with play money, no wallet needed.",
   "license": "MIT",
   "author": "Sireadell",
   "repository": {

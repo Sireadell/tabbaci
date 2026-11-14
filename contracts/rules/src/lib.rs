@@ -104,9 +104,105 @@ pub fn is_hex_sha256(s: &str) -> bool {
     s.len() == 64 && s.bytes().all(|b| b.is_ascii_hexdigit())
 }
 
+/// True exactly when Rust's `str::parse::<f64>` accepts the text: an optional sign, then inf, infinity or nan
+/// (any case), or digits with at most one dot and at least one digit, then an optional exponent with digits.
+pub fn is_number(s: &str) -> bool {
+    let b = s.as_bytes();
+    let b = match b.first() {
+        Some(b'+' | b'-') => &b[1..],
+        _ => b,
+    };
+    for word in ["inf", "infinity", "nan"] {
+        if b.eq_ignore_ascii_case(word.as_bytes()) {
+            return true;
+        }
+    }
+    let digits = |i: &mut usize| {
+        let start = *i;
+        while *i < b.len() && b[*i].is_ascii_digit() {
+            *i += 1;
+        }
+        *i - start
+    };
+    let mut i = 0;
+    let mut n = digits(&mut i);
+    if i < b.len() && b[i] == b'.' {
+        i += 1;
+        n += digits(&mut i);
+    }
+    if n == 0 {
+        return false;
+    }
+    if i < b.len() && (b[i] == b'e' || b[i] == b'E') {
+        i += 1;
+        if i < b.len() && (b[i] == b'+' || b[i] == b'-') {
+            i += 1;
+        }
+        if digits(&mut i) == 0 {
+            return false;
+        }
+    }
+    i == b.len()
+}
+
+/// Lowercase hex of some bytes.
+pub fn hex(d: &[u8]) -> String {
+    const H: &[u8; 16] = b"0123456789abcdef";
+    let mut o = String::with_capacity(d.len() * 2);
+    for x in d {
+        o.push(H[(x >> 4) as usize] as char);
+        o.push(H[(x & 15) as usize] as char);
+    }
+    o
+}
+
+/// Base64 with the URL-safe alphabet and no padding.
+pub fn base64url(d: &[u8]) -> String {
+    const A: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    let mut o = String::with_capacity((d.len() * 4).div_ceil(3));
+    for c in d.chunks(3) {
+        let n = (c[0] as u32) << 16 | (*c.get(1).unwrap_or(&0) as u32) << 8 | *c.get(2).unwrap_or(&0) as u32;
+        for k in 0..=c.len() {
+            o.push(A[(n >> (18 - 6 * k) & 63) as usize] as char);
+        }
+    }
+    o
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn is_number_matches_rust_float_parsing() {
+        let parts = ["", "+", "-", "0", "7", "12", ".", "e", "E", "e+", "e-", "inf", "INF", "Infinity", "nan", "NaN", "x", " ", "_", "1_0", "0x1"];
+        let mut n = 0;
+        for a in parts {
+            for b in parts {
+                for c in parts {
+                    for d in ["", "3", ".", "e5", "E-2"] {
+                        let t = format!("{a}{b}{c}{d}");
+                        assert_eq!(is_number(&t), t.parse::<f64>().is_ok(), "{t:?}");
+                        n += 1;
+                    }
+                }
+            }
+        }
+        assert!(n > 40_000);
+        for t in ["1e400", "-0", "+.5", "5.", "1.5e10", "00012.000", "infinit", "infinityy", "+-1", "1e5.0", "\u{661}", "1\u{661}"] {
+            assert_eq!(is_number(t), t.parse::<f64>().is_ok(), "{t:?}");
+        }
+    }
+
+    #[test]
+    fn hex_and_base64url_encode_like_the_usual_crates() {
+        assert_eq!(hex(&[0, 1, 0xab, 0xff]), "0001abff");
+        // RFC 4648 test vectors, URL-safe alphabet, no padding
+        for (i, o) in [("", ""), ("f", "Zg"), ("fo", "Zm8"), ("foo", "Zm9v"), ("foob", "Zm9vYg"), ("fooba", "Zm9vYmE"), ("foobar", "Zm9vYmFy")] {
+            assert_eq!(base64url(i.as_bytes()), o);
+        }
+        assert_eq!(base64url(&[0xfb, 0xff, 0xbf]), "-_-_");
+    }
 
     fn good(rd: u64, ih: &str, o: &str) -> String {
         format!(r#"{{"v":1,"rd":{},"ih":"{}","o":"{}","rc":0,"t":1,"s":[],"j":[]}}"#, rd, ih, o)

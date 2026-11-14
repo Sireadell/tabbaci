@@ -83,11 +83,11 @@ test('mcp: initialize', async () => {
   assert.equal(await h({ jsonrpc: '2.0', method: 'notifications/initialized' }), null);
 });
 
-test('mcp: tools/list has the five read-only tools', async () => {
+test('mcp: tools/list has the reading tools, the evidence tool and the two sending tools', async () => {
   const h = createServer(offlineClient());
   const r = await rpcCall(h, 'tools/list');
-  assert.deepEqual(r.result.tools.map((t) => t.name).sort(), ['contract_info', 'find_sentence', 'get_ruling', 'how_to_verify', 'list_rounds']);
-  assert.equal(TOOLS.length, 5);
+  assert.deepEqual(r.result.tools.map((t) => t.name).sort(), ['bond_sentence', 'contract_info', 'find_sentence', 'get_ruling', 'how_to_verify', 'list_rounds', 'read_evidence', 'wait_for_ruling']);
+  assert.equal(TOOLS.length, 8);
 });
 
 test('mcp: get_ruling states outcome, fine state and the data-round limit', async () => {
@@ -125,7 +125,7 @@ test('mcp: find_sentence, list_rounds, contract_info, how_to_verify', async () =
   const v = (await rpcCall(h, 'tools/call', { name: 'how_to_verify', arguments: { round: 20 } })).result;
   assert.match(v.content[0].text, /--round 20/);
   assert.match(v.content[0].text, /MISMATCH/);
-  assert.match(v.content[0].text, /One MISMATCH is expected/);
+  assert.doesNotMatch(v.content[0].text, /access key that its keeper/);
 });
 
 const LIVE = process.env.ENCYCLOPEDIA_LIVE === '1';
@@ -160,4 +160,10 @@ test('the contract can be set with TABBACI_CONTRACT and defaults to the first co
   process.env.TABBACI_CONTRACT = 'other.testnet';
   assert.equal(createClient({ rpc: async () => ({}) }).contract, 'other.testnet');
   delete process.env.TABBACI_CONTRACT;
+});
+
+test('record links name the contract only for court version 2', async () => {
+  const { recordUrl } = await import('../src/index.mjs');
+  assert.equal(recordUrl({ site: 'https://s', contract: 'finalenc2.testnet' }, 7), 'https://s/case.html?round=7');
+  assert.equal(recordUrl({ site: 'https://s', contract: 'tabbaci-court2.testnet' }, 7), 'https://s/case.html?round=7&c=tabbaci-court2.testnet');
 });

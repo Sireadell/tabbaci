@@ -851,3 +851,74 @@ fn money_is_never_created_or_lost_and_nothing_stays_locked() {
     eprintln!("scenarios {n}: challenges {c}, top rungs {t}, audits {a}, cases finished {f}");
     assert!(c > 10 && a > 5 && f > 10, "the random scenarios must really use challenges, audits and finishing");
 }
+
+#[test]
+fn the_built_in_encoders_and_audit_draw_match_the_reference_crates() {
+    use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
+    let mut x = 0x9e3779b97f4a7c15u64;
+    for len in 0..70usize {
+        let bytes: Vec<u8> = (0..len)
+            .map(|_| {
+                x ^= x << 13;
+                x ^= x >> 7;
+                x ^= x << 17;
+                x as u8
+            })
+            .collect();
+        assert_eq!(courtroom_rules::base64url(&bytes), URL_SAFE_NO_PAD.encode(&bytes));
+        assert_eq!(courtroom_rules::hex(&bytes), hex::encode(&bytes));
+    }
+    for i in 0..2_000u64 {
+        let mut seed = [0u8; 32];
+        seed[..8].copy_from_slice(&(i * 7919).to_be_bytes());
+        let d = near_sdk::env::sha256(bond_payout::audit_preimage(&seed, i, i + 3));
+        assert_eq!(bond_payout::audit_hit(&d, 3000), bond_payout::audit_drawn(&seed, i, i + 3, 3000));
+    }
+}
+
+#[test]
+fn the_storage_maps_keep_the_near_sdk_layout() {
+    use near_sdk::borsh::to_vec;
+    use near_sdk::mock::with_mocked_blockchain;
+    let src = |id: u32, removed_at: Option<u64>| Source { id, prefix: format!("https://s{id}/"), group: format!("g{id}"), removed_at };
+    let who = [acc("alice.t"), acc("bob.t")];
+
+    testing_env!(VMContextBuilder::new().build());
+    let (sdk_state, sdk_values) = {
+        let mut s = near_sdk::store::IterableMap::<u32, Source>::new(b"s");
+        let mut b = near_sdk::store::LookupMap::<AccountId, u128>::new(b"b");
+        let mut r = near_sdk::store::LookupMap::<u64, u128>::new(b"r");
+        for i in 1..=3 {
+            s.insert(i, src(i, None));
+        }
+        s.insert(2, src(2, Some(5)));
+        b.insert(who[0].clone(), 7);
+        b.insert(who[1].clone(), 8);
+        b.insert(who[0].clone(), 9);
+        r.insert(4, 11);
+        s.flush();
+        b.flush();
+        r.flush();
+        let values: Vec<Vec<u8>> = s.iter().map(|(_, v)| to_vec(v).unwrap()).collect();
+        ((to_vec(&s).unwrap(), to_vec(&b).unwrap(), to_vec(&r).unwrap()), values)
+    };
+    let sdk_storage = with_mocked_blockchain(|m| m.take_storage());
+
+    testing_env!(VMContextBuilder::new().build());
+    let mut s = crate::store::IterableMap::<Source>::new(b"s");
+    let mut b = crate::store::LookupMap::<AccountId, u128>::new(b"b");
+    let mut r = crate::store::LookupMap::<u64, u128>::new(b"r");
+    for i in 1..=3 {
+        s.insert(i, src(i, None));
+    }
+    s.insert(2, src(2, Some(5)));
+    b.insert(who[0].clone(), 7);
+    b.insert(who[1].clone(), 8);
+    b.insert(who[0].clone(), 9);
+    r.insert(4, 11);
+    assert_eq!((to_vec(&s).unwrap(), to_vec(&b).unwrap(), to_vec(&r).unwrap()), sdk_state);
+    assert_eq!(s.values().iter().map(|v| to_vec(v).unwrap()).collect::<Vec<_>>(), sdk_values);
+    assert_eq!(b.get(&who[0]), Some(9));
+    assert_eq!(r.get(&5), None);
+    assert_eq!(with_mocked_blockchain(|m| m.take_storage()), sdk_storage);
+}

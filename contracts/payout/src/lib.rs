@@ -120,11 +120,22 @@ fn mul_div(a: u128, b: u128, c: u128) -> u128 {
 /// The writer's word is not an input, so word choice cannot change the chance of being audited.
 pub fn audit_drawn(random_seed: &[u8; 32], sentence_id: u64, round: u64, rate_bps: u16) -> bool {
     let mut h = Sha256::new();
-    h.update(random_seed);
-    h.update(sentence_id.to_be_bytes());
-    h.update(round.to_be_bytes());
-    let d = h.finalize();
-    let v = u32::from_be_bytes([d[0], d[1], d[2], d[3]]) % 10_000;
+    h.update(audit_preimage(random_seed, sentence_id, round));
+    audit_hit(&h.finalize(), rate_bps)
+}
+
+/// The bytes the audit draw hashes: the random seed, then the sentence and the round as big-endian numbers.
+pub fn audit_preimage(random_seed: &[u8; 32], sentence_id: u64, round: u64) -> [u8; 48] {
+    let mut b = [0u8; 48];
+    b[..32].copy_from_slice(random_seed);
+    b[32..40].copy_from_slice(&sentence_id.to_be_bytes());
+    b[40..].copy_from_slice(&round.to_be_bytes());
+    b
+}
+
+/// The draw itself, from the sha256 of `audit_preimage`. The contract hashes with the chain's sha256 and calls this.
+pub fn audit_hit(digest: &[u8], rate_bps: u16) -> bool {
+    let v = u32::from_be_bytes([digest[0], digest[1], digest[2], digest[3]]) % 10_000;
     (v as u16) < rate_bps
 }
 

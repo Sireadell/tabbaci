@@ -2,7 +2,10 @@
 // Saves every round of the contract into site/data/rounds.json, so the site still shows real rulings
 // when the public chain node refuses a visitor. Read only. Usage: node tools/site/snapshot.mjs
 import { writeFileSync } from 'node:fs';
-const CONTRACT = 'finalenc2.testnet';
+const argv = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : d; };
+const CONTRACT = argv('contract', 'finalenc2.testnet');
+const V2 = CONTRACT !== 'finalenc2.testnet'; // another contract saves to its own file and only adds to the shared archive copy
+const OUTNAME = V2 ? 'rounds-v2.json' : 'rounds.json';
 const NODES = ['https://test.rpc.fastnear.com', 'https://rpc.testnet.near.org'];
 async function view(method, args = {}) {
   for (let t = 0; t < 4; t++) for (const url of NODES) {
@@ -18,17 +21,18 @@ async function view(method, args = {}) {
 const n = await view('round_count');
 const rounds = [];
 for (let i = 1; i <= n; i++) { const r = await view('get_round', { round: i }); if (r) rounds.push({ id: i, ...r }); }
-writeFileSync(new URL('../../site/data/rounds.json', import.meta.url), JSON.stringify({ contract: CONTRACT, network: 'testnet', saved: new Date().toISOString(), count: n, rounds }));
+writeFileSync(new URL('../../site/data/' + OUTNAME, import.meta.url), JSON.stringify({ contract: CONTRACT, network: 'testnet', saved: new Date().toISOString(), count: n, rounds }));
 console.log('saved', rounds.length, 'rounds');
 
 // Saved copies of the evidence pages (public web pages) for rounds whose bytes are in archive/, plus a short quoted excerpt.
 import { existsSync, readFileSync, mkdirSync, copyFileSync, readdirSync, rmSync } from 'node:fs';
 import { windowOf } from '../verify/frames.mjs';
-const out = new URL('../../site/data/rounds.json', import.meta.url);
+const out = new URL('../../site/data/' + OUTNAME, import.meta.url);
 const saved = JSON.parse(readFileSync(out, 'utf8'));
 const arch = new URL('../../archive/', import.meta.url);
 const dest = new URL('../../site/data/archive/', import.meta.url);
-rmSync(dest, { recursive: true, force: true }); mkdirSync(dest, { recursive: true });
+if (!V2) rmSync(dest, { recursive: true, force: true });
+mkdirSync(dest, { recursive: true });
 let copied = 0;
 for (const r of saved.rounds) {
   if (!r.verdict) continue;
