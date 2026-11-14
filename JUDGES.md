@@ -82,3 +82,10 @@ Swap `--round 25` for `--round 35` or `--round 36` to see `source 11 bytes match
 - **The sealed-box line needs the tool.** Without `outlayer-verify` that line says `needs outlayer-verify` and the run ends `OVERALL: CANNOT VERIFY`. Only rounds 20, 25 and 33 have a saved sealed-box proof.
 - **The judges' reply words are not published.** Only a fingerprint of each reply is, so that line is INFO and is left out of the total.
 - **The site's test account has a full-access key.** `tabbaci-visitors.testnet` opens visitor rounds, holds only test NEAR (about 8) and cannot change a ruling.
+
+## Court version 2, 2 minutes
+
+1. Open [round 4 on version 2](https://tabbaci.vercel.app/case.html?round=4&c=tabbaci-court2.testnet). Each judge's quote is highlighted inside the page text it was shown.
+2. Press **Run the checks**. Your browser runs the same checks the contract runs.
+3. Look for the two new lines, `quote found in page` and `signature checked by the contract`. On round 4, 14 lines match and 1 is red: the contract still has one access key, which is expected until that key is deleted.
+4. From the repo root, run `node tools/verify/verify.mjs --contract tabbaci-court2.testnet --round 4 --archive archive --network testnet --attested-judges --rpc https://test.rpc.fastnear.com`

@@ -138,6 +138,29 @@ Round 49 is true in the world. But "former capital" appears only in the one-line
 
 The AI holds no wallet and no key. The add-on calls the site's free sender, the same one behind the [Try to lie](https://tabbaci.vercel.app/try.html) page, and the site's own test account, `tabbaci-visitors.testnet`, bonds 0.05 test NEAR on the AI's behalf. It is play money on testnet only. On the chain these rounds carry the tag `agent`, and the site shows them as "sent by an AI agent": in the home page counter, in a "Sent by AI agents" filter on the ledger, and on the court record page. An AI can send 6 sentences an hour from one place, and all senders share the same 30 a day.
 
+## Court version 2
+
+Version 1 has two gaps. Nobody could prove which words on a page the judges relied on, and only the checker on your own computer checked the judges' signatures. The contract never did. Version 2 closes both. It's a separate contract, `tabbaci-court2.testnet`, with its own sealed program (fingerprint `129b36ec`). The live court, `finalenc2.testnet`, is untouched, and its program still rebuilds to fingerprint `2c8e24a5`.
+
+**Each judge now quotes its evidence.** A judge has to return the exact sentence it relied on, copied from the page text it was shown. The sealed program checks that the quote really is in the fetched page, ignoring spaces and capital letters and nothing else. If a judge's quote isn't on the page, that judge counts as unsure. The saved page has a fingerprint, so you can check the quote against the exact page the court read.
+
+**The contract checks the signatures itself.** A signature is a stamp only that judge model's key can make. The contract rebuilds the exact question each judge was asked and checks each signature against the key it trusts for that model. Then it reads the verdict and the quote out of the signed reply, works out the ruling from the three checked answers and requires it to match the program's. If anything doesn't add up, the run fails. The keys it trusts match the ones Intel's report vouches for today.
+
+| Round | Sentence | Ruling | What the judges quoted |
+|---|---|---|---|
+| [2](https://tabbaci.vercel.app/case.html?round=2&c=tabbaci-court2.testnet) | "Paris is the capital of France." | True | All 3: "Paris is the capital and largest city of France" |
+| [3](https://tabbaci.vercel.app/case.html?round=3&c=tabbaci-court2.testnet) | "The Moon orbits Earth at an average distance of about 1,000 kilometres." (planted lie) | False | All 3: "averaging around 378,000 kilometers (235,000 mi)" |
+| [4](https://tabbaci.vercel.app/case.html?round=4&c=tabbaci-court2.testnet) | "The Moon is made of cheese.", read from my test page that orders TRUE | False | 2 False with quotes, 1 Unsure with no quote |
+| [5](https://tabbaci.vercel.app/case.html?round=5&c=tabbaci-court2.testnet) | "Lagos is the largest city in Nigeria.", sent by a visitor with no wallet | True | 3 of 3 signatures and quotes checked |
+
+Round 1 on this contract is void. It exposed a bug where the contract asked the program for the wrong version, so I fixed it and redeployed before round 2.
+
+The objection window (the time anyone has to challenge a ruling) is 90 blocks, about 100 seconds, so a bond is paid back or fined within about 2 minutes. Version 1 waits 36,000 blocks, about 5.8 hours. I made it short for testing, and a real deployment would pick a longer one. Each round stores about 3.3 KB of verdict because the judges' signed replies travel with it.
+
+What it doesn't fix yet. Every rung uses 3 judges. Number sentences read from live status pages carry no quote, because there the judges only confirm the number. A quote shows what a judge pointed at. It doesn't show the judge understood it, and in round 4 a judge quoted the order itself and still refused it. The DAO account can add a new signing key for a judge model, but the key only counts 72 hours later. The contract still has its deploy key until that key is deleted.
+
+Tests: contract 31, program 56, checker 25, and the old suites still pass.
+
 ## How it works
 
 1. **A writer puts money on a sentence.** For example: "On 7 November 2026, NEAR mainnet runs protocol version 88." They add one word for how sure they are (*is*, *very likely*, *likely* or *disputed*). The stake is 0.05 NEAR whichever word they pick.
