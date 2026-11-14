@@ -132,7 +132,9 @@ export default async function handler(req, res) {
     if (BigInt(bal) < BigInt(stake)) await call({ account: ACCOUNT, key: k, contract: CONTRACT, method: 'deposit', args: {}, tgas: 30, deposit: '1' });
     step('stake ready');
 
-    const args = buildRound({ claim: c.claim, canonical: p.canonical, qid: p.qid, terms });
+    const list = await view(CONTRACT, 'sources');
+    const idOf = (url) => (list.find((x) => url.startsWith(x.prefix) && !x.removed_at) || {}).id;
+    const args = buildRound({ claim: c.claim, canonical: p.canonical, qid: p.qid, terms, ids: { wiki: idOf(WIKI), wikidata: idOf(WIKIDATA) } });
     const open = await call({ account: ACCOUNT, key: k, contract: CONTRACT, method: 'open_round', args, tgas: 100 });
     step('opened');
     const round = Number(open.value);

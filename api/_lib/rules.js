@@ -86,14 +86,15 @@ export function wikiTitleForUrl(canonical) {
   return encodeURIComponent(canonical).replace(/%2F/g, '/');
 }
 
-export function buildRound({ claim, canonical, qid, terms }) {
+// Source ids differ from contract to contract, so the sender looks them up by address on the contract it uses (see write.js).
+export function buildRound({ claim, canonical, qid, terms, ids = {} }) {
   return {
     claim,
     kind: 'prose',
     cv: null,
     picks: [
-      { id: SOURCE_WIKI, url: WIKI + wikiTitleForUrl(canonical), x: '', tol: 0 },
-      { id: SOURCE_WIKIDATA, url: `${WIKIDATA}${qid}/descriptions/en`, x: '', tol: 0 },
+      { id: ids.wiki ?? SOURCE_WIKI, url: WIKI + wikiTitleForUrl(canonical), x: '', tol: 0 },
+      { id: ids.wikidata ?? SOURCE_WIKIDATA, url: `${WIKIDATA}${qid}/descriptions/en`, x: '', tol: 0 },
     ],
     terms,
     tag: 'visitor',
