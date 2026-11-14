@@ -22,3 +22,12 @@ test('status carries the contract, key count and last result', () => {
   assert.equal(s.rounds_on_chain, 40);
   assert.equal(s.last_recheck.mismatch, 0);
 });
+
+test('status lists court 2 and the mainnet pilot, and the headline is plain', () => {
+  const courts = { court2: { rounds: 7, settled: 6, lastSettled: 7, keys: 0 }, mainnet: { rounds: 3, keys: 1 } };
+  const s = statusFor({ report, live: null, courts });
+  assert.equal(s.court_2.access_keys_on_contract, 0);
+  assert.equal(s.court_2.last_settled_round, 7);
+  assert.equal(s.mainnet_pilot.bonded_rounds, 3);
+  assert.equal(s.last_recheck.headline, '39 of 39 finished rounds: 0 mismatch');
+});

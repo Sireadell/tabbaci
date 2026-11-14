@@ -18,6 +18,13 @@ window.SITE_CONFIG = {
     25: { tx: '92jLEthC7ctF62yon8gL3DiSxkh3Anyk43p7FY3uW2ZZ', task: 72832 },
     33: { tx: 'Db3MShVkpnZqefBqvwUQay6rSZVeb5zqDPNkHNfoEKkm', task: 72986 },
   },
+  // The same for court version 2 (proofs/tabbaci-court2/sealed-runs.md).
+  sealedV2: {
+    4: { tx: '7AxXLKVMkRVTogppjedMuatVVruNU5JXKL1AX2djdqDX', task: 105670 },
+    5: { tx: '6mCtKG5LUXibj5cKKW9KbZFQnchQB9rDPoTg7QBi5GYs', task: 105818 },
+    6: { tx: '7jYcFtDbs6tVDZbQR1sE2XMFrzNQ6wrYtFRKPew5RjMR', task: 106551 },
+    7: { tx: '75iffYgUTuqDHkX9MpXNSRw8vGMRiiXvS8CPbNqj2PQk', task: 106553 },
+  },
   // Off-chain accuracy test of 9 November. Shown separately from chain numbers, never mixed in.
   accuracy: { total: 200, right: 198, wrong: 0, noRuling: 2, cost: '$0.0173', date: '9 November 2026' },
 };

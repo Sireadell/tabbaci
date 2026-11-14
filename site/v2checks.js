@@ -36,6 +36,17 @@
     return `${a > 0 ? '...' : ''}${esc(text.slice(a, m.index))}<mark>${esc(m[0])}</mark>${esc(text.slice(m.index + m[0].length, b))}${b < text.length ? '...' : ''}`;
   }
 
+  // Display only: the checked quote made easy to read. Unescapes page-data leftovers (escaped newlines, quotes and
+  // unicode, HTML entities), joins lines, and shortens a very long quote at a word. The contract always checks the
+  // full quote, never this text.
+  function readable(q, max = 220) {
+    let s = String(q).replace(/\\u([0-9a-fA-F]{4})/g, (m, h) => String.fromCharCode(parseInt(h, 16))).replace(/\\[nrt]/g, ' ').replace(/\\(["'\\/])/g, '$1');
+    s = s.replace(/&(amp|lt|gt|quot|#39|apos|nbsp);/g, (m, k) => ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", apos: "'", nbsp: ' ' }[k]));
+    s = s.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (s.length > max) { s = s.slice(0, max); const i = s.lastIndexOf(' '); s = s.slice(0, i > 120 ? i : max).replace(/[,;:]$/, '') + '...'; }
+    return s;
+  }
+
   async function edOk(text, sig, key) {
     try {
       const k = await crypto.subtle.importKey('raw', key, { name: 'Ed25519' }, false, ['verify']);
@@ -81,5 +92,5 @@
     return rows;
   }
 
-  window.V2 = { norm, quoteIn, parseReply, contentOf, highlight, check, unb64 };
+  window.V2 = { readable, norm, quoteIn, parseReply, contentOf, highlight, check, unb64 };
 })();

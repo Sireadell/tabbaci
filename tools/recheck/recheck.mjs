@@ -79,7 +79,7 @@ async function main() {
   const n = results.length;
   const headline = count('MISMATCH') === 0 && count('OPEN') === 0
     ? `${n} of ${n} finished rounds: MATCH`
-    : `${n - count('MISMATCH')} of ${n} finished rounds: no mismatch (${count('MATCH')} fully MATCH, ${count('OPEN')} with lines this machine could not test, ${count('MISMATCH')} MISMATCH)`;
+    : `${n - count('MISMATCH')} of ${n} finished rounds: ${count('MISMATCH')} mismatch (${count('MATCH')} fully MATCH, ${count('OPEN')} with lines this machine could not test)`;
   console.log('\n' + headline);
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## ${headline}\n`);
   const report = { checked: new Date().toISOString(), contract, rounds_on_chain: total, finished: n, match: count('MATCH'), open: count('OPEN'), mismatch: count('MISMATCH'), headline, results };

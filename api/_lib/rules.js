@@ -89,7 +89,8 @@ export function wikiTitleForUrl(canonical) {
 
 // Who sent it: a person on the try page, or an AI through the add-on. Anything else counts as a person.
 export function senderOf(from) {
-  return from === 'agent' ? 'agent' : 'visitor';
+  if (from === 'agent') return 'agent';
+  return from === 'wiki' ? 'wiki' : 'visitor';
 }
 
 // Source ids differ from contract to contract, so the sender looks them up by address on the contract it uses (see write.js).

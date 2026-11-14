@@ -1,7 +1,7 @@
 // Lets a visitor send a sentence to the court with no wallet. The site's own test account opens the round,
 // bonds the visitor's word and pays the run fee, all in test NEAR. The ruling is real and lands on the chain.
 //   GET  /api/write  -> today's count and cap. Also closes one visitor round whose objection window has ended.
-//   POST /api/write  {topic, claim, word, from?} -> {round, ...}. from 'agent' marks a sentence sent by an AI.
+//   POST /api/write  {topic, claim, word, from?} -> {round, ...}. from 'agent' marks a sentence sent by an AI, 'wiki' one sent from the Wikipedia button.
 import { loadKey, view, call, head } from './_lib/near.js';
 import { cleanClaim, cleanTopic, cleanWord, pickTerms, buildRound, countSince, makeLimiter, senderOf, CAP_PER_DAY, PER_VISITOR_PER_HOUR, PER_AGENT_PER_HOUR, DAY_BLOCKS, WIKI, WIKIDATA } from './_lib/rules.js';
 

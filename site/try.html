@@ -14,6 +14,7 @@
 </section>
 <div class="checkbox">
 <section class="card">
+  <div id="wiki-bar" class="warn" hidden></div>
   <p class="label">Step 1</p><h2 class="step">Pick a trick, or write your own</h2>
   <div class="rp-picks" style="margin-top:10px">
     <button type="button" class="chip" data-p="source" aria-pressed="true">Get a number wrong</button>
@@ -22,11 +23,13 @@
     <button type="button" class="chip" data-p="truth" aria-pressed="false">Tell the truth</button>
   </div>
   <p class="warn" id="why">The page says the Moon is about 378,000 km away. Claim something else and the court should stamp it FALSE.</p>
+  <div id="wiki-notes" class="mute" style="font-size:.9rem"></div>
   <label class="l" for="topic">Topic: a Wikipedia page name</label>
   <input id="topic" value="Moon" list="topic-list" autocomplete="off" maxlength="120">
   <datalist id="topic-list"></datalist>
   <label class="l" for="claim">Your sentence <span class="mute" id="count"></span></label>
   <textarea id="claim" maxlength="280">The Moon orbits Earth at an average distance of about 1,000 kilometres.</textarea>
+  <div id="wiki-warn" class="warn" hidden></div>
   <p class="mute" style="font-size:.88rem">The court reads two sources about your topic: the Wikipedia summary and the Wikidata entry. Both are on the approved list, so nobody can swap in a page of their own.</p>
 
   <p class="label" style="margin-top:22px">Step 2</p><h2 class="step">How sure are you?</h2>
@@ -39,6 +42,8 @@
   <ol class="checks" id="steps" aria-live="polite"></ol>
   <div id="out" aria-live="polite" style="margin-top:12px"></div>
   <p class="mute" style="font-size:.88rem;margin-top:16px">How this works: the site's own test account, <code id="acct">tabbaci-visitors.testnet</code>, sends your sentence and bonds your word. So on the chain that account is the writer, not you. It's test money only, with up to 30 free sentences a day. Whatever you write goes on the public ledger for good, so don't put anything private in it.</p>
+
+  <details style="margin-top:18px"><summary>Send sentences straight from Wikipedia</summary><div id="wiki-install" style="margin-top:8px"></div></details>
 
   <details style="margin-top:18px"><summary>Or send it from your own terminal, with your own test account</summary>
     <p class="mute">You need a free NEAR test account and the <code>near</code> command line tool. Run the first line and note the round number it prints. Then run the second. Your sentence goes in exactly as written above, checked against two example pages.</p>
@@ -55,7 +60,7 @@
 </div>
 </main>
 <footer id="foot"></footer>
-<script src="config.js"></script><script src="app.js"></script>
+<script src="config.js"></script><script src="app.js"></script><script src="wikilink.js"></script>
 <script>
 Site.chrome('try');
 const API = 'api/write';
@@ -86,7 +91,7 @@ drawWords();
 
 document.querySelectorAll('[data-p]').forEach((b) => b.addEventListener('click', () => {
   document.querySelectorAll('[data-p]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-  const p = presets[b.dataset.p]; $('topic').value = p.topic; $('claim').value = p.claim; $('why').textContent = p.why; build();
+  fromWiki = false; wikiReset(); const p = presets[b.dataset.p]; $('topic').value = p.topic; $('claim').value = p.claim; $('why').textContent = p.why; build();
 }));
 
 // Topic suggestions straight from Wikipedia's own search, in the browser.
@@ -128,6 +133,68 @@ fetch(API).then((r) => r.json().then((j) => [r.ok, j])).then(([ok, j]) => {
   $('left').textContent = j.left > 0 ? `${j.left} of ${j.cap} free sentences left today` : `Today's ${j.cap} free sentences are used up`;
   if (j.left <= 0) { canSend = false; $('send').disabled = true; }
 }).catch(() => { $('left').textContent = ''; });
+
+// Arriving from the Wikipedia bookmark: fill the boxes from the address (as plain text) and check the summary.
+const WL = window.WikiLink;
+let fromWiki = false, wikiT;
+function wikiReset() { $('wiki-bar').hidden = true; $('wiki-warn').hidden = true; $('wiki-notes').textContent = ''; }
+function wikiNote(t) { const p = document.createElement('p'); p.textContent = t; $('wiki-notes').appendChild(p); }
+async function wikiCheck() {
+  const topic = $('topic').value.trim(), claim = $('claim').value.trim();
+  const box = $('wiki-warn'); box.hidden = true; box.textContent = '';
+  if (!topic || !claim) return;
+  let ex = '';
+  try {
+    const r = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(topic.replace(/ /g, '_')) + '?redirect=true');
+    if (!r.ok) throw new Error('no summary');
+    const j = await r.json();
+    if (j.type === 'disambiguation') throw new Error('disambiguation');
+    ex = j.extract || '';
+  } catch { if (topic === $('topic').value.trim()) { $('wiki-notes').querySelectorAll('.sd').forEach((n) => n.remove()); const p = document.createElement('p'); p.className = 'sd'; p.textContent = WL.TEXT.summaryDownNote; $('wiki-notes').appendChild(p); } return; }
+  if (topic !== $('topic').value.trim() || claim !== $('claim').value.trim()) return;
+  $('wiki-notes').querySelectorAll('.sd').forEach((n) => n.remove());
+  if (WL.summaryCheck(claim, topic, ex).ok) return;
+  const mk = (tag, txt) => { const n = document.createElement(tag); n.textContent = txt; return n; };
+  box.appendChild(mk('strong', WL.TEXT.warnTitle)); box.appendChild(mk('p', WL.TEXT.warnBody));
+  const row = document.createElement('div'); row.className = 'rp-picks';
+  const any = mk('button', WL.TEXT.btnAnyway); any.type = 'button'; any.className = 'chip';
+  any.addEventListener('click', () => { box.hidden = true; });
+  row.appendChild(any);
+  const sents = WL.introSentences(ex, 3);
+  if (sents.length) {
+    const intro = mk('button', WL.TEXT.btnIntro); intro.type = 'button'; intro.className = 'chip';
+    intro.addEventListener('click', () => {
+      intro.remove();
+      box.appendChild(mk('p', WL.TEXT.introHelp));
+      sents.forEach((t) => { const b = mk('button', t); b.type = 'button'; b.className = 'chip'; b.addEventListener('click', () => { $('claim').value = t; build(); box.hidden = true; }); box.appendChild(b); });
+    });
+    row.appendChild(intro);
+  }
+  box.appendChild(row); box.hidden = false;
+}
+['topic', 'claim'].forEach((i) => $(i).addEventListener('input', () => { if (!fromWiki) return; clearTimeout(wikiT); wikiT = setTimeout(wikiCheck, 500); }));
+WL.installBox($('wiki-install'));
+(function () {
+  const a = WL.readParams(location.search);
+  if (!a.present) return;
+  if (a.topic) $('topic').value = a.topic;
+  $('claim').value = a.claim;
+  fromWiki = a.fromWiki;
+  document.querySelectorAll('[data-p]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+  if (fromWiki) {
+    const bar = $('wiki-bar');
+    const t = document.createElement('strong'); t.textContent = WL.TEXT.sentBarTitle;
+    const b = document.createElement('p'); b.textContent = WL.TEXT.sentBarBody;
+    bar.appendChild(t); bar.appendChild(b); bar.hidden = false;
+    $('why').textContent = WL.TEXT.whyLine;
+  }
+  if (a.notes.includes('empty')) wikiNote(WL.TEXT.emptyNote);
+  if (a.notes.includes('cut')) wikiNote(WL.TEXT.cutNote);
+  if (a.notes.includes('links-removed')) wikiNote(WL.TEXT.linksNote);
+  build();
+  try { history.replaceState(null, '', location.pathname); } catch { /* fine */ }
+  if (fromWiki) wikiCheck();
+})();
 
 const STEPS = ['Find the topic on Wikipedia and Wikidata', 'Open the round on the chain', 'Put 0.05 test NEAR on your word', 'Start the sealed court', 'Three judges rule'];
 const stepState = STEPS.map(() => ['WAITING', '']);
@@ -188,7 +255,7 @@ $('send').addEventListener('click', async () => {
   STEPS.forEach((_, i) => (stepState[i] = ['WAITING', ''])); set(0, 'WORKING');
   const w = word;
   let ok, j;
-  try { [ok, j] = await post({ topic: $('topic').value, claim: $('claim').value, word: w }); } catch { ok = false; j = { error: 'The site did not answer. Try again in a minute.' }; }
+  try { [ok, j] = await post({ topic: $('topic').value, claim: $('claim').value, word: w, from: fromWiki ? 'wiki' : undefined }); } catch { ok = false; j = { error: 'The site did not answer. Try again in a minute.' }; }
   if (!ok) { set(0, 'FAILED'); return fail(j.error); }
   set(0, 'DONE', `Wikipedia page "${esc(j.page)}" and its Wikidata entry`);
   set(1, 'DONE', `round ${j.round}, ${txLink(j.tx.open)}`);
