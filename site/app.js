@@ -104,7 +104,7 @@ function chrome(active) {
 // ---------- ruling rows ----------
 function latestItem(r) {
   const b = blocksOf(r);
-  return `<li><a class="lrow" href="case.html?round=${r.id}"><span class="rid">No. ${r.id}</span><span class="claim">${esc(r.claim)}</span>${stamp(letterOf(r), 'small')}<span class="meta">${isLie(r) ? 'a lie, tried on purpose' : r.tag === 'visitor' ? 'sent by a visitor, no wallet' : 'a page sentence'}${b.length ? ` · ruled in ${b[b.length - 1]} blocks` : ''}</span></a></li>`;
+  return `<li><a class="lrow" href="case.html?round=${r.id}"><span class="rid">No. ${r.id}</span><span class="claim">${esc(r.claim)}</span>${stamp(letterOf(r), 'small')}<span class="meta">${isLie(r) ? 'a lie, tried on purpose' : r.tag === 'visitor' ? 'sent by a visitor, no wallet' : r.tag === 'agent' ? 'sent by an AI agent' : 'a page sentence'}${b.length ? ` · ruled in ${b[b.length - 1]} blocks` : ''}</span></a></li>`;
 }
 
 // ---------- the checks that run in the browser ----------
@@ -222,7 +222,17 @@ async function runChecks(id, show, opts = {}) {
       else { const [o, w] = dataOutcome(answers, Math.abs(nums[0] - Number(input.cv)) <= tol); add('The outcome follows from the numbers and the judges', agree && o === v.o && !!w === !!v.w ? 'MATCH' : 'MISMATCH', `sources read ${sources.map((s) => s.x).join(' and ')}, the sentence says ${input.cv}, judge answers ${answers.join(' ')}`); }
     }
     await pause();
-    add('Each judge signed its own answer', 'NEEDS', 'this needs the signature maths and the key lists from Intel. Run the command below.'); await pause();
+    if (window.JudgeSig) {
+      let bytes = [];
+      if (input.kind !== 'data') {
+        for (const x of sources) { const f = old && old._saved && old._saved[x.i]; try { bytes.push(f ? new Uint8Array(await (await fetch('data/archive/' + f.file)).arrayBuffer()) : null); } catch { bytes.push(null); } }
+      }
+      let keys = null;
+      try { keys = (await (await fetch('data/judge-keys.json')).json()).keys; } catch { /* the line then says COMMAND LINE */ }
+      const sig = await window.JudgeSig.check(input, v, bytes, keys);
+      add('Each judge signed its own answer', sig.state === 'NEEDS' ? 'NEEDS' : sig.state, sig.detail);
+    } else add('Each judge signed its own answer', 'NEEDS', 'the signature code did not load. Run the command below.');
+    await pause();
   }
   add('The sealed box really ran the fingerprinted program', 'NEEDS', CFG.sealed[id] ? 'a saved proof exists for this round. Check it with the command below.' : 'needs the outlayer-verify tool. Run the command below.');
   return out;

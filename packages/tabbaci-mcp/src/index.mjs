@@ -1,11 +1,16 @@
-// Read-only client for Tabbaci contract. No dependencies, Node 20+.
-// Every call is a NEAR view call: no key, no account, nothing is ever written.
+// Client for the Tabbaci contract. No dependencies, Node 20+.
+// Reading is plain NEAR view calls: no key, no account. Sending a sentence goes through the
+// site's free sender (tabbaci.vercel.app/api/write), which bonds it with test money on testnet.
+// The caller never holds a wallet or a key.
 
 export const DEFAULTS = {
   contract: 'finalenc2.testnet',
   network: 'testnet',
   rpcs: ['https://test.rpc.fastnear.com', 'https://rpc.testnet.near.org'],
+  site: 'https://tabbaci.vercel.app',
 };
+
+export const WORDS = ['is', 'very likely', 'likely', 'disputed'];
 
 const WORD = { T: 'true', F: 'false', U: 'unsure', D: 'judges split' };
 
@@ -57,9 +62,15 @@ export function createClient(opts = {}) {
     return null;
   }
 
+  const site = (opts.site || DEFAULTS.site).replace(/\/$/, '');
+  const writer = opts.writer || makeWriter({ site, fetchImpl: opts.fetchImpl || globalThis.fetch });
+
   return {
-    contract, network, explorer,
+    contract, network, explorer, site,
     view,
+    bondSentence: (a) => bondSentence(writer, { site, explorer }, a),
+    readEvidence: (page) => readEvidence(page, { fetchImpl: opts.fetchImpl || globalThis.fetch }),
+    waitForRuling: (round, o) => waitForRuling({ view, writer, ctx: { contract, network, explorer, site } }, round, { ...opts.wait, ...o }),
     getContractInfo: () => getContractInfo(view, contract, network),
     listRounds: (o) => listRounds(view, contract, network, o),
     getRuling: (round, o = {}) => getRuling(view, findRulingTx, { contract, network, explorer }, round, o),
@@ -196,4 +207,113 @@ export async function findSentence(view, contract, network, text, o = {}) {
   if (!q) throw new Error('give some text to search for');
   const all = await listRounds(view, contract, network, o);
   return all.filter((r) => r.sentence.toLowerCase().includes(q));
+}
+
+// ---- the evidence the court will read ----
+
+const WIKI = 'https://en.wikipedia.org/api/rest_v1/page/summary/';
+const WIKIDATA = 'https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/';
+const UA = { 'user-agent': 'tabbaci-mcp (https://tabbaci.vercel.app)' };
+
+// The court reads only the opening summary of the Wikipedia page and the one-line Wikidata description.
+// Showing that text first lets a writer bond sentences the court can actually check.
+export async function readEvidence(page, { fetchImpl = globalThis.fetch } = {}) {
+  const topic = String(page ?? '').trim();
+  if (!topic) throw new Error('give the Wikipedia page name, for example Lagos');
+  const r = await fetchImpl(WIKI + encodeURIComponent(topic.replace(/ /g, '_')) + '?redirect=true', { headers: UA });
+  if (r.status === 404) throw new Error(`Wikipedia has no page called "${topic}". Try the exact page name.`);
+  if (!r.ok) throw new Error('Wikipedia did not answer. Try again in a minute.');
+  const p = await r.json();
+  if (p.type === 'disambiguation') throw new Error(`"${topic}" can mean several things on Wikipedia. Pick a more exact page name.`);
+  let wikidata = null;
+  if (/^Q\d+$/.test(p.wikibase_item || '')) {
+    const w = await fetchImpl(`${WIKIDATA}${p.wikibase_item}/descriptions/en`, { headers: UA }).catch(() => null);
+    if (w && w.ok) wikidata = await w.json().catch(() => null);
+  }
+  return { page: p.title, wikipedia_summary: p.extract || '', wikidata_description: typeof wikidata === 'string' ? wikidata : null, wikidata_id: p.wikibase_item || null };
+}
+
+// ---- sending a sentence (play money, testnet, through the site) ----
+
+// Talks to the site's free sender. Every round it opens is tagged 'agent', so it shows as sent by an AI.
+export function makeWriter({ site = DEFAULTS.site, fetchImpl = globalThis.fetch } = {}) {
+  const api = `${site}/api/write`;
+  async function post(body) {
+    const r = await fetchImpl(api, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({ error: 'The site did not answer. Try again in a minute.' }));
+    if (!r.ok || j.error) { const e = new Error(j.error || `the site answered ${r.status}`); e.limit = j.limit; throw e; }
+    return j;
+  }
+  return {
+    send: ({ sentence, topic, word }) => post({ claim: sentence, topic, word, from: 'agent' }),
+    run: (round) => post({ action: 'run', round }),
+  };
+}
+
+export async function bondSentence(writer, ctx, { sentence, wikipedia_page, sureness } = {}) {
+  const word = String(sureness ?? '').trim().toLowerCase();
+  if (!WORDS.includes(word)) throw new Error('sureness must be one of: is, very likely, likely, disputed');
+  if (typeof sentence !== 'string' || !sentence.trim()) throw new Error('give the sentence to bond');
+  if (typeof wikipedia_page !== 'string' || !wikipedia_page.trim()) throw new Error('give the Wikipedia page the court should read, for example Lagos');
+  const j = await writer.send({ sentence: sentence.trim(), topic: wikipedia_page.trim(), word });
+  // Start the court right away, as the try page does. One more try if the first start fails.
+  let run = null, runError = null;
+  for (let i = 0; i < 2 && !run; i++) {
+    try { run = await writer.run(j.round); } catch (e) { runError = e.message; }
+  }
+  const tx = (h) => (h ? `${ctx.explorer}/txns/${h}` : null);
+  return {
+    round: j.round, sentence: sentence.trim(), word: j.word, page: j.page, sources: j.sources || [],
+    court_started: Boolean(run), court_error: run ? null : runError,
+    record_url: `${ctx.site}/case.html?round=${j.round}`,
+    open_tx_url: tx(j.tx && j.tx.open), bond_tx_url: tx(j.tx && j.tx.bond), run_tx_url: tx(run && run.tx),
+    sent_by: j.account, free_left_today: j.left, cap: j.cap,
+    expect: 'The ruling usually lands in about 4 minutes. Call wait_for_ruling with this round number.',
+  };
+}
+
+// Polls the round until the court rules. If a run came back empty, asks the site for the next one
+// (the contract allows three), the same way the try page does.
+export async function waitForRuling({ view, writer, ctx }, round, { maxMs = 10 * 60_000, everyMs = 5000, sleep = (ms) => new Promise((ok) => setTimeout(ok, ms)), now = Date.now } = {}) {
+  const n = Number(round);
+  if (!Number.isInteger(n) || n < 1) throw new Error('round must be a whole number, 1 or higher');
+  const t0 = now();
+  let retried = 0, first = true;
+  for (;;) {
+    let r, read = true;
+    try { r = await view('get_round', { round: n }); } catch { read = false; }
+    if (read && !r && first) throw new Error(`there is no round ${n} on ${ctx.contract}`);
+    first = false;
+    if (r && r.status !== 'open') return { settled: true, waited_seconds: Math.round((now() - t0) / 1000), ...rulingSummary(parseRound(n, r, ctx), ctx) };
+    const runs = (r && r.attempts) || [];
+    if (r && writer && runs.length && runs.length < 3 && !r.pending && runs.every((x) => x.result !== 'running') && retried < runs.length) {
+      retried = runs.length;
+      try { await writer.run(n); } catch { /* the next poll shows whether it started */ }
+    }
+    if (now() - t0 >= maxMs) {
+      return { settled: false, round: n, outcome: 'open', waited_seconds: Math.round((now() - t0) / 1000), record_url: `${ctx.site}/case.html?round=${n}`,
+        note: 'No ruling yet. The round stays open on the chain. Call wait_for_ruling again later.' };
+    }
+    await sleep(everyMs);
+  }
+}
+
+// What the ruling means for the bond. Money moves when the 5.8 hour challenge window closes.
+export function rulingSummary(p, ctx) {
+  const b = p.bonds[0] || null;
+  const atRisk = b && b.word !== 'disputed' && BigInt(b.stake_yocto) > 0n;
+  let money;
+  if (!b) money = 'No bond on this round.';
+  else if (b.paid) money = b.state;
+  else if (!atRisk || p.status === 'void' || !['T', 'F'].includes(p.outcome)) money = 'The bond comes back in full once the 5.8 hour challenge window closes.';
+  else if (p.outcome === 'F') money = `Fined: part of the ${b.stake_near} NEAR bond is taken when the 5.8 hour challenge window closes.`;
+  else money = `The ${b.stake_near} NEAR bond comes back with a small gain when the 5.8 hour challenge window closes.`;
+  return {
+    round: p.round, sentence: p.sentence, outcome: p.outcome, outcome_words: p.outcome_words, tag: p.tag,
+    word: b ? b.word : null, stake_near: b ? b.stake_near : null,
+    fined: Boolean(atRisk && p.status !== 'void' && p.outcome === 'F'),
+    fine_paid: b ? b.paid : null, money,
+    judges: p.judges.map((j) => `${j.model}: ${j.answer}`),
+    record_url: `${ctx.site}/case.html?round=${p.round}`,
+  };
 }

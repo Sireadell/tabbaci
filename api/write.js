@@ -1,14 +1,15 @@
 // Lets a visitor send a sentence to the court with no wallet. The site's own test account opens the round,
 // bonds the visitor's word and pays the run fee, all in test NEAR. The ruling is real and lands on the chain.
 //   GET  /api/write  -> today's count and cap. Also closes one visitor round whose objection window has ended.
-//   POST /api/write  {topic, claim, word} -> {round, ...}
+//   POST /api/write  {topic, claim, word, from?} -> {round, ...}. from 'agent' marks a sentence sent by an AI.
 import { loadKey, view, call, head } from './_lib/near.js';
-import { cleanClaim, cleanTopic, cleanWord, pickTerms, buildRound, countSince, makeLimiter, CAP_PER_DAY, PER_VISITOR_PER_HOUR, DAY_BLOCKS, WIKI, WIKIDATA } from './_lib/rules.js';
+import { cleanClaim, cleanTopic, cleanWord, pickTerms, buildRound, countSince, makeLimiter, senderOf, CAP_PER_DAY, PER_VISITOR_PER_HOUR, PER_AGENT_PER_HOUR, DAY_BLOCKS, WIKI, WIKIDATA } from './_lib/rules.js';
 
 const CONTRACT = process.env.TABBACI_CONTRACT || 'finalenc2.testnet';
 const ACCOUNT = process.env.RELAY_ACCOUNT || 'tabbaci-visitors.testnet';
 const UA = { 'user-agent': 'Tabbaci/1.0 (https://tabbaci.vercel.app)' };
 const perVisitor = makeLimiter(PER_VISITOR_PER_HOUR, 3600_000);
+const perAgent = makeLimiter(PER_AGENT_PER_HOUR, 3600_000);
 let keyCache;
 const T0 = { t: 0 };
 const step = (name) => { if (process.env.WRITE_DEBUG) console.log(name, Date.now() - T0.t, 'ms'); };
@@ -125,14 +126,17 @@ export default async function handler(req, res) {
     step('cap read');
     if (s.left <= 0) return res.status(429).json({ error: `Today's ${s.cap} free sentences are used up. Come back tomorrow, or watch a real ruling.`, limit: 'day' });
     const who = String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'x').split(',')[0].trim();
-    if (!perVisitor(who)) return res.status(429).json({ error: `You can send ${PER_VISITOR_PER_HOUR} sentences an hour from here. Watch a real ruling while you wait.`, limit: 'visitor' });
+    const from = senderOf(b.from);
+    if (from === 'agent') {
+      if (!perAgent(who)) return res.status(429).json({ error: `An AI can send ${PER_AGENT_PER_HOUR} sentences an hour from here. Wait for the rulings, then send more.`, limit: 'agent' });
+    } else if (!perVisitor(who)) return res.status(429).json({ error: `You can send ${PER_VISITOR_PER_HOUR} sentences an hour from here. Watch a real ruling while you wait.`, limit: 'visitor' });
 
     const k = key();
     const [stake, bal] = await Promise.all([view(CONTRACT, 'stake'), view(CONTRACT, 'balance', { account: ACCOUNT })]);
     if (BigInt(bal) < BigInt(stake)) await call({ account: ACCOUNT, key: k, contract: CONTRACT, method: 'deposit', args: {}, tgas: 30, deposit: '1' });
     step('stake ready');
 
-    const args = buildRound({ claim: c.claim, canonical: p.canonical, qid: p.qid, terms });
+    const args = buildRound({ claim: c.claim, canonical: p.canonical, qid: p.qid, terms, from });
     const open = await call({ account: ACCOUNT, key: k, contract: CONTRACT, method: 'open_round', args, tgas: 100 });
     step('opened');
     const round = Number(open.value);
@@ -141,7 +145,7 @@ export default async function handler(req, res) {
     step('bonded');
     return res.status(200).json({
       round, word: w.word, page: p.title, sources: args.picks.map((x) => x.url), terms,
-      tx: { open: open.hash, bond: bond.hash }, left: s.left - 1, cap: s.cap, account: ACCOUNT,
+      tx: { open: open.hash, bond: bond.hash }, left: s.left - 1, cap: s.cap, account: ACCOUNT, from,
     });
   } catch (e) {
     console.error('write failed:', e && e.message, e && e.cause && (e.cause.code || e.cause.message));

@@ -24,7 +24,7 @@
 <script src="config.js"></script><script src="app.js"></script>
 <script>
 Site.chrome('ledger');
-const FILTERS = [['all', 'All'], ['TRUE', 'True'], ['FALSE', 'False'], ['UNSURE', 'Unsure'], ['OPEN', 'Open'], ['lies', 'Lies tried'], ['visitors', 'Sent by visitors']];
+const FILTERS = [['all', 'All'], ['TRUE', 'True'], ['FALSE', 'False'], ['UNSURE', 'Unsure'], ['OPEN', 'Open'], ['lies', 'Lies tried'], ['visitors', 'Sent by visitors'], ['agents', 'Sent by AI agents']];
 let rounds = [], cur = new URLSearchParams(location.search).get('show') || 'all';
 if (!FILTERS.some((f) => f[0] === cur)) cur = 'all';
 function bondCell(r) { const b = r.bonds || []; if (!b.length) return '<span class="mute">none</span>'; return b.map((x) => Site.near(x.stake) + ' NEAR').join(', '); }
@@ -35,8 +35,8 @@ function moneyCell(r) {
   return q < s ? `<b class="neg">-${Site.near(s - q)}</b>` : q > s ? `<b class="pos">+${Site.near(q - s)}</b>` : '<span class="mute">returned</span>';
 }
 function draw() {
-  const list = rounds.filter((r) => cur === 'all' ? true : cur === 'lies' ? Site.isLie(r) : cur === 'visitors' ? r.tag === 'visitor' : Site.letterOf(r) === cur || (cur === 'UNSURE' && ['SPLIT', 'VOID'].includes(Site.letterOf(r))));
-  $('rows').innerHTML = list.map((r) => `<tr><td class="rid"><a href="case.html?round=${r.id}">No. ${r.id}</a></td><td class="c">${esc(r.claim)}${Site.isLie(r) ? ' <span class="mute" style="font:.78rem var(--sans)">(a lie, tried on purpose)</span>' : r.tag === 'visitor' ? ' <span class="mute" style="font:.78rem var(--sans)">(sent by a visitor from the try page)</span>' : ''}</td><td>Testnet</td><td class="num">${bondCell(r)}</td><td>${Site.stamp(Site.letterOf(r), 'small')}</td><td class="num">${moneyCell(r)}</td></tr>`).join('') || '<tr><td colspan="6" class="mute">Nothing in this view.</td></tr>';
+  const list = rounds.filter((r) => cur === 'all' ? true : cur === 'lies' ? Site.isLie(r) : cur === 'visitors' ? r.tag === 'visitor' : cur === 'agents' ? r.tag === 'agent' : Site.letterOf(r) === cur || (cur === 'UNSURE' && ['SPLIT', 'VOID'].includes(Site.letterOf(r))));
+  $('rows').innerHTML = list.map((r) => `<tr><td class="rid"><a href="case.html?round=${r.id}">No. ${r.id}</a></td><td class="c">${esc(r.claim)}${Site.isLie(r) ? ' <span class="mute" style="font:.78rem var(--sans)">(a lie, tried on purpose)</span>' : r.tag === 'visitor' ? ' <span class="mute" style="font:.78rem var(--sans)">(sent by a visitor from the try page)</span>' : r.tag === 'agent' ? ' <span class="mute" style="font:.78rem var(--sans)">(sent by an AI agent)</span>' : ''}</td><td>Testnet</td><td class="num">${bondCell(r)}</td><td>${Site.stamp(Site.letterOf(r), 'small')}</td><td class="num">${moneyCell(r)}</td></tr>`).join('') || '<tr><td colspan="6" class="mute">Nothing in this view.</td></tr>';
   document.querySelectorAll('#filters button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.f === cur)));
 }
 $('filters').innerHTML = FILTERS.map(([k, t]) => `<button type="button" class="chip" data-f="${k}" aria-pressed="false">${t}</button>`).join('');

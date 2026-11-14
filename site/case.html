@@ -18,7 +18,7 @@
     <ul class="checks" id="chk-list" aria-live="polite"></ul>
     <p class="sum" id="chk-sum"></p>
   </div>
-  <p class="mute">A few lines say COMMAND LINE. They need the signature maths or Intel's report, and a browser can't do either. This one command checks everything:</p>
+  <p class="mute">This page checks the judges' signatures itself. Two lines say COMMAND LINE and never show as a match: Intel's report on the sealed box and the sealed run need the terminal. This one command checks everything:</p>
   <pre id="cmd"></pre>
   <div class="copyrow"><button type="button" class="btn ghost" id="copy">Copy the command</button><span class="mute" id="copied" role="status"></span></div>
   <p class="mute" style="font-size:.9rem">The "no access keys" line shows MATCH. The contract has no access keys left, so nobody, me included, can change its code or its rules.</p>
@@ -26,7 +26,7 @@
 </section>
 </main>
 <footer id="foot"></footer>
-<script src="config.js"></script><script src="app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script><script src="judgesig.js"></script><script src="config.js"></script><script src="app.js"></script>
 <script>
 Site.chrome('ledger');
 const id = Number(new URLSearchParams(location.search).get('round'));
@@ -81,7 +81,7 @@ async function show() {
     <h1 class="rec-claim">${claimHtml}</h1>
     <div class="rec-verdict">${Site.stamp(word, 'big')}<span class="mute">${esc(Site.plainOutcome(r))}</span></div>
     <dl class="rec-grid">
-      ${row('Kind', Site.isLie(r) ? 'A lie I planted on purpose, to see if the court stops it' : r.tag === 'visitor' ? 'Sent by a visitor from the try page. The site's own test account opened it and bonded the visitor's word' : r.challenger ? 'A challenge round' : 'A page sentence')}
+      ${row('Kind', Site.isLie(r) ? 'A lie I planted on purpose, to see if the court stops it' : r.tag === 'visitor' ? 'Sent by a visitor from the try page. The site\u0027s own test account opened it and bonded the visitor\u0027s word' : r.tag === 'agent' ? 'Sent by an AI agent through the Tabbaci add-on. The site\u0027s own test account opened it and bonded the word the AI chose, with test money' : r.challenger ? 'A challenge round' : 'A page sentence')}
       ${row('Evidence', sources)}
       ${row('Three answers', judges)}
       ${row('Writer and bond', bonds)}

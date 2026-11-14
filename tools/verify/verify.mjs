@@ -3,12 +3,13 @@
 //   node verify.mjs --contract court2.sireadell.testnet --round 1 [--network testnet] [--archive dir]
 //                   [--tx <attempt tx hash>] [--signer <model>=0x..] [--vectors payout-vectors.json]
 //                   [--attested-judges]   compare judge signatures with keys Intel vouches for today (run npm install --prefix privacy/tools once)
-// Prints one line per check: MATCH, MISMATCH or CANNOT VERIFY. Exit code 0 all match, 1 any mismatch, 2 something could not be checked.
+// Prints one line per check: MATCH, MISMATCH or CANNOT VERIFY (INFO lines are notes and never count). Exit code 0 all match, 1 any mismatch, 2 something could not be checked.
 import { readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { proofPath, sealedBoxCommand } from './proofs.mjs';
 import { spawnSync } from 'node:child_process';
+import { findOutlayerVerify } from './outlayer.mjs';
 import { sha256, sha256hex, b64url, recoverAddress } from './crypto.mjs';
 import { net, settle, settleBatchCheck } from './payout.mjs';
 import { dataUser, proseUser, requestBody, requestBodyV1, canon, extract, windowOf, proseOutcome, dataOutcome } from './frames.mjs';
@@ -21,7 +22,7 @@ const RPC = args.rpc || (network === 'mainnet' ? 'https://rpc.mainnet.near.org' 
 
 const rows = [];
 const add = (status, name, detail = '') => rows.push({ status, name, detail });
-const M = 'MATCH', X = 'MISMATCH', C = 'CANNOT VERIFY';
+const M = 'MATCH', X = 'MISMATCH', C = 'CANNOT VERIFY', I = 'INFO';
 
 async function rpc(method, params) {
   const r = await fetch(RPC, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) });
@@ -179,6 +180,9 @@ async function main() {
     }
     const signers = {}; // model -> addresses Intel has vouched for
     for (const [k, val] of Object.entries(Object.fromEntries((args.signer ? [args.signer] : []).map((x) => x.split('='))))) signers[k.toLowerCase()] = [val.toLowerCase()];
+    if (args['signers-json']) { // keys Intel vouches for, gathered once by tools/recheck so a many-round run asks Intel only once
+      try { for (const [m, list] of Object.entries(JSON.parse(readFileSync(args['signers-json'], 'utf8')))) if (list.length) signers[m.toLowerCase()] = list.map((x) => x.toLowerCase()); } catch { /* falls back to CANNOT VERIFY lines */ }
+    }
     if (args['attested-judges']) {
       // asks NEAR AI for a fresh Intel-signed report per judge model (free, no key) and keeps every key that passes
       const { execFileSync } = await import('node:child_process');
@@ -201,7 +205,7 @@ async function main() {
         if (want?.includes(a)) break;
       }
       if (!addr) { add(X, `judge ${j.m} (${model}) signature`, 'does not recover to any signer'); continue; }
-      if (want) add(want.includes(addr) ? M : X, `judge ${j.m} (${model}) signed by ${args['attested-judges'] ? 'a key Intel vouches for' : 'the expected key'}`, addr);
+      if (want) add(want.includes(addr) ? M : X, `judge ${j.m} (${model}) signed by ${args['attested-judges'] || args['signers-json'] ? 'a key Intel vouches for' : 'the expected key'}`, addr);
       else add(C, `judge ${j.m} (${model}) signed by the model's attested key`, `valid signature from ${addr}; give --signer "${model}=<attested address>" to compare`);
     }
     // 8. outcome recomputed from the answers
@@ -213,7 +217,7 @@ async function main() {
       const [o, w] = dataOutcome(answers, numbersTrue);
       add(o === v.o && !!w === !!v.w ? M : X, 'outcome follows from the numbers and judges', `answers ${answers.join('')}, numbers say ${numbersTrue} give ${o}`);
     } else add(C, 'outcome follows from the numbers and judges', 'needs the archived sources');
-    add(C, 'judge reply words match the answers', 'reply bytes are not published, only their fingerprint');
+    add(I, 'judge reply words match the answers', 'not published (fingerprint only), so there is nothing to compare; left out of the total');
   }
 
   // 9. the sealed box run itself
@@ -221,9 +225,14 @@ async function main() {
   const cmd = sealedBoxCommand({ tx: args.tx, bundle: savedPath, network, save: args['save-proof'] === 'true', savePath: savedPath });
   if (cmd) {
     if (cmd.args[0] === 'tx' && args['save-proof'] === 'true') mkdirSync(dirname(savedPath), { recursive: true });
-    const t = spawnSync('outlayer-verify', cmd.args, { encoding: 'utf8' });
-    if (t.error) add(C, 'sealed-box attestation (outlayer-verify)', 'outlayer-verify is not installed on this machine');
-    else add(t.status === 0 ? M : t.status === 1 ? X : C, 'sealed-box attestation (outlayer-verify)', `${(t.stdout || t.stderr || '').trim().split('\n').slice(-1)[0]} [${cmd.source}]`);
+    const tool = await findOutlayerVerify();
+    if (tool.mismatch) add(X, 'sealed-box attestation (outlayer-verify)', tool.mismatch);
+    else if (tool.missing) add(C, 'sealed-box attestation (outlayer-verify)', `needs outlayer-verify: ${tool.missing}`);
+    else {
+    const t = spawnSync(tool.cmd, cmd.args, { encoding: 'utf8' });
+    if (t.error) add(C, 'sealed-box attestation (outlayer-verify)', 'needs outlayer-verify: it did not start on this machine');
+    else add(t.status === 0 ? M : t.status === 1 ? X : C, 'sealed-box attestation (outlayer-verify)', `${(t.stdout || t.stderr || '').trim().split('\n').slice(-1)[0]} [${cmd.source}; tool ${tool.source}]`);
+    }
   } else add(C, 'sealed-box attestation (outlayer-verify)', `no saved proof at ${savedPath}; pass --tx <attempt transaction hash> (add --save-proof to keep it) and install outlayer-verify`);
   return finish();
 }
@@ -232,7 +241,7 @@ function finish() {
   const w = Math.max(...rows.map((r) => r.name.length));
   for (const r of rows) console.log(`${r.status.padEnd(13)} ${r.name.padEnd(w)}  ${r.detail}`);
   const any = (s) => rows.some((r) => r.status === s);
-  const overall = any(X) ? X : any(C) ? C : M;
+  const overall = any(X) ? X : any(C) ? C : M; // INFO lines are left out of the total
   console.log(`\nOVERALL: ${overall}`);
   process.exit(overall === M ? 0 : overall === X ? 1 : 2);
 }

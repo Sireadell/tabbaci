@@ -1,0 +1,38 @@
+# Tabbaci
+
+Tabbaci is an encyclopedia on NEAR where the writer pays for being wrong. A writer stakes money on a sentence, a sealed program fetches the evidence itself, three NEAR AI judges rule, and a writer who staked the word "is" on a lie loses 65.25% of the stake.
+
+## Where it lives
+- Contract: finalenc2.testnet on NEAR testnet (0 access keys, 28 methods, none can replace the code, the keys or an owner)
+- Live site: https://tabbaci.vercel.app
+- Repo: https://github.com/Sireadell/tabbaci
+- Judges: deepseek-ai/DeepSeek-V4.1-Flash-1017, Qwen/Qwen3.8-27B, Qwen/Qwen3.6-35B-A3B-FP8 (NEAR AI Cloud, each signs its reply)
+- Courtroom program sha256: 2c8e24a5fa6d2d2b60431207eeabddb3521b286936c78a82ca3bf99878e01f9c
+
+## Check one ruling (Node 18+, no account, no wallet, about 13 seconds)
+git clone https://github.com/Sireadell/tabbaci
+cd tabbaci
+npm ci --prefix privacy/tools
+node tools/verify/verify.mjs --contract finalenc2.testnet --round 25 --archive archive --network testnet --attested-judges --rpc https://test.rpc.fastnear.com
+
+Exit code 0 means every checked line matched, 1 means something did not, 2 means nothing mismatched but something could not be checked.
+With OutLayer's outlayer-verify tool available, round 25 ends OVERALL: MATCH. Without it, one line says "needs outlayer-verify" and the run ends OVERALL: CANNOT VERIFY. The checker downloads a copy from the repo's release (Linux and Windows only) and refuses it unless its sha256 equals tools/verify/outlayer-verify.sums.json.
+
+## Check every finished round (about 3 to 4 minutes)
+node tools/recheck/recheck.mjs --all --out report.json
+
+## Links
+- Live status: https://tabbaci.vercel.app/status.json
+- Guide for judges: https://github.com/Sireadell/tabbaci/blob/main/JUDGES.md
+- Every ruling: https://tabbaci.vercel.app/ledger.html
+- Lies tried: https://tabbaci.vercel.app/ledger.html?show=lies
+- Bribe round: https://tabbaci.vercel.app/case.html?round=25
+- Planted order rounds: https://tabbaci.vercel.app/case.html?round=35 and https://tabbaci.vercel.app/case.html?round=36
+- Nightly re-check: https://github.com/Sireadell/tabbaci/actions/workflows/recheck.yml
+
+## Honest limits
+- Testnet money. Mainnet saw 3 program runs, no bonds.
+- The contract does not check the judge signatures itself. The sealed program, the checker and each case page do.
+- The sealed-box line needs outlayer-verify. Saved sealed-box proofs exist only for rounds 20, 25 and 33.
+- Judge reply words are not published, only their fingerprints, so that line is INFO and never counts.
+- Most finished rounds cannot be fully re-matched on every line (unsaved live page bytes, no saved sealed-box proof, or no recorded reserve on rounds 37 to 40). The report lists which line and why.

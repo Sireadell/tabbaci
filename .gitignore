@@ -4,3 +4,4 @@ target/
 *.key
 dist/
 tools/accuracy/results/spend.json
+.tools/
