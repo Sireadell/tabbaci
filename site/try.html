@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Try to lie | Tabbaci</title>
-<meta name="description" content="Write a sentence, put test money on it and send it to the court. No wallet needed. The real court rules on it on the NEAR test network, usually within two minutes.">
+<meta name="description" content="Write a sentence, put test token on it and send it to the court. No wallet needed. The real court rules on it on the NEAR test network, usually within two minutes.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="batch2.css"></head>
 <body>
 <a class="skip" href="#main">Skip to the content</a>
@@ -10,7 +10,7 @@
 <section class="page-head">
   <p class="label">Try to lie</p>
   <h1>Write a sentence that sounds true but is not</h1>
-  <p class="lead">Pick a topic, write one sentence and press Send. You don't need a wallet. The site puts up the test money for you, and the real court rules on your sentence on the chain, usually within two minutes.</p>
+  <p class="lead">Pick a topic, write one sentence and press Send. You don't need a wallet. The site puts up the test token for you, and the real court rules on your sentence on the chain, usually within two minutes.</p>
 </section>
 <div class="checkbox">
 <section class="card">
@@ -41,7 +41,7 @@
   <div class="pick" style="margin-top:8px"><button type="button" class="btn" id="send">Send it, no wallet</button><span class="mute" id="left" style="font-size:.88rem"></span></div>
   <ol class="checks" id="steps" aria-live="polite"></ol>
   <div id="out" aria-live="polite" style="margin-top:12px"></div>
-  <p class="mute" style="font-size:.88rem;margin-top:16px">How this works: the site's own test account, <code id="acct">tabbaci-visitors.testnet</code>, sends your sentence and bonds your word. So on the chain that account is the writer, not you. It's test money only, with up to 30 free sentences a day. Whatever you write goes on the public ledger for good, so don't put anything private in it.</p>
+  <p class="mute" style="font-size:.88rem;margin-top:16px">How this works: the site's own test account, <code id="acct">tabbaci-visitors.testnet</code>, sends your sentence and bonds your word. So on the chain that account is the writer, not you. It's test token only, with up to 30 free sentences a day. Whatever you write goes on the public ledger for good, so don't put anything private in it.</p>
 
   <details id="wiki" class="b2-wiki" style="margin-top:18px"><summary>The Wikipedia button: send a sentence straight from Wikipedia</summary><div id="wiki-install" style="margin-top:8px"></div></details>
 
@@ -80,7 +80,7 @@ const WORD_MONEY = {
   likely: ['+12.75%', '-17.25%'],
   disputed: ['0%', '0%'],
 };
-// Plain button labels, and the same rule written as play-money amounts on 0.05 (from section 3.4 of the plan).
+// Plain button labels, and the same rule written as test-token amounts on 0.05 (from section 3.4 of the plan).
 const WORD_LABEL = { is: 'is (I am certain)', 'very likely': 'very likely', likely: 'likely', disputed: 'disputed (I am not sure)' };
 const WORD_COINS = { is: ['0.0124', '0.0326'], 'very likely': ['0.0105', '0.0195'], likely: ['0.0064', '0.0086'] };
 let word = 'very likely';
@@ -202,7 +202,7 @@ openWiki(); window.addEventListener('hashchange', openWiki);
   if (fromWiki) wikiCheck();
 })();
 
-const STEPS = ['Find your topic on Wikipedia', 'Open a new case', 'Put 0.05 play money on your sentence', 'Start the locked court', 'The three judges are deciding'];
+const STEPS = ['Find your topic on Wikipedia', 'Open a new case', 'Put 0.05 test token on your sentence', 'Start the locked court', 'The three judges are deciding'];
 const stepState = STEPS.map(() => ['WAITING', '']);
 function drawSteps() {
   $('steps').innerHTML = STEPS.map((s, i) => { const [st, det] = stepState[i]; const cls = st === 'DONE' ? 'MATCH' : st === 'FAILED' ? 'MISMATCH' : 'NEEDS'; return `<li><span class="res ${cls}">${st}</span><span class="name">${esc(s)}</span>${det ? `<span class="det">${det}</span>` : ''}</li>`; }).join('');

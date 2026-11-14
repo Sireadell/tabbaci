@@ -16,7 +16,7 @@ It runs as four courts:
 |---|---|---|
 | `finalenc2.testnet` | The first court. 0 access keys, 50 rounds, 49 ruled | [Round 25](https://tabbaci.vercel.app/case.html?round=25) |
 | `tabbaci-court2.testnet` | The contract itself checks all three judge signatures and each judge's quote. 0 access keys. The site sends new sentences here | [Round 4](https://tabbaci.vercel.app/case.html?round=4&c=tabbaci-court2.testnet) |
-| Mainnet pilot | The same sealed program with real NEAR, 3 bonded rounds, 1 admin key | [On mainnet](#on-mainnet) |
+| Mainnet court | The same sealed program ruling with real NEAR: 3 bonded rounds. One admin key, stated openly | [On mainnet](#on-mainnet) |
 | `court-private.sireadell.testnet` | Rules on a fact behind a login without anyone seeing the page. 0 access keys | [Private round 1](https://tabbaci.vercel.app/private-case.html?round=1) |
 
 I recorded the demo video on 13 November. Finished after it: court version 2 on the site, the private court, the Wikipedia button, Intel's report checked in the browser, the AI add-on bonding its own sentences (rounds 46 to 50) and the ledger filters.
@@ -68,7 +68,7 @@ I recorded the demo video on 13 November. Finished after it: court version 2 on 
 | 18 lies planted on purpose, none ruled true. Two rounds read a page that ordered the judges to answer TRUE, and both were ruled False | [Ledger, lies](https://tabbaci.vercel.app/ledger.html?show=lies), [round 35](https://tabbaci.vercel.app/case.html?round=35), [round 36](https://tabbaci.vercel.app/case.html?round=36) |
 | The same sealed program rules on NEAR mainnet, with real bonds and a real fine | [On mainnet](#on-mainnet), [planted lie ruled False](https://nearblocks.io/txns/HJ2PnRCA8nyMC3z2YrekBwzmPcmMVZTDMNw62kgbcqR6) |
 
-What it does not do yet: most rounds and money are on testnet, the mainnet copy is a pilot that still has one admin key, the first contract does not re-check the judges' signatures itself (court version 2 does, inside the contract), and the list of approved sources moves to a Sputnik DAO vote in the next contract. [Full list](#what-this-is-not).
+Where it stands: most rounds and money are on testnet, the mainnet court has one admin key that I will remove, the first contract does not re-check the judges' signatures itself (court version 2 does, inside the contract), and the list of approved sources moves to a Sputnik DAO vote in the next contract. [Full list](#what-this-is-not).
 
 ## Check it in one minute
 
@@ -149,7 +149,7 @@ Claude's own closing words: "The court caught the planted false sentence and pas
 
 Round 49 is true in the world. But "former capital" appears only in the one-line Wikidata description, not in the Wikipedia summary, so the judges did not confirm it. The court rules on what it reads, not on what is true elsewhere.
 
-The AI holds no wallet and no key. The add-on calls the site's free sender, the same one behind the [Try to lie](https://tabbaci.vercel.app/try.html) page, and the site's own test account, `tabbaci-visitors.testnet`, bonds 0.05 test NEAR on the AI's behalf. It is play money on testnet only. On the chain these rounds carry the tag `agent`, and the site shows them as "sent by an AI agent": in the home page counter, in a "Sent by AI agents" filter on the ledger, and on the court record page. An AI can send 6 sentences an hour from one place, and all senders share the same 30 a day.
+The AI holds no wallet and no key. The add-on calls the site's free sender, the same one behind the [Try to lie](https://tabbaci.vercel.app/try.html) page, and the site's own test account, `tabbaci-visitors.testnet`, bonds 0.05 test NEAR on the AI's behalf. It is test token on testnet only. On the chain these rounds carry the tag `agent`, and the site shows them as "sent by an AI agent": in the home page counter, in a "Sent by AI agents" filter on the ledger, and on the court record page. An AI can send 6 sentences an hour from one place, and all senders share the same 30 a day.
 
 ## Court version 2
 
@@ -221,7 +221,7 @@ flowchart LR
 
 ## On mainnet
 
-The court also runs on NEAR mainnet as a pilot, with real money. The contract is [`5c807510...ab801e`](https://nearblocks.io/address/5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e). It uses the same sealed court program (`2c8e24a5`) and the same 3 NEAR AI judges, run through `outlayer.near`, with 5 approved sources: Wikipedia, Wikidata, NEAR RPC, GitHub and the World Bank. The bond is 0.05 NEAR per sentence and the objection window is about 1 hour. I bonded all three sentences from `sireadell.near`.
+The court also runs on NEAR mainnet, with real money. The contract is [`5c807510...ab801e`](https://nearblocks.io/address/5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e). It uses the same sealed court program (`2c8e24a5`) and the same 3 NEAR AI judges, run through `outlayer.near`, with 5 approved sources: Wikipedia, Wikidata, NEAR RPC, GitHub and the World Bank. The bond is 0.05 NEAR per sentence and the objection window is about 1 hour. I bonded all three sentences from `sireadell.near`.
 
 | Round | Sentence | Ruling | Money | Ruling tx |
 |---|---|---|---|---|
@@ -231,9 +231,9 @@ The court also runs on NEAR mainnet as a pilot, with real money. The contract is
 
 All three rounds are finalized.
 
-**The mainnet copy still has one admin key**, so I can fix or upgrade it while it is tested. The testnet contract `finalenc2.testnet` has 0 keys, and that is the one to judge trust on. On mainnet the judges' NEAR AI key is owned by `sireadell.near` and locked to the program fingerprint.
+**The mainnet copy still has one admin key**, so I can fix or upgrade it if a problem shows up. The testnet contract `finalenc2.testnet` has 0 keys, and that is the one to judge trust on. On mainnet the judges' NEAR AI key is owned by `sireadell.near` and locked to the program fingerprint.
 
-To check a round, run the checker with `--network mainnet --contract 5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e --round 1` (or 2, 3). It matches the outcome, the contract and program fingerprints, the request hash and the payouts. The only check it does not pass is the "no keys" line, because the pilot has one admin key, as said above. Without an archive folder it cannot verify the judges' signatures or the page bytes. The contract does not check the judges' signatures itself. The output for all three rounds is in `proofs/mainnet/`.
+To check a round, run the checker with `--network mainnet --contract 5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e --round 1` (or 2, 3). It matches the outcome, the contract and program fingerprints, the request hash and the payouts. The only check it does not pass is the "no keys" line, because the mainnet court has one admin key, as said above. Without an archive folder it cannot verify the judges' signatures or the page bytes. The contract does not check the judges' signatures itself. The output for all three rounds is in `proofs/mainnet/`.
 
 Before this contract existed, I ran the same sealed program three times on mainnet through `outlayer.near`, with no bond. One of those was the bribe sentence, and all 3 judges said False ([tx](https://nearblocks.io/txns/FenA2TpVxBJqiWQT9UorPMDD8uayo5aoiFF7fbofVar3)).
 
@@ -316,7 +316,7 @@ I also tested for leaks. I took a real commit ID from the private repo as a mark
 
 ## What this is not
 
-- **Mostly testnet money.** All but 3 bonds and 1 fine are on NEAR testnet. Mainnet has 3 bonded rounds at 0.05 NEAR each, all written by me, on a pilot contract that still has one admin key. [On mainnet](#on-mainnet).
+- **Mostly testnet money.** All but 3 bonds and 1 fine are on NEAR testnet. Mainnet has 3 bonded rounds at 0.05 NEAR each, bonded from my account `sireadell.near`, on a contract that still has one admin key. [On mainnet](#on-mainnet).
 - **Every writer and the one challenger are my own accounts.** Sentences sent from the try page are written by visitors, and sentences sent through `tabbaci-mcp` are written by an AI, but on the chain the writer of both is the site's own test account, `tabbaci-visitors.testnet`, which pays the bond and the run fee. AI-sent rounds carry the tag `agent`. People get 3 sentences an hour from one place, an AI gets 6, and all share 30 a day. My 0.2 NEAR challenge of round 32 (round 33) lost when the ruling held.
 - **The first AI try caught nothing.** Before `read_evidence` existed, rounds 41 to 45 (also tagged `agent`) came back 2 true and 3 unsure, and Claude bonded its wrong fact as *disputed*, which puts nothing at risk. That is why I added `read_evidence`, and why the `bond_sentence` tool now tells the AI that *disputed* can never be fined.
 - **The first contract does not check judge signatures inside the contract.** On `finalenc2.testnet` the sealed program, the checker and the case page check them. [Court version 2](#court-version-2) and the [private court](#private-evidence) check all three on chain before they record a ruling, and refuse a forged one ([the test](contracts/courtroom-v2/src/tests_v2.rs), run on every push by the [tests workflow](https://github.com/Sireadell/tabbaci/actions/workflows/tests.yml)).
@@ -427,4 +427,4 @@ Services: NEAR testnet and mainnet, OutLayer, FastFS, NEAR AI Cloud.
 
 ## Contact
 
-I built Tabbaci on my own. Questions, or a problem you found: open an issue at https://github.com/Sireadell/tabbaci/issues or message me on X at [@sireadell](https://x.com/Sireadell). The demo post is [here](https://x.com/Sireadell/status/2121733796496367647). If it's a security problem, please send it as a private message on X rather than a public issue.
+I built Tabbaci end to end myself: the contract, the sealed program, the checker, the site and the MCP server. Questions, or a problem you found: open an issue at https://github.com/Sireadell/tabbaci/issues or message me on X at [@sireadell](https://x.com/Sireadell). The demo post is [here](https://x.com/Sireadell/status/2121733796496367647). If it's a security problem, please send it as a private message on X rather than a public issue.

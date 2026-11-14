@@ -2,9 +2,9 @@
 
 Status: version 0.2.0, on npm. Version 0.1.0 only read rulings. 0.2.0 adds three tools that let an AI bond its own sentences.
 
-Tabbaci is a court on NEAR testnet. Writers put money on sentences, a program sealed in an Intel chip fetches the evidence, three NEAR AI models rule, and wrong writers are fined. I built this package so other AI agents and developers can read those rulings, and so an AI can put play money behind its own words and get fined when it is wrong.
+Tabbaci is a court on NEAR testnet. Writers put money on sentences, a program sealed in an Intel chip fetches the evidence, three NEAR AI models rule, and wrong writers are fined. I built this package so other AI agents and developers can read those rulings, and so an AI can put test token behind its own words and get fined when it is wrong.
 
-It's a tool an AI agent plugs into, not an agent. It works as a small JavaScript library and as an MCP server (MCP is the common way AI assistants connect to outside tools). Ask it "what did the court rule on this sentence?" and you get the outcome, whether the money has been paid out, and the command to check it yourself. Or let the AI write a sentence, bond it, and wait for the court.
+It's a tool an AI agent plugs into, not an agent. It works as a JavaScript library and as an MCP server (MCP is the common way AI assistants connect to outside tools). Ask it "what did the court rule on this sentence?" and you get the outcome, whether the money has been paid out, and the command to check it yourself. Or let the AI write a sentence, bond it, and wait for the court.
 
 No keys, no account, no dependencies. The AI never holds a wallet: sending goes through the Tabbaci site's free sender, and the site's own test account pays. Node 20 or newer. MIT license.
 
@@ -60,7 +60,7 @@ claude mcp add tabbaci -- npx -y tabbaci-mcp
 | `contract_info` | Contract, round count, sealed program fingerprint, judge models, approved sources, stake. |
 | `how_to_verify` (`round` optional) | The exact `node tools/verify/verify.mjs ...` command and what MATCH, MISMATCH and CANNOT VERIFY mean. |
 | `read_evidence` (`wikipedia_page`) | The exact text the court will read: only the opening summary of that Wikipedia page plus its one-line Wikidata description. Anything not stated there comes back unsure. Free, reads Wikipedia only. |
-| `bond_sentence` (`sentence`, `wikipedia_page`, `sureness`) | Sends the sentence to the site's free sender, which bonds it with play money and starts the court. `sureness` is *is*, *very likely*, *likely* or *disputed*. Returns the round number and links. The ruling takes about a minute or a few minutes. |
+| `bond_sentence` (`sentence`, `wikipedia_page`, `sureness`) | Sends the sentence to the site's free sender, which bonds it with test token and starts the court. `sureness` is *is*, *very likely*, *likely* or *disputed*. Returns the round number and links. The ruling takes about a minute or a few minutes. |
 | `wait_for_ruling` (`round`) | Waits until the court rules, checking every 5 seconds for up to about 10 minutes, and asks for another run if one comes back empty. Returns the outcome, each judge's answer, and whether the sentence was fined. |
 
 An unknown round returns a plain "there is no round N" message with the error flag set.
@@ -98,7 +98,7 @@ What each word wins or loses, paid when the 5.8 hour objection window closes:
 
 Limits:
 
-- Testnet play money only. The site's test account, `tabbaci-visitors.testnet`, opens the round and bonds 0.05 test NEAR on the AI's behalf, through the free sender at `https://tabbaci.vercel.app/api/write`.
+- Testnet test token only. The site's test account, `tabbaci-visitors.testnet`, opens the round and bonds 0.05 test NEAR on the AI's behalf, through the free sender at `https://tabbaci.vercel.app/api/write`.
 - An AI can send 6 sentences an hour from one place. All senders, people and AIs, share the same 30 a day.
 - On the chain these rounds carry the tag `agent`, and the site shows them as "sent by an AI agent".
 

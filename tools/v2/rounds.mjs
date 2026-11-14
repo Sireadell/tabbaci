@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Open, bond and run test rounds on a court version 2 contract (testnet, play money).
+// Open, bond and run test rounds on a court version 2 contract (testnet, test token).
 //   node tools/v2/rounds.mjs --contract tabbaci-court2.testnet --account tabbaci-visitors.testnet [--finalize]
 // Reads the account's key from ~/.near-credentials/testnet/<account>.json. Never prints it.
 import { readFileSync } from 'node:fs';

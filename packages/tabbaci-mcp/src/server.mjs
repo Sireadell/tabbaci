@@ -1,5 +1,5 @@
 // MCP server over stdio (newline-delimited JSON-RPC 2.0, hand-rolled, no dependencies).
-// Reads rulings, and can send a sentence to the court with play money through the site's free sender.
+// Reads rulings, and can send a sentence to the court with test token through the site's free sender.
 import { createInterface } from 'node:readline';
 import { createClient } from './index.mjs';
 
@@ -21,7 +21,7 @@ export const TOOLS = [
     inputSchema: { type: 'object', properties: { round: { type: 'integer', minimum: 1 } }, additionalProperties: false } },
   { name: 'read_evidence', description: 'Show the exact text the Tabbaci court will read for a Wikipedia page: the opening summary of the page and its one-line Wikidata description. The court reads nothing else, so a sentence about something not in this text comes back UNSURE. Call this before bond_sentence. Free, reads Wikipedia only.',
     inputSchema: { type: 'object', properties: { wikipedia_page: { type: 'string', description: 'The exact English Wikipedia page, for example "Lagos".' } }, required: ['wikipedia_page'], additionalProperties: false } },
-  { name: 'bond_sentence', description: 'Send one sentence you wrote to the Tabbaci court and bond it with play money (NEAR testnet, through the site\'s free sender: you need no wallet and spend nothing real). Say how sure you are: "is" (sure), "very likely", "likely", or "disputed". The court reads only the opening summary of the Wikipedia page you name and its one-line Wikidata description (see read_evidence), three AI judges rule, and a sentence ruled false is fined in line with how sure you said you were. "disputed" puts nothing at risk, so it can never be fined: to test whether the court catches a wrong sentence, bond it with "is" or "very likely". Returns the round number and links. The ruling takes about 4 minutes, then call wait_for_ruling. One sentence per call. The site allows 6 an hour from one place and 30 a day in total.',
+  { name: 'bond_sentence', description: 'Send one sentence you wrote to the Tabbaci court and bond it with test token (NEAR testnet, through the site\'s free sender: you need no wallet and spend nothing real). Say how sure you are: "is" (sure), "very likely", "likely", or "disputed". The court reads only the opening summary of the Wikipedia page you name and its one-line Wikidata description (see read_evidence), three AI judges rule, and a sentence ruled false is fined in line with how sure you said you were. "disputed" puts nothing at risk, so it can never be fined: to test whether the court catches a wrong sentence, bond it with "is" or "very likely". Returns the round number and links. The ruling takes about 4 minutes, then call wait_for_ruling. One sentence per call. The site allows 6 an hour from one place and 30 a day in total.',
     inputSchema: { type: 'object', properties: {
       sentence: { type: 'string', minLength: 8, maxLength: 280, description: 'One plain sentence, 8 to 280 characters, no links.' },
       wikipedia_page: { type: 'string', description: 'The exact English Wikipedia page the court should read, for example "Lagos".' },
@@ -109,7 +109,7 @@ export async function callTool(client, name, a = {}) {
     if (name === 'bond_sentence') {
       const b = await client.bondSentence(a);
       const text = [
-        `Sent. Round ${b.round}: "${b.sentence}", bonded with the word "${b.word}" (play money on NEAR testnet, sent for you by ${b.sent_by}).`,
+        `Sent. Round ${b.round}: "${b.sentence}", bonded with the word "${b.word}" (test token on NEAR testnet, sent for you by ${b.sent_by}).`,
         `The court reads Wikipedia "${b.page}" and its Wikidata entry.`,
         b.court_started ? 'The court has started.' : `The court did not start yet (${b.court_error}). wait_for_ruling will ask again.`,
         `Ruling in about 4 minutes. Court record: ${b.record_url}`,
@@ -150,7 +150,7 @@ export function createServer(client = createClient()) {
       case 'initialize': {
         const want = msg.params && msg.params.protocolVersion;
         return reply({ protocolVersion: SUPPORTED.includes(want) ? want : PROTOCOL, capabilities: { tools: {} }, serverInfo: { name: 'tabbaci-mcp', version: '0.2.0' },
-          instructions: 'Verified rulings on the Tabbaci contract (NEAR testnet), and a way to bond your own sentences with play money. When you bond a sentence, pick the word that matches how sure you really are, then call wait_for_ruling. Always report the outcome, whether the fine is paid, and that data-kind rounds cannot be re-matched later.' });
+          instructions: 'Verified rulings on the Tabbaci contract (NEAR testnet), and a way to bond your own sentences with test token. When you bond a sentence, pick the word that matches how sure you really are, then call wait_for_ruling. Always report the outcome, whether the fine is paid, and that data-kind rounds cannot be re-matched later.' });
       }
       case 'ping': return reply({});
       case 'tools/list': return reply({ tools: TOOLS });

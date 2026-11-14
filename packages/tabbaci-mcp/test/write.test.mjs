@@ -98,12 +98,12 @@ test('mcp: bond_sentence passes on the site limit message', async () => {
   assert.match(r.content[0].text, /6 sentences an hour/);
 });
 
-test('mcp: bond_sentence text says round, play money and the wait', async () => {
+test('mcp: bond_sentence text says round, test token and the wait', async () => {
   const s = fakeSite();
   const h = createServer(createClient({ fetchImpl: s.fetchImpl }));
   const r = (await h({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'bond_sentence', arguments: { sentence: 'Lagos is in Nigeria.', wikipedia_page: 'Lagos', sureness: 'is' } } })).result;
   assert.match(r.content[0].text, /Round 41/);
-  assert.match(r.content[0].text, /play money/);
+  assert.match(r.content[0].text, /test token/);
   assert.match(r.content[0].text, /about 4 minutes/);
   assert.equal(r.structuredContent.round, 41);
 });

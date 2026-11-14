@@ -47,7 +47,7 @@ $('filters').addEventListener('click', (e) => { const b = e.target.closest('butt
 Promise.all([Site.allRounds(), Site.CFG.contractV2 ? Site.allRounds(Site.CFG.contractV2, 'data/rounds-v2.json') : Promise.resolve({ rounds: [] })]).then(([old, v2]) => {
   const { live, savedAt } = old; const rs = [...v2.rounds, ...old.rounds];
   rounds = rs; draw();
-  $('live-note').textContent = (live ? 'Read from the chain just now' : 'The chain did not answer, so this is the saved copy from ' + (savedAt ? savedAt.slice(0, 10) : 'an earlier day')) + '. ' + rs.length + ' rounds across both courts. Test network, play money.';
+  $('live-note').textContent = (live ? 'Read from the chain just now' : 'The chain did not answer, so this is the saved copy from ' + (savedAt ? savedAt.slice(0, 10) : 'an earlier day')) + '. ' + rs.length + ' rounds across both courts. Test network, test token.';
 });
 </script>
 </body></html>

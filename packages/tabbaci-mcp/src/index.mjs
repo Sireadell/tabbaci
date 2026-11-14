@@ -1,6 +1,6 @@
 // Client for the Tabbaci contract. No dependencies, Node 20+.
 // Reading is plain NEAR view calls: no key, no account. Sending a sentence goes through the
-// site's free sender (tabbaci.vercel.app/api/write), which bonds it with test money on testnet.
+// site's free sender (tabbaci.vercel.app/api/write), which bonds it with test token on testnet.
 // The caller never holds a wallet or a key.
 
 export const DEFAULTS = {
@@ -237,7 +237,7 @@ export async function readEvidence(page, { fetchImpl = globalThis.fetch } = {}) 
 // The case page reads the first court by default. Rounds on court version 2 need the contract in the address.
 export const recordUrl = (ctx, round) => `${ctx.site}/case.html?round=${round}${ctx.contract && ctx.contract !== 'finalenc2.testnet' ? '&c=' + ctx.contract : ''}`;
 
-// ---- sending a sentence (play money, testnet, through the site) ----
+// ---- sending a sentence (test token, testnet, through the site) ----
 
 // Talks to the site's free sender. Every round it opens is tagged 'agent', so it shows as sent by an AI.
 export function makeWriter({ site = DEFAULTS.site, fetchImpl = globalThis.fetch } = {}) {
