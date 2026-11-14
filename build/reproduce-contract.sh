@@ -14,7 +14,7 @@ w() { if (cd "$1" && pwd -W) >/dev/null 2>&1; then (cd "$1" && pwd -W | tr '/' '
 WORKW="$(w "$WORK")"
 CARGOH="${CARGO_HOME:-$HOME/.cargo}"
 RUSTUPH="${RUSTUP_HOME:-$HOME/.rustup}"
-export RUSTFLAGS="-C strip=symbols --remap-path-prefix=$WORK=/src --remap-path-prefix=$WORKW=/src --remap-path-prefix=$CARGOH=/cargo --remap-path-prefix=$(w "$CARGOH")=/cargo --remap-path-prefix=$RUSTUPH=/rustup --remap-path-prefix=$(w "$RUSTUPH")=/rustup"
+export RUSTFLAGS="--cfg near -C strip=symbols --remap-path-prefix=$WORK=/src --remap-path-prefix=$WORKW=/src --remap-path-prefix=$CARGOH=/cargo --remap-path-prefix=$(w "$CARGOH")=/cargo --remap-path-prefix=$RUSTUPH=/rustup --remap-path-prefix=$(w "$RUSTUPH")=/rustup"
 export CARGO_INCREMENTAL=0
 ${CARGO:-cargo} ${TOOLCHAIN:+$TOOLCHAIN} build --locked --target wasm32-unknown-unknown --release >"${LOG:-/dev/null}" 2>&1
 [ -n "$OUT" ] && cp target/wasm32-unknown-unknown/release/courtroom.wasm "$OUT"

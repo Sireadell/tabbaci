@@ -1,0 +1,4 @@
+# Build the contract against the on-chain host functions (sha256 and errors go through the NEAR runtime),
+# the same setting `cargo near build` uses. Without it near-sdk links pure-Rust fallbacks meant for off-chain use.
+[target.wasm32-unknown-unknown]
+rustflags = ["--cfg", "near"]

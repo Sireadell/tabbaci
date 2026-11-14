@@ -11,6 +11,6 @@
 
 ## Linux check (added, not yet run on Linux)
 `.github/workflows/reproducible-build.yml` builds the program and the contract twice on Linux with Rust 1.99.1 and fails if the two fingerprints differ. It is a manual or push-triggered GitHub Actions job; nothing has run it yet, so Linux stays unproven until it has.
-- `./build/reproduce-contract.sh` is the contract version of `reproduce.sh` (plain `cargo build --locked` for wasm32-unknown-unknown, symbols stripped). Two local Windows runs: identical (`ceb758ad37675c935f15c80692dba97a1d204c4b6029a9d7c17ed6dccaf1da3d`).
+- `./build/reproduce-contract.sh` is the contract version of `reproduce.sh` (plain `cargo build --locked` for wasm32-unknown-unknown with the near cfg, symbols stripped). Two local Windows runs: identical (`53c5bd127b4d42f85217ea82dd19d2fb53ea2ce4725bab3bcf7ea43484938615`, testnet build, before wasm-opt).
 - Found while testing: the contract's function order depends on the name of the build folder, so the script always builds in the same folder name (`enc-repro-build` in the temp directory). Anyone comparing fingerprints should use the script, not their own folder.
 - These contract fingerprints are for this script only. The contracts deployed on testnet were built with `cargo near build`, so their code hashes are a different file.
