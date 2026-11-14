@@ -86,7 +86,60 @@
     return 'javascript:' + code.replace(/[\r\n]/g, '');
   }
 
-  const api = { cleanText, cleanTopicParam, cleanClaimParam, readParams, keyWords, summaryCheck, introSentences, bookmarkHref, MAX_CLAIM, MAX_TOPIC };
+
+  // Reader-facing wording, one place so every page matches.
+  const TEXT = {
+    notEn: 'This button works on English Wikipedia only. Open an English article and try again.',
+    notArticle: 'Open a Wikipedia article first, then highlight one sentence and click again.',
+    sentBarTitle: 'Sent from Wikipedia',
+    sentBarBody: 'The topic and sentence came from the page you were reading. Change either one before you press Send.',
+    whyLine: "The court reads only two things: the article's summary at the top and its one-line Wikidata description. Nothing further down the page counts.",
+    warnTitle: 'The summary may not mention this',
+    warnBody: "Some key words in your sentence aren't in the article's summary, and the court reads nothing past it. So it will probably rule UNSURE, and UNSURE gives the 0.05 test NEAR bond back in full.",
+    btnAnyway: 'Send it anyway',
+    btnIntro: 'Use a sentence from the summary',
+    introHelp: 'These sentences are true as written. To try a lie, pick one and change it.',
+    emptyNote: 'Nothing was highlighted, so only the topic came across. Write your sentence below.',
+    cutNote: 'Your sentence was longer than 280 characters, so it was cut. Check the end still reads right.',
+    linksNote: 'Links were taken out, because the court refuses any sentence with a web link in it.',
+    summaryDownNote: "We couldn't load the summary just now to check your sentence. The court still decides when you send it.",
+    installTitle: 'Check Wikipedia sentences on Tabbaci',
+    installLead: 'Highlight a sentence on English Wikipedia, click one bookmark, and Tabbaci opens with it filled in. You read it over and press Send.',
+    installStep1: "Show your browser's bookmarks bar (Ctrl+Shift+B, or Cmd+Shift+B on a Mac).",
+    installStep2: 'Drag the button below onto that bar.',
+    installStep3: 'On any English Wikipedia article, highlight one sentence and click the bookmark.',
+    installButtonLabel: 'Check on Tabbaci',
+    installDragHint: 'Drag this onto your bookmarks bar. Clicking it here does nothing.',
+    installPhoneNote: "Phones can't drag bookmarks, so this needs a computer. On a phone, use the try page instead.",
+    installFine: 'No wallet needed. Test money only, up to 30 free sentences a day, and every sentence stays on the public ledger for good.',
+    ledgerLabel: 'Sent from Wikipedia',
+    ledgerChip: 'From Wikipedia',
+    caseKind: 'Sent from Wikipedia (came in through the Wikipedia button)',
+    latestMeta: 'via Wikipedia',
+    homeThreeWays: 'Three ways in: the try page on this site, the tabbaci-mcp add-on for your AI, or the Wikipedia button.',
+  };
+
+  // Fills an empty element with the install box. Built from text nodes only.
+  function installBox(el, base) {
+    if (!el || typeof document === 'undefined') return;
+    const mk = (tag, txt, cls) => { const n = document.createElement(tag); if (txt) n.textContent = txt; if (cls) n.className = cls; return n; };
+    el.textContent = '';
+    el.appendChild(mk('h2', TEXT.installTitle, 'step'));
+    el.appendChild(mk('p', TEXT.installLead));
+    const ol = mk('ol');
+    [TEXT.installStep1, TEXT.installStep2, TEXT.installStep3].forEach((t) => ol.appendChild(mk('li', t)));
+    el.appendChild(ol);
+    const a = mk('a', TEXT.installButtonLabel, 'btn');
+    a.href = bookmarkHref(base || location.origin, TEXT.notEn, TEXT.notArticle);
+    a.title = TEXT.installDragHint;
+    a.addEventListener('click', (e) => { e.preventDefault(); hint.hidden = false; });
+    const row = mk('p'); row.appendChild(a); el.appendChild(row);
+    const hint = mk('p', TEXT.installDragHint, 'mute'); hint.hidden = true; el.appendChild(hint);
+    el.appendChild(mk('p', TEXT.installPhoneNote, 'mute'));
+    el.appendChild(mk('p', TEXT.installFine, 'mute'));
+  }
+
+  const api = { TEXT, installBox,  cleanText, cleanTopicParam, cleanClaimParam, readParams, keyWords, summaryCheck, introSentences, bookmarkHref, MAX_CLAIM, MAX_TOPIC };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.WikiLink = api;
 })(typeof window !== 'undefined' ? window : this);

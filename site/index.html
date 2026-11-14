@@ -97,6 +97,12 @@
   </ol>
 </section>
 
+<section class="band" id="wiki-way">
+  <div class="sec-head"><div><p class="label">Three ways in</p><h2>Check a sentence while you read Wikipedia</h2></div></div>
+  <p class="mute" id="three-ways"></p>
+  <div id="wiki-install"></div>
+</section>
+
 <section class="band" id="not">
   <div class="sec-head"><div><p class="label">Honest limits</p><h2>What this is not</h2></div></div>
   <div class="nots">
@@ -115,8 +121,9 @@
   </div>
 </section>
 <footer id="foot"></footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script><script src="judgesig.js"></script><script src="config.js"></script><script src="app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script><script src="judgesig.js"></script><script src="config.js"></script><script src="app.js"></script><script src="wikilink.js"></script>
 <script>
+  WikiLink.installBox(document.getElementById('wiki-install')); document.getElementById('three-ways').textContent = WikiLink.TEXT.homeThreeWays;
 Site.chrome('home');
 (function () { // faint columns of 0 and 1 behind the closing line, fixed pattern so it never moves
   const r = document.getElementById('rain'); if (!r) return;
@@ -131,7 +138,7 @@ Site.allRounds().then(({ rounds, live, savedAt }) => {
   const fines = rounds.flatMap((r) => (r.bonds || []).filter((b) => b.payout != null && BigInt(b.payout) < BigInt(b.stake)).map((b) => ({ r, lost: BigInt(b.stake) - BigInt(b.payout) })));
   const fined = fines.reduce((a, x) => a + x.lost, 0n);
   // Rounds 37 to 40 were my own tests of the no-wallet sender, so only later visitor rounds count.
-  const vis = rounds.filter((r) => r.tag === 'visitor' && r.id > 40).length;
+  const vis = rounds.filter((r) => (r.tag === 'visitor' || r.tag === 'wiki') && r.id > 40).length;
   if (vis > 0) { $('h-vis').textContent = vis; $('h-vis-box').hidden = false; }
   const ai = rounds.filter((r) => r.tag === 'agent').length;
   if (ai > 0) { $('h-ai').textContent = ai; $('h-ai-box').hidden = false; }
