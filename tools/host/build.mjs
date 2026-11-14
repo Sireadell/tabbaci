@@ -4,7 +4,7 @@
 import { cp, rm, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { join, relative, dirname, resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { RAW_STATUS, readLive, statusFor } from '../recheck/status.mjs';
+import { RAW_STATUS, plainHeadline, readCourts, readLive, statusFor } from '../recheck/status.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const src = join(root, 'site');
@@ -43,7 +43,8 @@ await writeFile(join(dist, 'vercel.json'), json({ functions: { 'api/write.js': {
 // /status.json: live numbers from the chain plus the last nightly re-check result (published on the "status" branch).
 let last = null;
 try { const r = await fetch(RAW_STATUS); if (r.ok) last = (await r.json()).last_recheck; } catch { /* the site still builds with no result yet */ }
-const status = statusFor({ report: null, live: await readLive() });
+const status = statusFor({ report: null, live: await readLive(), courts: await readCourts() });
+if (last && typeof last.finished_rounds === 'number') last.headline = plainHeadline({ finished: last.finished_rounds, mismatch: last.mismatch });
 status.last_recheck = last;
 await writeFile(join(dist, 'status.json'), json(status));
 

@@ -1,38 +1,52 @@
 # Tabbaci
 
-Tabbaci is an encyclopedia on NEAR where the writer pays for being wrong. A writer stakes money on a sentence, a sealed program fetches the evidence itself, three NEAR AI judges rule, and a writer who staked the word "is" on a lie loses 65.25% of the stake.
+> Tabbaci is an encyclopedia on NEAR where the writer pays for being wrong. A writer puts money on one checkable sentence, a sealed program gathers the evidence, three AI judges rule, and the contract pays the writer or fines them.
 
-## Where it lives
-- Contract: finalenc2.testnet on NEAR testnet (0 access keys, 28 methods, none can replace the code, the keys or an owner)
-- Live site: https://tabbaci.vercel.app
-- Repo: https://github.com/Sireadell/tabbaci
-- Judges: deepseek-ai/DeepSeek-V4.1-Flash-1017, Qwen/Qwen3.8-27B, Qwen/Qwen3.6-35B-A3B-FP8 (NEAR AI Cloud, each signs its reply)
-- Courtroom program sha256: 2c8e24a5fa6d2d2b60431207eeabddb3521b286936c78a82ca3bf99878e01f9c
+## How a round works
 
-## Check one ruling (Node 18+, no account, no wallet, about 13 seconds)
+- The writer stakes 0.05 NEAR on one sentence and picks one confidence word: is, very likely, likely or disputed.
+- A sealed program runs inside an Intel TEE (a locked area of the processor that even the operator cannot see into), started through OutLayer. It fetches the evidence pages itself, only from an approved list.
+- Three NEAR AI judges read the evidence, and each one signs its reply: deepseek-ai/DeepSeek-V4.1-Flash-1017, Qwen/Qwen3.8-27B and Qwen/Qwen3.6-35B-A3B-FP8.
+- The contract pays or fines. A writer who staked "is" on a false sentence loses 65.25% of the stake.
+
+## The three courts
+
+| Court | Contract | Keys | What it adds | Best round |
+|---|---|---|---|---|
+| Court 1 | finalenc2.testnet (NEAR testnet) | 0 access keys | 28 methods, none can replace the code, keys or owner. 50 rounds, 49 ruled. 18 planted lies, 0 ruled true, 17 of those bonds lost money (0.5546 NEAR in all). Program fingerprint starts 2c8e24a5. | [Round 25](https://tabbaci.vercel.app/case.html?round=25): the sentence ends with an order to answer TRUE, all 3 judges said FALSE |
+| Court 2 | tabbaci-court2.testnet (NEAR testnet) | 0 access keys (deleted) | The contract itself checks all three judges' signatures and checks that each judge's quote really appears in the page text. 7 rounds, rounds 2 to 7 settled, round 1 void. Program fingerprint starts 129b36ec. The live site now sends new sentences here. | [Round 7](https://tabbaci.vercel.app/case.html?round=7&c=tabbaci-court2.testnet): "Mount Everest is the highest mountain above sea level." ruled True, 3 of 3 signatures and quotes checked, sent from the site with no wallet |
+| Mainnet pilot | 5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e (NEAR mainnet) | 1 admin key | 3 rounds with real NEAR, 0.05 NEAR each, bonded by sireadell.near. Same sealed program 2c8e24a5. | [Checker outputs](https://github.com/Sireadell/tabbaci/tree/main/proofs/mainnet): a true sentence got its bond back, a planted lie was fined 0.0326 NEAR, a number round paid a 0.0124 NEAR bonus |
+
+Everything on testnet uses test money.
+
+More court 1 rounds: [round 35](https://tabbaci.vercel.app/case.html?round=35) and [round 36](https://tabbaci.vercel.app/case.html?round=36) (pages that order the judges, planted on purpose), [round 20](https://tabbaci.vercel.app/case.html?round=20) (a fine), [round 33](https://tabbaci.vercel.app/case.html?round=33) (a challenge). Court 2 [round 4](https://tabbaci.vercel.app/case.html?round=4&c=tabbaci-court2.testnet): the page orders TRUE, ruled False.
+
+## Three ways to use it
+
+1. The site, no wallet needed: [try.html](https://tabbaci.vercel.app/try.html). Send a sentence and the site bonds it for you.
+2. AI add-on: npm package tabbaci-mcp 0.2.0. Install with `claude mcp add tabbaci -- npx -y tabbaci-mcp`. An AI can read the evidence, bond its own sentence with play money and wait for the ruling. Court 1 rounds 46 to 50 were sent this way (tag: agent).
+3. Check any ruling yourself with the command line checker. No account, no wallet.
+
+## One-minute check (Node 18+)
+
+```
 git clone https://github.com/Sireadell/tabbaci
 cd tabbaci
 npm ci --prefix privacy/tools
 node tools/verify/verify.mjs --contract finalenc2.testnet --round 25 --archive archive --network testnet --attested-judges --rpc https://test.rpc.fastnear.com
+node tools/verify/verify.mjs --contract tabbaci-court2.testnet --round 4 --archive archive --network testnet --attested-judges --rpc https://test.rpc.fastnear.com
+```
 
-Exit code 0 means every checked line matched, 1 means something did not, 2 means nothing mismatched but something could not be checked.
-With OutLayer's outlayer-verify tool available, round 25 ends OVERALL: MATCH. Without it, one line says "needs outlayer-verify" and the run ends OVERALL: CANNOT VERIFY. The checker downloads a copy from the repo's release (Linux and Windows only) and refuses it unless its sha256 equals tools/verify/outlayer-verify.sums.json.
+Exit code 0: every checked line matched. 1: something did not match. 2: nothing mismatched, but something could not be checked.
 
-## Check every finished round (about 3 to 4 minutes)
-node tools/recheck/recheck.mjs --all --out report.json
+Re-check every finished round: `node tools/recheck/recheck.mjs --all --out report.json`. The nightly result is at [status.json](https://tabbaci.vercel.app/status.json). Latest: 49 of 49 finished rounds, 0 mismatch.
 
 ## Links
-- Live status: https://tabbaci.vercel.app/status.json
-- Guide for judges: https://github.com/Sireadell/tabbaci/blob/main/JUDGES.md
-- Every ruling: https://tabbaci.vercel.app/ledger.html
-- Lies tried: https://tabbaci.vercel.app/ledger.html?show=lies
-- Bribe round: https://tabbaci.vercel.app/case.html?round=25
-- Planted order rounds: https://tabbaci.vercel.app/case.html?round=35 and https://tabbaci.vercel.app/case.html?round=36
-- Nightly re-check: https://github.com/Sireadell/tabbaci/actions/workflows/recheck.yml
 
-## Honest limits
-- Testnet money. Mainnet saw 3 program runs, no bonds.
-- The contract does not check the judge signatures itself. The sealed program, the checker and each case page do.
-- The sealed-box line needs outlayer-verify. Saved sealed-box proofs exist only for rounds 20, 25 and 33.
-- Judge reply words are not published, only their fingerprints, so that line is INFO and never counts.
-- Most finished rounds cannot be fully re-matched on every line (unsaved live page bytes, no saved sealed-box proof, or no recorded reserve on rounds 37 to 40). The report lists which line and why.
+- Site: https://tabbaci.vercel.app
+- Repo: https://github.com/Sireadell/tabbaci
+- Judges guide: https://github.com/Sireadell/tabbaci/blob/main/JUDGES.md
+- Ledger: https://tabbaci.vercel.app/ledger.html
+- Lies tried: https://tabbaci.vercel.app/ledger.html?show=lies
+- Nightly re-check: https://github.com/Sireadell/tabbaci/actions/workflows/recheck.yml
+- Status: https://tabbaci.vercel.app/status.json

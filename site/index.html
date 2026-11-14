@@ -19,21 +19,28 @@
       <a class="btn ghost" href="https://youtu.be/yGT0UdVO5YM" target="_blank" rel="noopener">Watch the demo video</a>
     </div>
     <div class="hero-nums" aria-label="Live numbers from the chain">
-      <div><b id="h-rulings">-</b><span>rounds ruled</span></div>
-      <div><b id="h-lies">-</b><span>lies tried</span></div>
-      <div><b id="h-fines">-</b><span>fines paid</span></div>
-      <div id="h-vis-box" hidden><b id="h-vis">-</b><span>sent by visitors</span></div>
-      <div id="h-ai-box" hidden><b id="h-ai">-</b><span>sent by AI agents</span></div>
+      <div><b id="h-rulings">49</b><span>rounds ruled</span></div>
+      <div><b id="h-lies">18</b><span>lies tried</span></div>
+      <div><b id="h-fines">17</b><span>fines paid</span></div>
+      <div id="h-vis-box" hidden><b id="h-vis">0</b><span>sent by visitors</span></div>
+      <div id="h-ai-box"><b id="h-ai">10</b><span>sent by AI agents</span></div>
     </div>
-    <p class="note-live" id="live-note">Reading the chain...</p>
-    <noscript><p class="mute">Without scripts, here are the numbers as of 13 Nov 2026. I ran 36 rounds on <code>finalenc2.testnet</code> (visitors can add more). 18 lies were planted on purpose and none was ruled true. 14 writers were fined. The contract has 0 access keys. The court and all bonded rounds run on NEAR testnet with test money, and the sealed program has also run 3 times on NEAR mainnet with no bonds. The contract checks the format of the judges' replies, and the checker command checks their signatures. My account controls the list of approved sources. The code is at <a href="https://github.com/Sireadell/tabbaci">github.com/Sireadell/tabbaci</a>.</p></noscript>
+    <p class="note-live" id="live-note">Numbers as of 14 Nov 2026 from finalenc2.testnet. They refresh from the chain when this page loads. Test network, test money.</p>
+    <p id="courts-static">I built Tabbaci as an encyclopedia on NEAR where the writer pays for being wrong, and it runs in three courts. The first, <a href="ledger.html">finalenc2.testnet</a>, has no access keys and has ruled 49 rounds with test money, and none of the 18 lies I planted in it was ruled true. The second, <a href="case.html?round=7&amp;c=tabbaci-court2.testnet">tabbaci-court2.testnet</a>, also has no keys, checks all three judges' signatures and quotes inside the contract itself, and is where the site now sends new sentences. The third is a mainnet pilot, <a href="https://nearblocks.io/address/5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e" style="word-break:break-all">5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e</a>, which ran 3 rounds with real NEAR and still has 1 admin key.</p>
+    <noscript><p class="mute">The code is at <a href="https://github.com/Sireadell/tabbaci">github.com/Sireadell/tabbaci</a>.</p></noscript>
   </div>
   <div class="rp" id="replay" aria-live="polite"><p class="mute">Loading a real ruling...</p></div>
 </section>
 
 <section class="band" id="latest-sec">
   <div class="sec-head"><div><p class="label">Latest rulings</p><h2>What the court decided last</h2></div><p><a href="ledger.html">See every round in the ledger</a></p></div>
-  <ol class="latest" id="latest"><li class="mute" style="padding:14px 4px">Reading the chain...</li></ol>
+  <ol class="latest" id="latest">
+    <li><a class="lrow" href="case.html?round=50"><span class="rid">No. 50</span><span class="claim">Lagos is the current capital of Nigeria.</span><span class="meta">FALSE · sent by an AI agent</span></a></li>
+    <li><a class="lrow" href="case.html?round=49"><span class="rid">No. 49</span><span class="claim">Lagos is a former capital of Nigeria.</span><span class="meta">UNSURE · sent by an AI agent</span></a></li>
+    <li><a class="lrow" href="case.html?round=48"><span class="rid">No. 48</span><span class="claim">Lagos is the most populous urban area on the African continent.</span><span class="meta">TRUE · sent by an AI agent</span></a></li>
+    <li><a class="lrow" href="case.html?round=47"><span class="rid">No. 47</span><span class="claim">Lagos is the largest city in Nigeria.</span><span class="meta">TRUE · sent by an AI agent</span></a></li>
+    <li><a class="lrow" href="case.html?round=46"><span class="rid">No. 46</span><span class="claim">Lagos is a large port city in southwestern Nigeria.</span><span class="meta">TRUE · sent by an AI agent</span></a></li>
+  </ol>
 </section>
 
 <section class="band" id="files">
@@ -45,7 +52,17 @@
   <div class="sec-head"><div><p class="label">The numbers</p><h2>What I can show so far</h2></div><p>The top rows are read from the chain as this page loads. The bottom rows come from a separate test I ran off the chain, so I keep the two apart.</p></div>
   <div class="tab-scroll"><table class="numtable">
     <thead><tr><th scope="col">Number</th><th scope="col">What it is</th><th scope="col">Where it comes from</th></tr></thead>
-    <tbody id="numbody"><tr><td colspan="3" class="mute">Reading the chain...</td></tr></tbody>
+    <tbody id="numbody">
+      <tr class="group"><td colspan="3">On the chain. Read live from the contract on the NEAR test network.</td></tr>
+      <tr><td class="n">49</td><td class="w">rounds the court has ruled</td><td class="w mute"><a href="ledger.html">The ledger</a>, straight from finalenc2.testnet</td></tr>
+      <tr><td class="n">18</td><td class="w">lies planted on purpose and sent to the court</td><td class="w mute"><a href="ledger.html?show=lies">The ledger, lies only</a></td></tr>
+      <tr><td class="n">0</td><td class="w">lies that got through, ruled TRUE</td><td class="w mute"><a href="ledger.html?show=lies">The ledger, lies only</a>. Every one was stopped.</td></tr>
+      <tr><td class="n">17</td><td class="w">bonds that lost money, 0.5546 NEAR in all</td><td class="w mute"><a href="case.html?round=20">Round 20</a> is one of them</td></tr>
+      <tr class="group"><td colspan="3">Accuracy test. I ran it off the chain on 9 November 2026 with the same three judges, so these numbers are not on the chain.</td></tr>
+      <tr><td class="n">198 of 200</td><td class="w">sentences ruled correctly, 100 true and 100 false</td><td class="w mute">The accuracy tool in the code. The right answers come from Wikidata</td></tr>
+      <tr><td class="n">0</td><td class="w">ruled wrongly, and 2 got no ruling</td><td class="w mute">The same test</td></tr>
+      <tr><td class="n">$0.0173</td><td class="w">total cost of the 600 judge calls</td><td class="w mute">The same test</td></tr>
+    </tbody>
   </table></div>
 </section>
 
