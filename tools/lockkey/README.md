@@ -22,3 +22,24 @@ Proven on testnet with a dummy key and `programs/keyprobe` (account `keyprobe.si
 Not proven: the `-Via` rule (it needs the final contract to call through), and the script run end to end in one go (the steps above were run by hand with the same commands; testnet funds were too low for another throwaway account).
 
 `run-and-read.ps1` runs a program on OutLayer testnet and prints the reply from the chain.
+
+## The private court: two secrets in one profile
+
+OutLayer gives one run one secrets profile of one owner account, so the private court's NEAR AI key and the writer's read-only GitHub token must sit in the same secret. `lock-private.ps1` stores both in one go and is run by the person who owns the GitHub token, on their own machine:
+
+```
+.\lock-private.ps1 -Owner <new owner account> -ProgramHash <sha256 of the real court-private build> -Via <courtroom-private contract> -Create -Repo <owner/repo>
+```
+
+| Step | What happens |
+|---|---|
+| AI key | read by the script from `C:\Users\DELL\.near-secrets\nearai-api-key.txt`, never shown |
+| GitHub token | typed into a hidden prompt, held in memory only, never written to disk |
+| `-Repo` | optional: one request to api.github.com checks the token can read that repo |
+| Store | one secret `{"NEAR_AI_KEY":..., "PRIVATE_SOURCE_KEY":...}` locked with `--wasm-hash` and `--via` |
+| Lock | every key on the owner account deleted, checked at 0 |
+| Output | lengths and one `LOCKED ...` line, never a value |
+
+Then deploy `contracts/courtroom-private` with `secrets_account` = `-Owner` and `secrets_profile` = `-Profile` (default `court`).
+
+OutLayer also has `outlayer secrets update` (merges new variables into a stored row). It was not used, because the owner account must keep its key between the two people's turns; one run of `lock-private.ps1` needs no hand-over.
