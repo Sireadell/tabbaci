@@ -69,6 +69,7 @@ export function createClient(opts = {}) {
     contract, network, explorer, site,
     view,
     bondSentence: (a) => bondSentence(writer, { site, explorer }, a),
+    readEvidence: (page) => readEvidence(page, { fetchImpl: opts.fetchImpl || globalThis.fetch }),
     waitForRuling: (round, o) => waitForRuling({ view, writer, ctx: { contract, network, explorer, site } }, round, { ...opts.wait, ...o }),
     getContractInfo: () => getContractInfo(view, contract, network),
     listRounds: (o) => listRounds(view, contract, network, o),
@@ -206,6 +207,30 @@ export async function findSentence(view, contract, network, text, o = {}) {
   if (!q) throw new Error('give some text to search for');
   const all = await listRounds(view, contract, network, o);
   return all.filter((r) => r.sentence.toLowerCase().includes(q));
+}
+
+// ---- the evidence the court will read ----
+
+const WIKI = 'https://en.wikipedia.org/api/rest_v1/page/summary/';
+const WIKIDATA = 'https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/';
+const UA = { 'user-agent': 'tabbaci-mcp (https://tabbaci.vercel.app)' };
+
+// The court reads only the opening summary of the Wikipedia page and the one-line Wikidata description.
+// Showing that text first lets a writer bond sentences the court can actually check.
+export async function readEvidence(page, { fetchImpl = globalThis.fetch } = {}) {
+  const topic = String(page ?? '').trim();
+  if (!topic) throw new Error('give the Wikipedia page name, for example Lagos');
+  const r = await fetchImpl(WIKI + encodeURIComponent(topic.replace(/ /g, '_')) + '?redirect=true', { headers: UA });
+  if (r.status === 404) throw new Error(`Wikipedia has no page called "${topic}". Try the exact page name.`);
+  if (!r.ok) throw new Error('Wikipedia did not answer. Try again in a minute.');
+  const p = await r.json();
+  if (p.type === 'disambiguation') throw new Error(`"${topic}" can mean several things on Wikipedia. Pick a more exact page name.`);
+  let wikidata = null;
+  if (/^Q\d+$/.test(p.wikibase_item || '')) {
+    const w = await fetchImpl(`${WIKIDATA}${p.wikibase_item}/descriptions/en`, { headers: UA }).catch(() => null);
+    if (w && w.ok) wikidata = await w.json().catch(() => null);
+  }
+  return { page: p.title, wikipedia_summary: p.extract || '', wikidata_description: typeof wikidata === 'string' ? wikidata : null, wikidata_id: p.wikibase_item || null };
 }
 
 // ---- sending a sentence (play money, testnet, through the site) ----

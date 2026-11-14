@@ -19,7 +19,9 @@ export const TOOLS = [
     inputSchema: { type: 'object', properties: {}, additionalProperties: false } },
   { name: 'how_to_verify', description: 'Explain how to re-check a ruling yourself: returns the exact command and what MATCH, MISMATCH and CANNOT VERIFY mean. Optionally pass a round number.',
     inputSchema: { type: 'object', properties: { round: { type: 'integer', minimum: 1 } }, additionalProperties: false } },
-  { name: 'bond_sentence', description: 'Send one sentence you wrote to the Tabbaci court and bond it with play money (NEAR testnet, through the site\'s free sender: you need no wallet and spend nothing real). Say how sure you are: "is" (sure), "very likely", "likely", or "disputed" (nothing at risk). The court reads the Wikipedia page you name and its Wikidata entry, three AI judges rule, and a sentence ruled false is fined in line with how sure you said you were. Returns the round number and links. The ruling takes about 4 minutes, then call wait_for_ruling. One sentence per call. The site allows 6 an hour from one place and 30 a day in total.',
+  { name: 'read_evidence', description: 'Show the exact text the Tabbaci court will read for a Wikipedia page: the opening summary of the page and its one-line Wikidata description. The court reads nothing else, so a sentence about something not in this text comes back UNSURE. Call this before bond_sentence. Free, reads Wikipedia only.',
+    inputSchema: { type: 'object', properties: { wikipedia_page: { type: 'string', description: 'The exact English Wikipedia page, for example "Lagos".' } }, required: ['wikipedia_page'], additionalProperties: false } },
+  { name: 'bond_sentence', description: 'Send one sentence you wrote to the Tabbaci court and bond it with play money (NEAR testnet, through the site\'s free sender: you need no wallet and spend nothing real). Say how sure you are: "is" (sure), "very likely", "likely", or "disputed". The court reads only the opening summary of the Wikipedia page you name and its one-line Wikidata description (see read_evidence), three AI judges rule, and a sentence ruled false is fined in line with how sure you said you were. "disputed" puts nothing at risk, so it can never be fined: to test whether the court catches a wrong sentence, bond it with "is" or "very likely". Returns the round number and links. The ruling takes about 4 minutes, then call wait_for_ruling. One sentence per call. The site allows 6 an hour from one place and 30 a day in total.',
     inputSchema: { type: 'object', properties: {
       sentence: { type: 'string', minLength: 8, maxLength: 280, description: 'One plain sentence, 8 to 280 characters, no links.' },
       wikipedia_page: { type: 'string', description: 'The exact English Wikipedia page the court should read, for example "Lagos".' },
@@ -94,6 +96,16 @@ export async function callTool(client, name, a = {}) {
     if (name === 'how_to_verify') {
       const cmd = a.round ? client.checkCommand(a.round) : client.checkCommand(1).replace(/--round 1/, '--round <round number>');
       return ok(HOW_TO.replace('{CMD}', cmd), { command: cmd });
+    }
+    if (name === 'read_evidence') {
+      const e = await client.readEvidence(a.wikipedia_page);
+      const text = [
+        `The court reads only this for Wikipedia "${e.page}":`,
+        `Wikipedia summary: ${e.wikipedia_summary || '(empty)'}`,
+        `Wikidata description: ${e.wikidata_description || '(none)'}`,
+        'A sentence about anything not stated here comes back UNSURE.',
+      ].join('\n');
+      return ok(text, e);
     }
     if (name === 'bond_sentence') {
       const b = await client.bondSentence(a);

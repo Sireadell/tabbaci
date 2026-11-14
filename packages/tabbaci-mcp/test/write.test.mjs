@@ -161,3 +161,42 @@ test('mcp: wait_for_ruling text', async () => {
   assert.match(r.content[0].text, /Fined: it was said with "is"/);
   assert.match(r.content[0].text, /case\.html\?round=41/);
 });
+
+// A fake Wikipedia and Wikidata for read_evidence.
+const fakeWiki = (summary = { type: 'standard', title: 'Lagos', extract: 'Lagos is the largest city in Nigeria.', wikibase_item: 'Q8673' }, status = 200) => {
+  const urls = [];
+  const fetchImpl = async (url) => {
+    urls.push(url);
+    if (url.includes('wikidata')) return { ok: true, status: 200, json: async () => 'largest city and former capital of Nigeria' };
+    return { ok: status < 400, status, json: async () => summary };
+  };
+  return { urls, fetchImpl };
+};
+
+test('read_evidence returns the summary and Wikidata line the court reads', async () => {
+  const w = fakeWiki();
+  const e = await createClient({ fetchImpl: w.fetchImpl }).readEvidence(' Lagos State ');
+  assert.equal(e.wikipedia_summary, 'Lagos is the largest city in Nigeria.');
+  assert.equal(e.wikidata_description, 'largest city and former capital of Nigeria');
+  assert.equal(w.urls[0], 'https://en.wikipedia.org/api/rest_v1/page/summary/Lagos_State?redirect=true');
+  assert.equal(w.urls[1], 'https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q8673/descriptions/en');
+});
+
+test('read_evidence: missing page, ambiguous page, empty name', async () => {
+  await assert.rejects(createClient({ fetchImpl: fakeWiki({}, 404).fetchImpl }).readEvidence('Nowhere'), /no page called/);
+  await assert.rejects(createClient({ fetchImpl: fakeWiki({ type: 'disambiguation', title: 'X' }).fetchImpl }).readEvidence('X'), /several things/);
+  await assert.rejects(createClient({ fetchImpl: fakeWiki().fetchImpl }).readEvidence(''), /page name/);
+});
+
+test('mcp: read_evidence text warns that anything else comes back unsure', async () => {
+  const h = createServer(createClient({ fetchImpl: fakeWiki().fetchImpl }));
+  const r = (await h({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'read_evidence', arguments: { wikipedia_page: 'Lagos' } } })).result;
+  assert.match(r.content[0].text, /largest city in Nigeria/);
+  assert.match(r.content[0].text, /former capital/);
+  assert.match(r.content[0].text, /comes back UNSURE/);
+});
+
+test('bond_sentence says "disputed" can never be fined', async () => {
+  const { TOOLS } = await import('../src/server.mjs');
+  assert.match(TOOLS.find((t) => t.name === 'bond_sentence').description, /can never be fined/);
+});
