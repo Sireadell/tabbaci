@@ -13,6 +13,7 @@ import { findOutlayerVerify } from './outlayer.mjs';
 import { sha256, sha256hex, b64url, recoverAddress } from './crypto.mjs';
 import { net, settle, settleBatchCheck } from './payout.mjs';
 import { dataUser, proseUser, requestBody, requestBodyV1, canon, extract, windowOf, proseOutcome, dataOutcome } from './frames.mjs';
+import { checkV2 } from './v2.mjs';
 
 const args = Object.fromEntries(
   process.argv.slice(2).reduce((acc, a, i, all) => (a.startsWith('--') ? [...acc, [a.slice(2), all[i + 1] && !all[i + 1].startsWith('--') ? all[i + 1] : 'true']] : acc), []),
@@ -139,7 +140,7 @@ async function main() {
   // 5. the verdict
   let v;
   try { v = JSON.parse(r.verdict); } catch { add(X, 'verdict is valid JSON'); return finish(); }
-  add(Buffer.byteLength(r.verdict) <= 900 && v.v === 1 && v.rd === round && v.ih === r.ih ? M : X, 'verdict belongs to this round and request', `${Buffer.byteLength(r.verdict)} bytes, o=${v.o}`);
+  add(Buffer.byteLength(r.verdict) <= (v.v === 2 ? 7000 : 900) && (v.v === 1 || v.v === 2) && v.rd === round && v.ih === r.ih ? M : X, 'verdict belongs to this round and request', `${Buffer.byteLength(r.verdict)} bytes, o=${v.o}`);
   add(v.o === r.outcome || (v.o === 'V' && r.status === 'void') ? M : X, 'contract outcome equals the verdict', `verdict ${v.o}, contract ${r.outcome ?? r.void_reason}`);
 
   // 6. sources
@@ -171,7 +172,17 @@ async function main() {
   }
 
   // 7. judges: rebuild each request, check each signature
-  if ((v.j || []).length) {
+  if (v.v === 2) {
+    // court version 2: quotes against the saved page bytes, signatures against what the contract checked
+    let attested = null;
+    if (args['attested-judges']) {
+      const { execFileSync } = await import('node:child_process');
+      const script = new URL('../../privacy/tools/verify-judges.mjs', import.meta.url);
+      try { attested = JSON.parse(execFileSync(process.execPath, [fileURLToPath(script), '--algo', 'ed25519', '--signers', '--models', input.m.join(',')], { encoding: 'utf8', timeout: 240000, stdio: ['ignore', 'pipe', 'ignore'] })); }
+      catch (e) { add(C, 'judge keys vouched for by Intel', 'could not run privacy/tools/verify-judges.mjs: ' + String(e.message).slice(0, 80)); }
+    }
+    for (const row of checkV2({ r, input, v, bodies, attested })) add(row.status, row.name, row.detail);
+  } else if ((v.j || []).length) {
     let user = null;
     if (input.kind === 'data') user = dataUser(input.claim, canon(Number(input.cv)));
     else if (bodies.length && bodies.every(Boolean)) {
