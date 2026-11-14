@@ -29,7 +29,7 @@ export function makeTransport({ rpcs = DEFAULTS.rpcs, fetchImpl = globalThis.fet
 }
 
 export function createClient(opts = {}) {
-  const contract = opts.contract || DEFAULTS.contract;
+  const contract = opts.contract || (typeof process !== 'undefined' && process.env.TABBACI_CONTRACT) || DEFAULTS.contract;
   const network = opts.network || DEFAULTS.network;
   const rpc = opts.rpc || makeTransport(opts);
   const explorer = `https://${network === 'mainnet' ? '' : 'testnet.'}nearblocks.io`;
@@ -105,7 +105,8 @@ export function parseRound(id, r, { network = DEFAULTS.network, contract = DEFAU
   const models = input.m || [];
   const { letter, label } = describeOutcome(r);
   const kind = input.kind === 'data' ? 'data' : 'prose';
-  const judges = verdict && verdict.j ? verdict.j.map((j) => ({ model: models[j.m] || `judge ${j.m}`, answer: j.a, signed: Boolean(j.g) })) : [];
+  const checked = r.checked || [];
+  const judges = verdict && verdict.j ? verdict.j.map((j) => ({ model: models[j.m] || `judge ${j.m}`, answer: j.a, signed: Boolean(j.g), ...(checked[j.m] ? { quote: checked[j.m].quote || null, quote_in_page_excerpt: checked[j.m].quote_ok, signature_checked_by_contract: checked[j.m].sig_ok } : {}) })) : [];
   const sources = verdict && verdict.s ? verdict.s.map((s) => {
     const src = (input.src || []).find((x) => x.i === s.i);
     return { url: src ? src.u : `source ${s.i}`, http_status: s.c, read_value: s.x !== undefined ? s.x : null };

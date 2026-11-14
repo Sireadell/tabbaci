@@ -140,7 +140,7 @@ export default async function handler(req, res) {
     const bond = await call({ account: ACCOUNT, key: k, contract: CONTRACT, method: 'bond', args: { round, word: w.word }, tgas: 50 });
     step('bonded');
     return res.status(200).json({
-      round, word: w.word, page: p.title, sources: args.picks.map((x) => x.url), terms,
+      round, contract: CONTRACT, word: w.word, page: p.title, sources: args.picks.map((x) => x.url), terms,
       tx: { open: open.hash, bond: bond.hash }, left: s.left - 1, cap: s.cap, account: ACCOUNT,
     });
   } catch (e) {

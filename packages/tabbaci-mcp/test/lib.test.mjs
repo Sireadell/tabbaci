@@ -138,3 +138,26 @@ test('live: rounds 20 and 24 on the real contract', { skip: !LIVE && 'set ENCYCL
   assert.equal(b.outcome, 'F');
   assert.equal(b.fine_paid, true);
 });
+
+test('a court version 2 round shows each judge quote and the contract signature check', async () => {
+  const { parseRound } = await import('../src/index.mjs');
+  const r = {
+    claim: 'x', input: JSON.stringify({ kind: 'prose', m: ['a', 'b', 'c'], src: [] }),
+    verdict: JSON.stringify({ v: 2, o: 'F', j: [{ m: 0, a: 'F', g: 's' }, { m: 1, a: 'F', g: 's' }, { m: 2, a: 'X' }], s: [] }),
+    status: 'settled', outcome: 'F', attempts: [], bonds: [],
+    checked: [{ quote: 'q0', quote_ok: true, sig_ok: true }, { quote: 'q1', quote_ok: true, sig_ok: true }, { quote: '', quote_ok: false, sig_ok: false }],
+  };
+  const p = parseRound(1, r, {});
+  assert.equal(p.judges[0].quote, 'q0');
+  assert.equal(p.judges[0].signature_checked_by_contract, true);
+  assert.equal(p.judges[2].signature_checked_by_contract, false);
+});
+
+test('the contract can be set with TABBACI_CONTRACT and defaults to the first court', async () => {
+  const { createClient } = await import('../src/index.mjs');
+  delete process.env.TABBACI_CONTRACT;
+  assert.equal(createClient({ rpc: async () => ({}) }).contract, 'finalenc2.testnet');
+  process.env.TABBACI_CONTRACT = 'other.testnet';
+  assert.equal(createClient({ rpc: async () => ({}) }).contract, 'other.testnet');
+  delete process.env.TABBACI_CONTRACT;
+});
