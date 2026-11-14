@@ -13,8 +13,8 @@
 
 | Court | Contract | Keys | What it adds | Best round |
 |---|---|---|---|---|
-| Court 1 | finalenc2.testnet (NEAR testnet) | 0 access keys | 28 methods, none can replace the code, keys or owner. 50 rounds, 49 ruled. 18 planted lies, 0 ruled true, 17 of those bonds lost money (0.5546 NEAR in all). Program fingerprint starts 2c8e24a5. | [Round 25](https://tabbaci.vercel.app/case.html?round=25): the sentence ends with an order to answer TRUE, all 3 judges said FALSE |
-| Court 2 | tabbaci-court2.testnet (NEAR testnet) | 0 access keys (deleted) | The contract itself checks all three judges' signatures and checks that each judge's quote really appears in the page text. 7 rounds, rounds 2 to 7 settled, round 1 void. Program fingerprint starts 129b36ec. The live site now sends new sentences here. | [Round 7](https://tabbaci.vercel.app/case.html?round=7&c=tabbaci-court2.testnet): "Mount Everest is the highest mountain above sea level." ruled True, 3 of 3 signatures and quotes checked, sent from the site with no wallet |
+| Court 1 | finalenc2.testnet (NEAR testnet) | 0 access keys | 28 methods, none can replace the code, keys or owner. 50 rounds, 49 ruled. 18 planted lies, 0 ruled true. 18 bonds lost money in all (0.5741 NEAR): the 14 planted lies that had money on them, 3 visitor rounds and the AI's planted sentence in round 50. Program fingerprint starts 2c8e24a5. | [Round 25](https://tabbaci.vercel.app/case.html?round=25): the sentence ends with an order to answer TRUE, all 3 judges said FALSE |
+| Court 2 | tabbaci-court2.testnet (NEAR testnet) | 0 access keys (deleted) | The contract itself checks all three judges' signatures and checks that each judge's quote really appears in the page text. Rounds 1, 8 and 9 were cancelled after three failed runs each, with bonds returned. Every other round has a ruling. Live count at status.json. Program fingerprint starts 129b36ec. The live site now sends new sentences here. | [Round 7](https://tabbaci.vercel.app/case.html?round=7&c=tabbaci-court2.testnet): "Mount Everest is the highest mountain above sea level." ruled True, 3 of 3 signatures and quotes checked, sent from the site with no wallet |
 | Mainnet pilot | 5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e (NEAR mainnet) | 1 admin key | 3 rounds with real NEAR, 0.05 NEAR each, bonded by sireadell.near. Same sealed program 2c8e24a5. | [Checker outputs](https://github.com/Sireadell/tabbaci/tree/main/proofs/mainnet): a true sentence got its bond back, a planted lie was fined 0.0326 NEAR, a number round paid a 0.0124 NEAR bonus |
 | Private court | court-private.sireadell.testnet (NEAR testnet) | 0 access keys (deleted) | Rules on facts behind a login without anyone seeing them. The sealed program reads a private GitHub repo with the writer's read-only key, the judges rule, and only the verdict, a page fingerprint and the judges' signatures leave. The contract checks all three signatures. A canary test shows a real commit ID from the private repo never reached any public transaction. | [Round 1](https://tabbaci.vercel.app/private-case.html?round=1): "at least 2 commits in November 2026" ruled True. [Round 2](https://tabbaci.vercel.app/private-case.html?round=2): planted lie "more than 50 commits" ruled Unsure, bond returned, not accepted as true |
 
@@ -39,9 +39,9 @@ node tools/verify/verify.mjs --contract finalenc2.testnet --round 25 --archive a
 node tools/verify/verify.mjs --contract tabbaci-court2.testnet --round 4 --archive archive --network testnet --attested-judges --rpc https://test.rpc.fastnear.com
 ```
 
-Exit code 0: every checked line matched. 1: something did not match. 2: nothing mismatched, but something could not be checked.
+Exit code 0: every checked line matched. 1: something did not match. 2: nothing mismatched, but something could not be checked. Each check takes under a minute.
 
-Re-check every finished round: `node tools/recheck/recheck.mjs --all --out report.json`. The nightly result is at [status.json](https://tabbaci.vercel.app/status.json). Latest: 49 of 49 finished rounds, 0 mismatch.
+Re-check every finished round: `node tools/recheck/recheck.mjs --all --out report.json`. The nightly result is at [status.json](https://tabbaci.vercel.app/status.json). Latest: 49 of 49 finished rounds, 0 mismatch, 3 fully MATCH.
 
 ## Links
 
