@@ -35,7 +35,7 @@ Swap `--round 25` for `--round 35` or `--round 36` to see `source 11 bytes match
 
    This re-checks every finished round in about 2 minutes on GitHub's Linux machines, up to about 8 minutes on a home PC. Today there are 49 finished rounds and 0 mismatch. The summary line reads "49 of 49 finished rounds: 0 mismatch (3 fully MATCH, 46 with lines this machine could not test)". It only says "49 of 49 finished rounds: MATCH" if every round fully matches, and today most do not, for three plain reasons listed per round in `report.json`:
    - for 45 source checks the exact page bytes were not saved (for example a live status page whose block height changes every second cannot be fetched again the same way),
-   - a saved sealed-box proof exists only for rounds 20, 25 and 33,
+   - a saved sealed-box proof exists only for rounds 20, 25, 33, 35 and 36 (and court version 2 rounds 4 to 7),
    - the 4 newest rounds (37 to 40) did not record the reserve at settlement, so their bond payout line cannot be redone.
 3. Run the tests, one line at a time from the repo root:
    - `cd tools/verify; node --test` (58 tests: 57 pass, 1 skipped because it needs the live chain)
@@ -84,7 +84,7 @@ Swap `--round 25` for `--round 35` or `--round 36` to see `source 11 bytes match
 
 - **Mostly testnet money.** All but 3 bonds and 1 fine are on NEAR testnet. The mainnet pilot ran 3 bonded rounds with real NEAR and still has one admin key.
 - **The first contract does not check the judge signatures itself.** The sealed program checks them, and the checker and every case page re-check them. Court version 2, `tabbaci-court2.testnet`, checks all three inside the contract, refuses a forged one ([the test](contracts/courtroom-v2/src/tests_v2.rs), run on every push by the [tests workflow](https://github.com/Sireadell/tabbaci/actions/workflows/tests.yml)), and is where the site sends new sentences.
-- **The sealed-box line needs the tool.** Without `outlayer-verify` that line says `needs outlayer-verify` and the run ends `OVERALL: CANNOT VERIFY`. Only rounds 20, 25 and 33 have a saved sealed-box proof.
+- **The sealed-box line needs the tool.** Without `outlayer-verify` that line says `needs outlayer-verify` and the run ends `OVERALL: CANNOT VERIFY`. Only rounds 20, 25, 33, 35 and 36 (and court version 2 rounds 4 to 7) have a saved sealed-box proof.
 - **The judges' reply words are not published.** Only a fingerprint of each reply is, so that line is INFO and is left out of the total.
 - **The site's test account has a full-access key.** `tabbaci-visitors.testnet` opens visitor rounds, holds only test NEAR (about 8) and cannot change a ruling.
 - **Two court 2 rounds sent from the Wikipedia button were cancelled.** Rounds 8 and 9 failed three runs each, and both bonds came back. Round 10 from the same button was ruled True.

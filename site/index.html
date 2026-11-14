@@ -21,7 +21,7 @@
     <div class="hero-nums" aria-label="Live numbers from the chain">
       <div><b id="h-rulings">49</b><span>rounds ruled</span></div>
       <div><b id="h-lies">18</b><span>lies tried</span></div>
-      <div><b id="h-fines">17</b><span>fines paid</span></div>
+      <div><b id="h-fines">18</b><span>fines paid</span></div>
       <div id="h-vis-box" hidden><b id="h-vis">0</b><span>sent by visitors</span></div>
       <div id="h-ai-box"><b id="h-ai">10</b><span>sent by AI agents</span></div>
     </div>
@@ -57,7 +57,7 @@
       <tr><td class="n">49</td><td class="w">rounds the court has ruled</td><td class="w mute"><a href="ledger.html">The ledger</a>, straight from finalenc2.testnet</td></tr>
       <tr><td class="n">18</td><td class="w">lies planted on purpose and sent to the court</td><td class="w mute"><a href="ledger.html?show=lies">The ledger, lies only</a></td></tr>
       <tr><td class="n">0</td><td class="w">lies that got through, ruled TRUE</td><td class="w mute"><a href="ledger.html?show=lies">The ledger, lies only</a>. Every one was stopped.</td></tr>
-      <tr><td class="n">17</td><td class="w">bonds that lost money, 0.5546 NEAR in all</td><td class="w mute"><a href="case.html?round=20">Round 20</a> is one of them</td></tr>
+      <tr><td class="n">18</td><td class="w">bonds that lost money, 0.5741 NEAR in all</td><td class="w mute"><a href="case.html?round=20">Round 20</a> is one of them</td></tr>
       <tr class="group"><td colspan="3">Accuracy test. I ran it off the chain on 9 November 2026 with the same three judges, so these numbers are not on the chain.</td></tr>
       <tr><td class="n">198 of 200</td><td class="w">sentences ruled correctly, 100 true and 100 false</td><td class="w mute">The accuracy tool in the code. The right answers come from Wikidata</td></tr>
       <tr><td class="n">0</td><td class="w">ruled wrongly, and 2 got no ruling</td><td class="w mute">The same test</td></tr>
@@ -79,7 +79,7 @@
     </div>
     <div>
       <h3>The terminal is now a second way to check</h3>
-      <p class="mute">This page now checks the judges' signatures and Intel's signed report on the sealed run in your browser, using Intel's certificates from the saved proof file served with this site, plus the program fingerprint and approved machine list read live from the NEAR chain. Rounds 20, 25, 33, 35 and 36, and rounds 4 to 7 on court version 2, show every line as MATCH, while any other round has no saved proof, so one line says COMMAND LINE. The command below checks everything live in about 20 to 40 seconds.</p>
+      <p class="mute">This page now checks the judges' signatures and Intel's signed report on the sealed run in your browser, using Intel's certificates from the saved proof file served with this site, plus the program fingerprint and approved machine list read live from the NEAR chain. Rounds 20, 25, 33, 35 and 36, and rounds 4 to 7 on court version 2, show every line as MATCH, while any other round has no saved proof, so one line says COMMAND LINE. The command below checks everything live in under a minute.</p>
       <pre id="cmd"></pre>
       <div class="copyrow"><button type="button" class="btn ghost" id="copy">Copy the command</button><span class="mute" id="copied" role="status"></span></div>
       <p class="mute" style="font-size:.9rem">The line "contract has no keys" shows MATCH. The contract has no access keys left, so nobody, me included, can change its code or its rules.</p>
@@ -108,7 +108,7 @@
   <div class="nots">
     <div><b>Not a prediction market.</b><p>The number beside each sentence is bond-backed confidence. It comes from the word the writer picked and the money they put behind it. Nobody trades it.</p></div>
     <div><b>Not on the main network at full scale yet.</b><p>A mainnet pilot ran 3 rounds with real NEAR and still has 1 admin key. Every other round ran on the NEAR test network with test money, and each of those case pages says Testnet at the top.</p></div>
-    <div><b>Not open to any source.</b><p>The court only reads pages from an approved list of 10, and I control that list.</p></div>
+    <div><b>Not open to any source.</b><p>The court only reads pages from an approved list of 11, and I control that list. One of them is my own test page, which leaves the list on 16 November.</p></div>
     <div><b>Not a swarm or a live market.</b><p>Both are on my roadmap. Neither is built, and nothing on this site claims them.</p></div>
   </div>
 </section>
