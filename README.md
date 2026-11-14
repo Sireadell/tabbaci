@@ -328,8 +328,6 @@ I also tested for leaks. I took a real commit ID from the private repo as a mark
 - **The site's test account has a full-access key.** `tabbaci-visitors.testnet` opens visitor rounds, and paying the run fee means attaching money to a call, which a limited key cannot do. It holds only test NEAR (about 8) and cannot change a ruling, because rulings are written only by the contract's callback and the contract has no keys.
 - **A judge that fails counts as unsure.** That happened on round 3 (2 of 3 judges). A retry would change the program's fingerprint and break the key lock.
 - **Two Wikipedia button rounds were cancelled.** Court 2 rounds 8 and 9 failed three runs each, and both bonds came back. Round 10 from the same button was ruled True.
-- **Two of the three judges are Qwen models.** They are `Qwen/Qwen3.8-27B` and `Qwen/Qwen3.6-35B-A3B-FP8`, and the third is DeepSeek. The contract sets them once and cannot change them. If NEAR AI retires one, that judge gives no signed reply; the other two can still rule if they agree. Swapping a model means a new contract.
-- **Three models from one provider are three models, not three independent parties.**
 - **A writer picks the evidence.** Whoever opens a round picks 2 or 3 pages from the list. Anyone can edit Wikipedia and then bond on a sentence that matches the edit.
 - **Live status pages cannot be re-matched.** On number rounds the pages change every second, so their exact bytes cannot be compared later.
 - **The sealed file rebuilds the same on the machine that made it, not elsewhere.** Linux gives `70edc619...`, the sealed file is `2c8e24a5...`. The build path of the Windows machine was baked into the file (29 copies). The sealed file is still the one the contract points to and the checker compares.
