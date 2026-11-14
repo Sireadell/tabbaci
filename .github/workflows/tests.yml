@@ -1,6 +1,6 @@
 name: tests
 
-# The Rust tests: courtroom program, three contracts. Runs on every push to main and by hand.
+# The Rust tests: courtroom program, both court contracts, the judge signature check and two more contracts. Runs on every push to main and by hand.
 on:
   push:
     branches: [main]
@@ -21,6 +21,12 @@ jobs:
       - name: Courtroom contract
         run: cargo test
         working-directory: contracts/courtroom
+      - name: Court version 2 contract (refuses forged judge signatures)
+        run: cargo test
+        working-directory: contracts/courtroom-v2
+      - name: Judge signature check
+        run: cargo test
+        working-directory: contracts/judgeverify
       - name: Rules contract
         run: cargo test
         working-directory: contracts/rules
