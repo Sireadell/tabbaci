@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="One ruling from the Tabbaci private court: a sentence about a private page, ruled inside a sealed chip. Only the verdict, the page fingerprint and one yes or no bit left the chip."><title>Private record | Tabbaci</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"></head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top" id="top"></header>
+<main id="main" class="wrap narrow">
+<div id="banner"></div>
+<article class="record" id="record" aria-live="polite">
+  <div class="rec-top"><span>Private court record</span><span class="tn">Testnet</span></div>
+  <div class="rec-body"><p class="mute" id="status">Reading the chain...</p></div>
+</article>
+<section id="check" hidden>
+  <h2>Check this ruling yourself</h2>
+  <p class="mute">The first command reads the round from the chain and checks the fingerprint, the three judge signatures, the contract's own check of them and how the ruling follows. The second checks the sealed run against Intel's report, with no network.</p>
+  <pre id="cmd"></pre>
+  <div class="copyrow"><button type="button" class="btn ghost" id="copy">Copy the commands</button><span class="mute" id="copied" role="status"></span></div>
+  <div class="print-row"><button type="button" class="btn ghost" onclick="window.print()">Print this record</button><a class="btn ghost" href="ledger.html">Back to the ledger</a></div>
+</section>
+</main>
+<footer id="foot"></footer>
+<script src="config.js"></script><script src="app.js"></script>
+<script>
+// Private court: court-private.sireadell.testnet. The page itself never leaves the sealed chip, so this record
+// shows only what the chain holds: the sentence, the fingerprint, the one bit, the signed answers and the money.
+const PRIVATE = 'court-private.sireadell.testnet';
+const PROGRAM = 'd2d4d644f854bc7fe22047c43b6a6f8d9f757d731fd7b717999642aac83f9c88';
+// The attempt transaction that carried each sealed run's answer.
+const ATTEMPT_TX = { 1: 'HUJxmAk3w3AiffX2SDS32HGRXq8NiQ79DaBAhFHBzV4i', 2: 'AtkFXM6aaVhJLQC48cNRLS14y4w2YNcs8hKQZTzJTcu' };
+const OP_WORDS = { gt: 'more than', ge: 'at least', lt: 'fewer than', le: 'at most', eq: 'exactly' };
+
+Site.chrome('ledger');
+const id = Number(new URLSearchParams(location.search).get('round'));
+const rec = $('record');
+const row = (dt, dd) => `<dt>${dt}</dt><dd>${dd}</dd>`;
+const b64urlHex = (s) => {
+  try {
+    const bin = atob(String(s).replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (String(s).length % 4)) % 4));
+    return [...bin].map((c) => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+  } catch { return ''; }
+};
+const ex = Site.explorer();
+const fail = (msg) => { rec.innerHTML = `<div class="rec-top"><span>Private court record</span><span class="tn">Testnet</span></div><div class="rec-body"><p>${esc(msg)}</p><p class="mute"><a href="${ex}/address/${PRIVATE}" rel="noopener">See the contract on the explorer</a></p></div>`; };
+
+function showCommands(n) {
+  $('cmd').textContent = `node tools/verify/verify.mjs --contract ${PRIVATE} --round ${n} --network testnet --attested-judges\noutlayer-verify bundle proofs/court-private/round-${n}.bundle.json --offline`;
+  $('check').hidden = false;
+}
+
+async function show() {
+  if (!Number.isInteger(id) || id < 1) { $('status').textContent = 'Add ?round= and a round number to the address, for example private-case.html?round=1.'; return; }
+  let r;
+  try { r = await Site.view('get_round', { round: id }, PRIVATE); }
+  catch (e) { fail(`The chain did not answer just now, so round ${id} could not be read. Try again in a minute.`); showCommands(id); return; }
+  if (!r) { fail(`There is no round ${id} on ${PRIVATE}.`); return; }
+  document.title = `Private record, round ${id} | Tabbaci`;
+
+  const input = Site.parse(r.input) || {}; const v = Site.parse(r.verdict); const models = input.m || [];
+  const word = Site.letterOf(r);
+  const src = (input.src || [])[0] || {};
+  const s = (v && (v.s || [])[0]) || null;
+  const cmp = OP_WORDS[input.op] ? `${OP_WORDS[input.op]} ${input.cv}` : '';
+
+  const fpHex = b64urlHex((s && s.h) || r.fingerprint || '');
+  const sameOnChain = s && r.fingerprint && s.h === r.fingerprint;
+  const fpHtml = fpHex
+    ? `<span class="mono" title="sha256 ${esc(fpHex)}">${esc(fpHex.slice(0, 16))}...</span><details style="margin-top:4px"><summary class="mute" style="cursor:pointer;font-size:.9rem">Show the full fingerprint</summary><span class="mono" style="overflow-wrap:anywhere">sha256 ${esc(fpHex)}</span></details><span class="mute" style="font-size:.9rem">${sameOnChain ? 'The contract recorded this same fingerprint.' : 'Fingerprint from the sealed run.'}</span>`
+    : '<span class="mute">No fingerprint yet.</span>';
+  const bitHtml = s && typeof s.y === 'boolean'
+    ? `<b>${s.y ? 'Yes' : 'No'}</b>. ${s.y ? 'The page meets' : 'The page does not meet'} "${esc(cmp)}".`
+    : '<span class="mute">No answer yet.</span>';
+
+  const checked = r.checked || [];
+  const judges = v && v.j && v.j.length
+    ? `<ul class="jl">${v.j.map((j) => {
+        const a = j.a === 'T' ? 'TRUE' : j.a === 'F' ? 'FALSE' : 'UNSURE';
+        const c = checked[j.m];
+        const note = j.a === 'X' || !j.g ? 'no signed reply, counted as unsure' : c && c.sig_ok ? 'reply signed, and the contract checked the signature' : 'reply signed';
+        return `<li>${Site.stamp(a, 'small')}<span>${esc(Site.modelName(models[j.m]) || 'judge ' + j.m)}, ${note}</span>${j.g ? `<span class="mono mute" title="${esc(j.g)}">${esc(j.g.slice(0, 10))}...</span>` : ''}</li>`;
+      }).join('')}</ul><p class="mute" style="margin:6px 0 0;font-size:.9rem">Each judge was asked one thing: does this sentence say the number is ${esc(cmp)}? The judges never saw the page. The page bit decides whether the page meets that number.</p>`
+    : '<span class="mute">No judge answers yet.</span>';
+
+  const attempts = (r.attempts || []).length
+    ? `<ul class="jl">${r.attempts.map((a) => {
+        const n = a.end_block ? a.end_block - a.start_block : null;
+        const what = a.result === 'ok' ? 'answered' : a.result === 'NULL' ? 'no answer, the shared OutLayer queue did not reach it in time' : esc(a.result);
+        return `<li><span>Attempt ${esc(a.n)}: ${what}${n != null ? `, ${n} blocks` : ''}</span></li>`;
+      }).join('')}</ul><p class="mute" style="margin:6px 0 0;font-size:.9rem">One block is about one second. An attempt with no answer is recorded on the chain as it happened.</p>`
+    : '<span class="mute">No attempts yet.</span>';
+
+  const tx = ATTEMPT_TX[id];
+  const proof = `The program that ran has fingerprint <span class="mono" title="${PROGRAM}">${PROGRAM.slice(0, 8)}...</span>, the one the contract stores. I saved the sealed-run proof. Check it offline:<pre>outlayer-verify bundle proofs/court-private/round-${id}.bundle.json --offline</pre>`;
+
+  const bonds = (r.bonds || []).length
+    ? `<ul class="jl">${r.bonds.map((b) => `<li><span class="mono">${esc(b.writer)}</span> put <b>${Site.near(b.stake)} NEAR</b> on the word <b>${esc(b.word)}</b></li>`).join('')}</ul>`
+    : '<span class="mute">No money behind this sentence.</span>';
+  const pending = (r.bonds || []).some((b) => b.payout == null);
+  const money = (r.bonds || []).length
+    ? `<ul class="jl">${r.bonds.map((b) => { const m = Site.bondMoney(b); return `<li><span class="${m.kind === 'fine' ? 'neg' : m.kind === 'gain' ? 'pos' : ''}">${esc(m.text)}</span></li>`; }).join('')}</ul>${pending ? '<p class="mute" style="margin:6px 0 0;font-size:.9rem" id="window">Settlement is pending. The bond pays out once the 36,000 block challenge window closes.</p>' : ''}`
+    : '<span class="mute">Nothing to pay.</span>';
+
+  rec.innerHTML = `<div class="rec-top"><span>Private court record · round ${id}</span><span class="tn">Testnet</span></div>
+  <div class="rec-body">
+    <p class="label">The sentence</p>
+    <h1 class="rec-claim">${esc(r.claim)}</h1>
+    <div class="rec-verdict">${Site.stamp(word, 'big')}<span class="mute">${esc(Site.plainOutcome(r))}</span></div>
+    <p><b>Nobody, including Tabbaci, saw this page.</b></p>
+    <dl class="rec-grid">
+      ${row('Source', `Private (read inside the sealed chip with the writer's key)<br><span class="mute">Host <span class="mono">${esc(src.h || '')}</span>, key named <span class="mono">${esc(src.sk || '')}</span>. The key itself never touches the chain.</span>`)}
+      ${row('Page fingerprint', fpHtml)}
+      ${row('The one bit', bitHtml)}
+      ${row('Three answers', judges)}
+      ${row('Attempts', attempts)}
+      ${row('Sealed-run proof', proof)}
+      ${row('Writer and bond', bonds)}
+      ${row('Payout', money)}
+      ${row('On the chain', `${tx ? `<a href="${ex}/txns/${esc(tx)}" rel="noopener">Ruling transaction ${esc(tx.slice(0, 12))}...</a> · ` : ''}<a href="${ex}/address/${PRIVATE}" rel="noopener">Contract</a>`)}
+    </dl>
+  </div>`;
+  showCommands(id);
+
+  if (pending) {
+    try {
+      const [c, b] = await Promise.all([Site.view('get_case', { round: id }, PRIVATE), Site.rpc('block', { finality: 'final' })]);
+      const left = c && c.window_ends - b.header.height;
+      if (left > 0) $('window').textContent = `Settlement is pending. The challenge window closes in ${left.toLocaleString('en')} blocks (about ${Math.max(1, Math.round(left / 3600))} hours), then the bond pays out.`;
+      else if (c) $('window').textContent = 'The challenge window has closed. The bond pays out when anyone calls finalize.';
+    } catch { /* keep the plain line */ }
+  }
+}
+$('copy').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('cmd').textContent); $('copied').textContent = 'Copied.'; } catch { $('copied').textContent = 'Select the text above and copy it.'; }
+});
+show().catch(() => fail('Could not read this round. Try again in a moment.'));
+</script>
+</body></html>
