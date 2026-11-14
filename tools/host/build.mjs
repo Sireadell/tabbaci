@@ -34,6 +34,9 @@ async function checkRelativeLinks(files) {
 await rm(dist, { recursive: true, force: true });
 await cp(src, dist, { recursive: true });
 
+// The saved sealed-run proofs, so the case page can check Intel's report in the browser (site/intelcheck.js).
+await cp(join(root, 'proofs'), join(dist, 'proofs'), { recursive: true, filter: (f) => { const n = f.split('\\').join('/'); return !/\.[a-z]+$/i.test(n) || /\/round-\d+\.bundle\.json$/.test(n); } });
+
 // The one server function: lets a visitor send a sentence with no wallet (api/write.js). Tests stay out of the upload.
 await cp(join(root, 'api'), join(dist, 'api'), { recursive: true, filter: (f) => !f.endsWith('.test.js') });
 const json = (o) => JSON.stringify(o, null, 2) + String.fromCharCode(10);
