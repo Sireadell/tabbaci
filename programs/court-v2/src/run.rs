@@ -119,7 +119,7 @@ pub fn run(
     let rd = inp.rd;
     if inp.v != VERSION
         || sha256_hex(inp.claim.as_bytes()) != inp.th
-        || !(inp.m.len() == 3 || inp.m.len() == 5)
+        || inp.m.len() != 3
         || inp.src.len() < 2
         || !(inp.kind == "data" || inp.kind == "prose")
         || (inp.kind == "data" && inp.cv.is_none())

@@ -293,3 +293,25 @@ fn version_one_input_is_refused() {
     let v = go(inp.to_string().as_bytes(), &prose_site(), &["TRUE", "TRUE", "TRUE"]);
     assert_eq!(v["rc"], 6);
 }
+
+/// The contract's tests read this file, so a change in the program's output that the contract cannot read shows up there.
+/// Rewrite it with: FIXTURE=1 cargo test fixture
+#[test]
+fn fixture_for_the_contract() {
+    let f = prose_site();
+    let inp = prose_input("NEAR mainnet launched in 2020.");
+    let t = format!("TRUE\n{}", Q1);
+    let mut j = StandIn::new(vec![t.clone(), t.clone(), "TRUE\nNEAR was founded on the Moon.".to_string()]);
+    let out = run(&inp, &f, &mut j, &|| 1, 1_700_000_000);
+    let body = serde_json::json!({
+        "input": String::from_utf8(inp).unwrap(),
+        "output": out,
+        "signer": hex::encode(crate::sig::standin_ed::public()),
+    });
+    let path = concat!(env!("CARGO_MANIFEST_DIR"), "/testdata/prose_round.json");
+    if std::env::var("FIXTURE").is_ok() {
+        std::fs::write(path, serde_json::to_string_pretty(&body).unwrap()).unwrap();
+    }
+    let on_disk: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+    assert_eq!(on_disk, body, "the saved fixture is out of date: run FIXTURE=1 cargo test fixture");
+}
