@@ -1,0 +1,39 @@
+/* Batch 3: the try page result, the ledger reading box, court groups and long sentences. Uses the colours set in style.css. */
+
+/* Try page result: what the court said, then "You lost nothing" on its own line, then the money in plain words */
+.b3-result{margin:10px 0 4px;padding:12px 14px;background:var(--surface);border:1px solid var(--line2);border-radius:2px}
+.b3-result p{margin:0 0 6px}
+.b3-result p:last-child{margin-bottom:0}
+.b3-ruled{font-weight:700;color:var(--text)}
+.b3-safe{color:var(--text)}
+.b3-safe strong{font-size:1.1rem}
+.b3-money{color:var(--text-mute)}
+
+/* Ledger: "How to read this list" box */
+.b3-howto{margin:16px 0 4px;padding:12px 16px;background:var(--surface);border:1px solid var(--line2);border-radius:2px;max-width:72ch}
+.b3-howto h2{font-size:1rem;margin:0 0 6px;letter-spacing:0}
+.b3-howto ul{margin:0;padding-left:1.2em}
+.b3-howto li{margin:0 0 4px;color:var(--text-mute);font-size:.93rem;line-height:1.5}
+.b3-howto b{color:var(--text)}
+
+/* Ledger: one heading row per court, in plain words; the contract name stays in small grey print */
+.ledger tr.b3-group th{position:static;background:var(--surface2);color:var(--text);text-transform:none;letter-spacing:0;font:400 .9rem/1.4 var(--sans);padding:10px 10px;border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
+.ledger tr.b3-group:hover th{background:var(--surface2)}
+.b3-gname{font-weight:700;font-size:1rem}
+.b3-gwhat{color:var(--text-mute)}
+.b3-gcode{display:inline-block;margin-left:6px;font:400 .76rem var(--mono);color:var(--text-mute);overflow-wrap:anywhere}
+.b3-tag{color:var(--text-mute);font:.78rem var(--sans)}
+
+/* Ledger: long sentences show 3 lines, "more" opens the rest for that row */
+.b3-clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
+.b3-clamp.open{display:block;-webkit-line-clamp:unset;line-clamp:unset;overflow:visible}
+.b3-more{background:none;border:0;padding:4px 0;margin:2px 6px 0 0;min-height:32px;color:var(--act);font:500 .85rem var(--sans);cursor:pointer;text-decoration:underline}
+.b3-more:hover{color:var(--act-hover)}
+
+@media (max-width:560px){
+  .ledger tr.b3-group{padding:0;border-bottom:0}
+  .ledger tr.b3-group th{display:block;width:100%}
+}
+
+/* Medium screens: let the sentence column give up a little room so the whole table fits without sideways scrolling */
+@media (min-width:561px) and (max-width:1000px){.ledger td.c{min-width:12em}.ledger td,.ledger th{padding-left:6px;padding-right:6px}}

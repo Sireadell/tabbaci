@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="One ruling from the Tabbaci court: the sentence, the pages it read, what each judge said, where the money went and how to check it yourself."><title>Court record | Tabbaci</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="batch2.css"></head>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="batch2.css"><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
 <body>
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top" id="top"></header>
@@ -38,7 +39,15 @@ const rec = $('record');
 const row = (dt, dd) => `<dt>${dt}</dt><dd>${dd}</dd>`;
 const oneLine = (s) => esc(String(s).replace(/\s+/g, ' ').trim());
 
+// The public test nodes only keep recent blocks; asking for an older one answers with a red 422 error in the
+// browser console. So read the newest block height once and skip the lookup for old rounds. The page then
+// shows "Ruled in block N" with the contract link, exactly as when the lookup finds nothing.
+const KEPT_BLOCKS = 150000;
 async function findAttemptTx(startBlock) {
+  try {
+    const head = await Site.rpc('block', { finality: 'final' });
+    if (!head || head.header.height - startBlock > KEPT_BLOCKS) return null;
+  } catch (e) { return null; }
   for (let h = startBlock - 1; h >= startBlock - 3; h--) {
     try {
       const blk = await Site.rpc('block', { block_id: h });
@@ -93,7 +102,7 @@ async function show() {
     <h1 class="rec-claim">${claimHtml}</h1>
     <div class="rec-verdict">${Site.stamp(word, 'big')}<span class="mute">${esc(Site.plainOutcome(r))}</span></div>
     <dl class="rec-grid">
-      ${row('Kind', Site.isLie(r) ? 'A lie I planted on purpose, to see if the court stops it' : r.tag === 'wiki' ? 'Sent from Wikipedia (came in through the Wikipedia button). The test account of this site opened it and bonded the word of the visitor' : r.tag === 'visitor' ? 'Sent by a visitor from the try page. The test account of this site opened it and bonded the word of the visitor' : r.tag === 'agent' ? 'Sent by an AI agent through the Tabbaci add-on. The test account of this site opened it and bonded the word the AI chose, with test token' : r.challenger ? 'A challenge round' : 'A page sentence')}
+      ${row('Kind', Site.isLie(r) ? 'A lie I planted on purpose, to see if the court stops it' : r.tag === 'wiki' ? 'Sent from Wikipedia (came in through the Wikipedia button). The test account of this site opened it and bonded the word of the visitor' : r.tag === 'visitor' ? 'Sent by a visitor from the try page. The test account of this site opened it and bonded the word of the visitor' : r.tag === 'agent' ? 'Sent by an AI agent through the Tabbaci add-on. The test account of this site opened it and bonded the word the AI chose, with test tokens' : r.challenger ? 'A challenge round' : 'A page sentence')}
       ${row('Evidence', sources)}
       ${row('Three answers', judges)}
       ${row('Writer and bond', bonds)}
@@ -107,11 +116,11 @@ async function show() {
   $('cmd').textContent = `npm ci --prefix privacy/tools\n${Site.fullCheckCmd(id)}`;
   $('check').hidden = false;
   const ex = Site.explorer();
-  if (sealed) { $('tx').innerHTML = `<a href="${ex}/txns/${sealed.tx}" rel="noopener">Ruling transaction ${esc(sealed.tx.slice(0, 12))}...</a> · <a href="${ex}/address/${Site.CFG.contract}" rel="noopener">Contract</a>`; }
+  if (sealed) { $('tx').innerHTML = `<a href="${ex}/txns/${sealed.tx}" target="_blank" rel="noopener">Ruling transaction ${esc(sealed.tx.slice(0, 12))}...</a> · <a href="${ex}/address/${Site.CFG.contract}" target="_blank" rel="noopener">Contract</a>`; }
   else {
     const last = r.attempts[r.attempts.length - 1];
-    if (!last) { $('tx').innerHTML = `Not ruled yet. <a href="${ex}/address/${Site.CFG.contract}" rel="noopener">Contract</a>`; return; }
-    findAttemptTx(last.start_block).then((hash) => { $('tx').innerHTML = hash ? `<a href="${ex}/txns/${hash}" rel="noopener">Ruling transaction ${hash.slice(0, 12)}...</a> · <a href="${ex}/address/${Site.CFG.contract}" rel="noopener">Contract</a>` : `Ruled in block ${last.end_block}. <a href="${ex}/address/${Site.CFG.contract}" rel="noopener">See the contract's transactions</a>`; });
+    if (!last) { $('tx').innerHTML = `Not ruled yet. <a href="${ex}/address/${Site.CFG.contract}" target="_blank" rel="noopener">Contract</a>`; return; }
+    findAttemptTx(last.start_block).then((hash) => { $('tx').innerHTML = hash ? `<a href="${ex}/txns/${hash}" target="_blank" rel="noopener">Ruling transaction ${hash.slice(0, 12)}...</a> · <a href="${ex}/address/${Site.CFG.contract}" target="_blank" rel="noopener">Contract</a>` : `Ruled in block ${last.end_block}. <a href="${ex}/address/${Site.CFG.contract}" target="_blank" rel="noopener">See the contract's transactions</a>`; });
   }
 }
 // The top line, a plain line under each check and the folded developer-only checks come from CheckText (v2checks.js).

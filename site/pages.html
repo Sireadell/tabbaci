@@ -2,7 +2,8 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pages | Tabbaci</title>
 <meta name="description" content="Encyclopedia pages where every sentence carries a court stamp and money behind it.">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"></head>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
 <body>
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top" id="top"></header>
@@ -18,8 +19,8 @@
 <script src="config.js"></script><script src="app.js"></script>
 <script>
 Site.chrome('pages');
-Promise.all([fetch('pages/index.json').then((r) => r.json()), fetch('data/drafted.json').then((r) => (r.ok ? r.json() : null)).catch(() => null), Site.allRounds()]).then(([l, dr, { rounds }]) => {
-  const lies = rounds.filter(Site.isLie).length;
+Promise.all([fetch('pages/index.json').then((r) => r.json()), fetch('data/drafted.json').then((r) => (r.ok ? r.json() : null)).catch(() => null), Site.bothCourts()]).then(([l, dr, { rounds }]) => {
+  const lies = Site.tallyRounds(rounds).lies; // both courts, the same count as the home page and the ledger
   const cards = l.map((p) => `<a class="pagelink" href="page.html?p=${encodeURIComponent(p.slug)}"><b>${esc(p.title)}</b><span class="mute">${p.count} checked sentences</span></a>`);
   if (dr) cards.push(`<a class="pagelink" href="page.html?p=drafted"><b>${esc(dr.title)}</b><span class="mute">Written by an AI, using only sentences the court stamped TRUE</span></a>`);
   cards.push(`<a class="pagelink" href="page.html?p=lies"><b>The struck-out lies</b><span class="mute">${lies} lies I planted, each crossed out next to the fine it cost</span></a>`);

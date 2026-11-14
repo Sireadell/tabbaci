@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Page | Tabbaci</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"></head>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
 <body>
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top" id="top"></header>
@@ -26,17 +27,20 @@ const LEG = 'The word before each sentence is how sure its writer said it was: <
 function sentence(s, r, strike) {
   const w = r ? Site.letterOf(r) : 'OPEN';
   const b = r && (r.bonds || [])[0]; const m = b ? Site.bondMoney(b) : null;
-  const meta = r ? `<p class="meta">${s.kind === 'data' ? 'Settled by a figure' : 'Settled by the three judges'} · ${s.word ? 'Writer said <span class="wordbox">' + esc(s.word) + '</span> · ' : ''}${m ? 'Result: ' + esc(m.text) : 'No money behind it'} ·<a href="case.html?round=${s.round}">Court record, round ${s.round}</a></p>` : '<p class="meta">Round not found.</p>';
+  const meta = r ? `<p class="meta">${s.kind === 'data' ? 'Settled by a figure' : 'Settled by the three judges'} · ${s.word ? 'Writer said <span class="wordbox">' + esc(s.word) + '</span> · ' : ''}${m ? 'Result: ' + esc(m.text) : 'No money behind it'} · <a href="case.html?round=${s.round}${s.c ? '&amp;c=' + esc(s.c) : ''}">Court record, ${s.c ? 'second court ' : ''}round ${s.round}</a></p>` : '<p class="meta">Round not found.</p>';
   return `<article class="sent ${Site.vKind(w)}${strike ? ' lie' : ''}">${Site.stamp(w)}<p class="cl">${esc(s.claim)}</p>${meta}</article>`;
 }
 async function main() {
-  const { rounds } = await Site.allRounds();
+  // Pages and the drafted page cite first court rounds; the lies page lists the planted lies of both courts.
+  const { first: rounds, rounds: all } = await Site.bothCourts();
   const byId = new Map(rounds.map((r) => [r.id, r]));
   if (slug === 'lies') {
     $('kicker').textContent = 'Struck out'; $('title').textContent = 'The lies that were tried'; $('intro').textContent = 'Each sentence below is false and was sent to the court on purpose, with a bond on it. It is crossed out here, and the link shows what it cost.';
     $('by').textContent = 'Written by: the team, to test the court. Network: NEAR ' + Site.CFG.network + '.';
     document.title = 'The struck-out lies | Tabbaci';
-    $('list').innerHTML = rounds.filter(Site.isLie).sort((a, b) => a.id - b.id).map((r) => sentence({ claim: r.claim, word: r.bonds && r.bonds[0] && r.bonds[0].word, kind: (Site.parse(r.input) || {}).kind, round: r.id }, r, true)).join('');
+    // First court lies first, in round order, then the second court's.
+    const lies = all.filter(Site.isLie).sort((a, b) => (a._c ? 1 : 0) - (b._c ? 1 : 0) || a.id - b.id);
+    $('list').innerHTML = lies.map((r) => sentence({ claim: r.claim, word: r.bonds && r.bonds[0] && r.bonds[0].word, kind: (Site.parse(r.input) || {}).kind, round: r.id, c: r._c }, r, true)).join('');
     return;
   }
   $('legend').innerHTML = LEG;

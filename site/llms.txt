@@ -18,14 +18,14 @@
 | Mainnet court | 5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e (NEAR mainnet) | 1 admin key | 3 rounds with real NEAR, 0.05 NEAR each, bonded by sireadell.near. Same sealed program 2c8e24a5. | [Checker outputs](https://github.com/Sireadell/tabbaci/tree/main/proofs/mainnet): a true sentence got its bond back, a planted lie was fined 0.0326 NEAR, a number round paid a 0.0124 NEAR bonus |
 | Private court | court-private.sireadell.testnet (NEAR testnet) | 0 access keys (deleted) | Rules on facts behind a login without anyone seeing them. The sealed program reads a private GitHub repo with the writer's read-only key, the judges rule, and only the verdict, a page fingerprint and the judges' signatures leave. The contract checks all three signatures. A canary test shows a real commit ID from the private repo never reached any public transaction. | [Round 1](https://tabbaci.vercel.app/private-case.html?round=1): "at least 2 commits in November 2026" ruled True. [Round 2](https://tabbaci.vercel.app/private-case.html?round=2): planted lie "more than 50 commits" ruled Unsure, bond returned, not accepted as true |
 
-Everything on testnet uses test token.
+Everything on testnet uses test tokens.
 
 More court 1 rounds: [round 35](https://tabbaci.vercel.app/case.html?round=35) and [round 36](https://tabbaci.vercel.app/case.html?round=36) (pages that order the judges, planted on purpose), [round 20](https://tabbaci.vercel.app/case.html?round=20) (a fine), [round 33](https://tabbaci.vercel.app/case.html?round=33) (a challenge). Court 2 [round 4](https://tabbaci.vercel.app/case.html?round=4&c=tabbaci-court2.testnet): the page orders TRUE, ruled False.
 
 ## Four ways to use it
 
 1. The site, no wallet needed: [try.html](https://tabbaci.vercel.app/try.html). Send a sentence and the site bonds it for you.
-2. AI add-on: npm package tabbaci-mcp 0.2.0. Install with `claude mcp add tabbaci -- npx -y tabbaci-mcp`. An AI can read the evidence, bond its own sentence with test token and wait for the ruling. Court 1 rounds 46 to 50 were sent this way (tag: agent).
+2. AI add-on: npm package tabbaci-mcp 0.2.0. Install with `claude mcp add tabbaci -- npx -y tabbaci-mcp`. An AI can read the evidence, bond its own sentence with test tokens and wait for the ruling. Court 1 rounds 46 to 50 were sent this way (tag: agent).
 3. Check any ruling yourself: every case page checks the judges' signatures and Intel's signed report on the sealed run in your browser, or use the command line checker. No account, no wallet.
 4. Wikipedia button: a bookmark that sends a highlighted sentence from an English Wikipedia article straight to the court.
 

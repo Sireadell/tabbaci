@@ -56,6 +56,26 @@ async function allRounds(contract = CFG.contract, file) {
   const tag = contract === CFG.contractV2 ? { _c: contract } : {};
   return { rounds: [...have.values()].map((r) => ({ ...r, ...tag })).sort((a, b) => b.id - a.id), live, savedAt: sv && sv.saved };
 }
+// Both courts in one list: second court first (it gets every new sentence), then the first court, each newest first.
+// Second court rounds carry _c. first and second are the two lists on their own, for per-court numbers.
+async function bothCourts() {
+  const [a, b] = await Promise.all([allRounds(FIRST_COURT, 'data/rounds.json'), CFG.contractV2 ? allRounds(CFG.contractV2, 'data/rounds-v2.json') : Promise.resolve({ rounds: [], live: false })]);
+  return { rounds: [...b.rounds, ...a.rounds], first: a.rounds, second: b.rounds, live: a.live, savedAt: a.savedAt };
+}
+// The numbers every page shows, worked out once so home, ledger and Pages agree.
+function tallyRounds(rounds) {
+  const fines = rounds.flatMap((r) => (r.bonds || []).filter((b) => b.payout != null && BigInt(b.payout) < BigInt(b.stake)).map((b) => ({ r, lost: BigInt(b.stake) - BigInt(b.payout) })));
+  const lies = rounds.filter(isLie);
+  return {
+    ruled: rounds.filter((r) => r.status !== 'open').length,
+    lies: lies.length,
+    through: lies.filter((r) => r.outcome === 'T'),
+    fines,
+    fined: fines.reduce((s, x) => s + x.lost, 0n),
+    visitors: rounds.filter(isVisitor).length,
+    agents: rounds.filter((r) => r.tag === 'agent').length,
+  };
+}
 async function getRound(id) {
   const sv = await saved(); const old = sv && sv.rounds.find((x) => x.id === id);
   try { const r = await view('get_round', { round: id }); return r ? { id, ...(old ? { _saved: old._saved } : {}), ...r, _live: true } : null; }
@@ -66,7 +86,15 @@ async function getRound(id) {
 const near = (y) => (Number(BigInt(y) / 10n ** 18n) / 1e6).toFixed(4);
 const pct = (num, den) => (Number((num * 10000n) / den) / 100).toFixed(2) + '%';
 const parse = (s) => { try { return JSON.parse(s); } catch { return null; } };
-const isLie = (r) => (CFG.plantedLies || []).includes(Number(r.id));
+// Each court numbers its rounds from 1, so "is this a lie" and "who sent it" are decided per court.
+// A round read through allRounds(contractV2) carries _c; otherwise it belongs to the court this page reads.
+const FIRST_COURT = CFG.contract;
+const courtOf = (r) => r._c || CFG.contract;
+const isSecond = (r) => !!CFG.contractV2 && courtOf(r) === CFG.contractV2;
+const isLie = (r) => (isSecond(r) ? CFG.plantedLiesV2 || [] : courtOf(r) === FIRST_COURT ? CFG.plantedLies || [] : []).includes(Number(r.id));
+// Visitor rounds, from the try page or the Wikipedia button. First court rounds 37 to 40 were my own tests
+// of the no-wallet sender, so they are not counted as visitors.
+const isVisitor = (r) => (r.tag === 'visitor' || r.tag === 'wiki') && (isSecond(r) || Number(r.id) > 40);
 const letterOf = (r) => (r.status === 'open' ? 'OPEN' : r.status === 'void' ? 'VOID' : r.outcome === 'T' ? 'TRUE' : r.outcome === 'F' ? 'FALSE' : r.outcome === 'D' ? 'SPLIT' : 'UNSURE');
 // Verdict colour for a stamp word: TRUE green, FALSE red, waiting or cancelled grey, anything else amber.
 const WAITING = ['OPEN', 'VOID', 'Cancelled', 'Waiting for a ruling'];
@@ -86,8 +114,10 @@ const WORDS = { is: 9500, 'very likely': 8000, likely: 6500, disputed: 5000 };
 function bondMoney(b) {
   if (b.payout == null) return { text: 'The money is on hold for about 2 minutes, in case someone objects. Then it moves.', kind: 'wait' };
   const p = BigInt(b.payout), s = BigInt(b.stake);
-  if (p === s) return { text: `bond returned in full, ${near(p)} NEAR`, kind: 'even' };
-  return p > s ? { text: `gained ${near(p - s)} NEAR (${pct(p - s, s)} of the bond)`, kind: 'gain' } : { text: `fined ${near(s - p)} NEAR (${pct(s - p, s)} of the bond)`, kind: 'fine' };
+  if (p === s) return { text: `Given back in full: ${near(p)} test tokens.`, kind: 'even' };
+  return p > s
+    ? { text: `Won ${near(p - s)} test tokens on top of the ${near(s)} put down.`, kind: 'gain' }
+    : { text: `Fined ${near(s - p)} test tokens. Got ${near(p)} of the ${near(s)} back.`, kind: 'fine' };
 }
 
 // ---------- page chrome ----------
@@ -104,7 +134,7 @@ function chrome(active) {
   if (top) top.innerHTML = `<div class="wrap bar"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">T</span>Tabbaci</a><nav aria-label="Main">${links.map(([h, t, k]) => `<a href="${h}" class="${k === 'try' ? 'nav-try' : ''}${k === active ? ' on" aria-current="page' : ''}">${t}</a>`).join('')}</nav></div>`;
   reveal();
   const foot = $('foot');
-  if (foot) foot.innerHTML = `<div class="wrap foot-in"><div class="foot-main"><p><b>Tabbaci</b> is an encyclopedia where every sentence you can check has money behind it. Everything here uses test token on a test network.</p><p class="mute">Every ruling is read straight from the public record, from the first court and the second court.</p><p class="foot-small">finalenc2.testnet · ${esc(CFG.contractV2 || '')}</p></div><nav class="foot-links" aria-label="More on this site"><a href="ledger.html">All rounds</a><a href="index.html#check">Check one yourself</a><a href="index.html#not">What this is not</a><a href="https://github.com/Sireadell/tabbaci" target="_blank" rel="noopener">Code on GitHub</a></nav></div>`;
+  if (foot) foot.innerHTML = `<div class="wrap foot-grid"><div class="foot-col"><p class="foot-brand">Tabbaci</p><p class="foot-tag">An encyclopedia where every sentence has money behind it. Test tokens on a test network.</p></div><nav class="foot-col" aria-labelledby="foot-h1"><p class="foot-h" id="foot-h1">Explore</p><ul class="foot-list"><li><a href="ledger.html">All rounds</a></li><li><a href="index.html#check">Check one yourself</a></li><li><a href="index.html#not">What this is not</a></li><li><a href="https://github.com/Sireadell/tabbaci" target="_blank" rel="noopener">Code on GitHub</a></li></ul></nav><nav class="foot-col" aria-labelledby="foot-h2"><p class="foot-h" id="foot-h2">For developers and judges</p><ul class="foot-list"><li><a href="JUDGES.md">Judges' guide</a></li><li><a href="llms.txt">Notes for AI tools</a></li><li><a href="status.json">Live numbers</a></li></ul></nav></div><div class="wrap"><div class="foot-base"><span class="foot-courts">${esc(FIRST_COURT)} · ${esc(CFG.contractV2 || '')}</span><a class="foot-badge" href="https://github.com/Sireadell/tabbaci/actions/workflows/recheck.yml" target="_blank" rel="noopener" title="Every ruling is checked again each night"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FSireadell%2Ftabbaci%2Fstatus%2Fbadge.json" alt="Every ruling re-checked each night, latest result" height="20" loading="lazy"></a></div></div>`;
 }
 
 // ---------- ruling rows ----------
@@ -278,10 +308,10 @@ function mountReplay(root, rounds, startId) {
     if (b && b.payout != null) {
       const s = BigInt(b.stake), p = BigInt(b.payout); const back = Number((p * 1000n) / s) / 10; const w = Math.max(0, Math.min(100, back));
       money = `<div class="split-bar" aria-hidden="true"><i class="keep" style="width:${w}%"></i><i class="lose" style="width:${100 - w}%"></i></div><p class="split-txt">${p < s ? `${near(s)} was at stake. The writer <b class="neg">lost ${near(s - p)}</b> and got ${near(p)} back.` : p > s ? `${near(s)} was at stake. The writer <b class="pos">won ${near(p - s)}</b> on top.` : `${near(s)} was at stake, and all of it was given back.`}</p>`;
-    } else if (r.challenger) money = `<p class="split-txt">Someone (<span class="mono">${esc(r.challenger)}</span>) put down ${near(r.bond)} test token and asked the court to look again. The court ruled again.</p>`;
+    } else if (r.challenger) money = `<p class="split-txt">Someone (<span class="mono">${esc(r.challenger)}</span>) put down ${near(r.bond)} test tokens and asked the court to look again. The court ruled again.</p>`;
     else if (b) money = `<p class="split-txt">${near(b.stake)} is at stake. The money is on hold for about 2 minutes, in case someone objects. Then it moves.</p>`;
     stage.innerHTML = `
-      <div class="beat"><p class="bl">The sentence${b ? ` <span class="tag">${near(b.stake)} test token at stake. The writer said "${esc(b.word)}"${b.word === 'is' ? ': fully sure' : ''}.</span>` : ''}</p><p class="rp-claim">${claimHtml}</p></div>
+      <div class="beat"><p class="bl">The sentence${b ? ` <span class="tag">${near(b.stake)} test tokens at stake. The writer said "${esc(b.word)}"${b.word === 'is' ? ': fully sure' : ''}.</span>` : ''}</p><p class="rp-claim">${claimHtml}</p></div>
       <div class="beat"><p class="bl">The evidence the court reads</p><ul class="srcs">${srcs || '<li class="mute">Two pages from the approved list</li>'}</ul>${split.length > 1 ? '<p class="warn">The sentence carries an order to the judges. They see it only as quoted text.</p>' : ''}</div>
       <div class="beat"><div class="seal"><div class="box" aria-hidden="true"><span class="lid"></span></div><p class="bl">Decided inside a locked box nobody can open.${secs ? ` It took about ${secs} seconds.` : ''}</p></div></div>
       <div class="beat"><p class="bl">Three AI judges answer${input.kind === 'data' ? ': does the sentence state the number ' + esc(input.cv) + '?' : ''}</p><div class="seats">${seats || '<p class="mute">No judge answers yet.</p>'}</div></div>
@@ -312,4 +342,4 @@ function useContract(c) {
   if (c && c === CFG.contractV2) { CFG.contract = c; CFG.savedFile = 'data/rounds-v2.json'; }
 }
 
-window.Site = { useContract, sealedOf, CFG, $, esc, rpc, view, allRounds, getRound, near, pct, parse, isLie, letterOf, stamp, vKind, plainOutcome, modelName, blocksOf, explorer, verifyCmd, fullCheckCmd, bondMoney, chrome, latestItem, runChecks, mountReplay, saved, WORDS };
+window.Site = { useContract, sealedOf, CFG, $, esc, rpc, view, allRounds, bothCourts, tallyRounds, getRound, near, pct, parse, isLie, isVisitor, isSecond, letterOf, stamp, vKind, plainOutcome, modelName, blocksOf, explorer, verifyCmd, fullCheckCmd, bondMoney, chrome, latestItem, runChecks, mountReplay, saved, WORDS };

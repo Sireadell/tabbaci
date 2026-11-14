@@ -5,7 +5,10 @@ window.SITE_CONFIG = {
   contract: 'finalenc2.testnet',
   // Court version 2 contract (judges' quotes and signatures checked on chain). null until it is deployed.
   contractV2: 'tabbaci-court2.testnet',
+  // Lies planted on purpose, listed per court because each court numbers its rounds from 1.
   plantedLies: [3, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 35, 36],
+  // Second court: round 3 (tag v2-lie, the Moon distance) and round 4 (tag v2-order, the Moon is made of cheese).
+  plantedLiesV2: [3, 4],
   // The three court files on the home page, and the replay cases.
   featured: [
     { round: 20, title: 'The fine', line: 'A false protocol version, 0.05 NEAR on it. The writer lost 65.25% of the bond and got the rest back.' },

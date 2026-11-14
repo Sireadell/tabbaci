@@ -113,7 +113,7 @@
     installDragHint: 'Drag this onto your bookmarks bar. Clicking it here does nothing.',
     installCaption: 'This moving picture shows the steps. It is not a real button.',
     installPhoneNote: "Phones can't drag bookmarks, so this needs a computer. On a phone, use the try page instead.",
-    installFine: 'No wallet needed. Test token only, up to 30 free sentences a day, and every sentence stays on the public ledger for good.',
+    installFine: 'No wallet needed. Test tokens only, up to 30 free sentences a day, and every sentence stays on the public ledger for good.',
     ledgerLabel: 'Sent from Wikipedia',
     ledgerChip: 'From Wikipedia',
     caseKind: 'Sent from Wikipedia (came in through the Wikipedia button)',

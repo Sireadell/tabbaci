@@ -31,8 +31,14 @@ async function checkRelativeLinks(files) {
   return bad;
 }
 
-await rm(dist, { recursive: true, force: true });
+// Empty dist/ but keep dist/.vercel, the link to the Vercel project, so a rebuild never unlinks the deploy.
+let old = [];
+try { old = await readdir(dist); } catch { /* first build, nothing to empty */ }
+for (const name of old) if (name !== '.vercel') await rm(join(dist, name), { recursive: true, force: true });
 await cp(src, dist, { recursive: true });
+
+// The judges' guide lives at the repo root; serve it as /JUDGES.md too.
+await cp(join(root, 'JUDGES.md'), join(dist, 'JUDGES.md'));
 
 // The saved sealed-run proofs, so the case page can check Intel's report in the browser (site/intelcheck.js).
 await cp(join(root, 'proofs'), join(dist, 'proofs'), { recursive: true, filter: (f) => { const n = f.split('\\').join('/'); return !/\.[a-z]+$/i.test(n) || /\/round-\d+\.bundle\.json$/.test(n); } });
@@ -41,7 +47,11 @@ await cp(join(root, 'proofs'), join(dist, 'proofs'), { recursive: true, filter: 
 await cp(join(root, 'api'), join(dist, 'api'), { recursive: true, filter: (f) => !f.endsWith('.test.js') });
 const json = (o) => JSON.stringify(o, null, 2) + String.fromCharCode(10);
 await writeFile(join(dist, 'package.json'), json({ private: true, type: 'module', engines: { node: '22.x' } }));
-await writeFile(join(dist, 'vercel.json'), json({ functions: { 'api/write.js': { maxDuration: 60 } } }));
+await writeFile(join(dist, 'vercel.json'), json({
+  functions: { 'api/write.js': { maxDuration: 60 } },
+  // Show the judges' guide as readable text in the browser instead of downloading it.
+  headers: [{ source: '/JUDGES.md', headers: [{ key: 'Content-Type', value: 'text/plain; charset=utf-8' }] }],
+}));
 
 // /status.json: live numbers from the chain plus the last nightly re-check result (published on the "status" branch).
 let last = null;
@@ -51,7 +61,7 @@ if (last && typeof last.finished_rounds === 'number') last.headline = plainHeadl
 status.last_recheck = last;
 await writeFile(join(dist, 'status.json'), json(status));
 
-const files = await walk(dist);
+const files = (await walk(dist)).filter((f) => !relative(dist, f).startsWith('.vercel'));
 const bad = await checkRelativeLinks(files);
 if (bad.length) {
   console.error('Root-relative links found, fix them in site/:');

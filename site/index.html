@@ -1,8 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tabbaci: lies cost money</title>
-<meta name="description" content="Tabbaci is an encyclopedia that checks itself. Three AI judges check each sentence against Wikipedia, and a writer who got it wrong is fined from their bond. Watch a real case, then check it yourself.">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="batch2.css"></head>
+<meta name="description" content="Tabbaci is an encyclopedia that checks itself. Three AI judges check each sentence against its sources, and a writer who gets it wrong is fined test tokens. Watch a real case, then check it yourself.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="batch2.css"><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
 <body>
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top" id="top"></header>
@@ -10,31 +11,26 @@
 
 <section class="hero">
   <div>
-    <h1>A lie costs money. The court stamps it <span class="stamp st-false">False</span></h1>
-    <p class="lead">Tabbaci is an encyclopedia that checks itself. You write a sentence. Three AI judges check it against Wikipedia. If it is wrong, the writer is fined from their bond.</p>
+    <h1>A false claim costs its writer money.</h1>
+    <p class="lead">Tabbaci is an encyclopedia where every sentence has money behind it. Three AI judges check each one against its sources, and if it is false, the writer pays.</p>
     <div class="bench" aria-labelledby="bench-h">
-      <p class="bench-h" id="bench-h"><b>Three AI judges</b> read the evidence for every sentence</p>
+      <p class="bench-h" id="bench-h"><b>Three AI judges.</b> Each one signs its own ruling.</p>
       <ul class="judges">
         <li class="judge"><span class="j-n">Judge 1</span><span class="j-m">DeepSeek-V4.1-Flash-1017</span></li>
         <li class="judge"><span class="j-n">Judge 2</span><span class="j-m">Qwen3.8-27B</span></li>
         <li class="judge"><span class="j-n">Judge 3</span><span class="j-m">Qwen3.6-35B-A3B-FP8</span></li>
       </ul>
     </div>
-    <div class="cta">
-      <a class="btn" href="#replay" id="go-replay">Watch a real ruling</a>
-      <a class="btn ghost" href="#check">Check one yourself</a>
-      <a class="btn ghost" href="try.html">Try to lie, no wallet</a>
-      <a class="btn ghost" href="https://youtu.be/yGT0UdVO5YM" target="_blank" rel="noopener">Watch the demo video</a>
-    </div>
-    <p id="courts-static">Try it now. You don't need to sign up or pay. The site lends you test token for each sentence.</p>
+    <div class="cta"><a class="btn" href="try.html">Try to make a false claim</a><a class="btn ghost" href="#replay" id="go-replay">Watch a real ruling</a></div>
+    <p id="courts-static">Test tokens for now, so you have nothing to lose. No sign-up. A ruling takes about 2 minutes, and you can check it yourself.</p>
     <div class="hero-nums" aria-label="Live numbers from the public record">
-      <div><b id="h-rulings">49</b><span>rounds ruled</span></div>
-      <div><b id="h-lies">18</b><span>lies tried</span></div>
-      <div><b id="h-fines">18</b><span>fines paid</span></div>
-      <div id="h-vis-box" hidden><b id="h-vis">0</b><span>sent by visitors</span></div>
-      <div id="h-ai-box"><b id="h-ai">10</b><span>sent by AI helpers</span></div>
+      <div><a class="num-link" href="ledger.html"><b id="h-rulings">61</b><span>rounds ruled, both courts</span></a></div>
+      <div><a class="num-link" href="ledger.html?show=lies"><b id="h-lies">20</b><span>lies tried</span></a></div>
+      <div><b id="h-fines">21</b><span>fines paid</span></div>
+      <div id="h-vis-box"><a class="num-link" href="ledger.html?show=visitors"><b id="h-vis">8</b><span>sent by visitors</span></a></div>
+      <div id="h-ai-box"><a class="num-link" href="ledger.html?show=agents"><b id="h-ai">10</b><span>sent by AI helpers</span></a></div>
     </div>
-    <p class="note-live" id="live-note">Numbers from the first court, as of 14 Nov 2026. They are read again from the public record when this page loads. Test token only.</p>
+    <p class="note-live" id="live-note">First court: 49 ruled, 18 lies, 18 fines. Second court: 12 ruled, 2 lies, 3 fines. As of 14 Nov 2026, read again from the public record when this page loads. Test tokens only.</p>
     <noscript><p class="mute">The code is at <a href="https://github.com/Sireadell/tabbaci">github.com/Sireadell/tabbaci</a>.</p></noscript>
   </div>
   <div class="rp" id="replay" aria-live="polite"><p class="mute">Loading a real ruling...</p></div>
@@ -52,7 +48,7 @@
 </section>
 
 <section class="band field" id="files">
-  <div class="sec-head"><div><p class="label court">Court files</p><h2>Three cases worth reading</h2></div><p>All three really happened, with test token. Open one and you'll find the sentence, the pages the court read, what each judge said, where the money went and how to check it yourself.</p></div>
+  <div class="sec-head"><div><p class="label court">Court files</p><h2>Three cases worth reading</h2></div><p>All three really happened, with test tokens. Open one and you'll find the sentence, the pages the court read, what each judge said, where the money went and how to check it yourself.</p></div>
   <div class="files" id="files-row"></div>
 </section>
 
@@ -61,11 +57,11 @@
   <div class="tab-scroll"><table class="numtable">
     <thead><tr><th scope="col">Number</th><th scope="col">What it is</th><th scope="col">Where it comes from</th></tr></thead>
     <tbody id="numbody">
-      <tr class="group"><td colspan="3">On the public record. Read live from the first court, test token only.</td></tr>
-      <tr><td class="n">49</td><td class="w">rounds the court has ruled</td><td class="w mute"><a href="ledger.html">All rounds</a>, read from the first court <small>(finalenc2.testnet)</small></td></tr>
-      <tr><td class="n">18</td><td class="w">lies planted on purpose and sent to the court</td><td class="w mute"><a href="ledger.html?show=lies">All rounds, lies only</a></td></tr>
+      <tr class="group"><td colspan="3">On the public record. Read live from both courts, test tokens only.</td></tr>
+      <tr><td class="n">61</td><td class="w">rounds the two courts have ruled</td><td class="w mute"><a href="ledger.html">All rounds</a>. First court 49, second court 12</td></tr>
+      <tr><td class="n">20</td><td class="w">lies planted on purpose and sent to the court</td><td class="w mute"><a href="ledger.html?show=lies">All rounds, lies only</a>. First court 18, second court 2</td></tr>
       <tr><td class="n">0</td><td class="w">lies that got through, ruled TRUE</td><td class="w mute"><a href="ledger.html?show=lies">All rounds, lies only</a>. Every one was stopped.</td></tr>
-      <tr><td class="n">18</td><td class="w">writers who lost money, 0.5741 test token in all</td><td class="w mute"><a href="case.html?round=20">Round 20</a> is one of them</td></tr>
+      <tr><td class="n">21</td><td class="w">writers who lost money, 0.6720 test tokens in all</td><td class="w mute">First court 18 (0.5741), second court 3 (0.0979). <a href="case.html?round=20">Round 20</a> is one of them</td></tr>
       <tr class="group"><td colspan="3">Accuracy test. I ran it on my own computer on 9 November 2026 with the same three judges, so these numbers are not on the public record.</td></tr>
       <tr><td class="n">198 of 200</td><td class="w">sentences ruled correctly, 100 true and 100 false</td><td class="w mute">The accuracy tool in the code. The right answers come from Wikidata</td></tr>
       <tr><td class="n">0</td><td class="w">ruled wrongly, and 2 got no ruling</td><td class="w mute">The same test</td></tr>
@@ -75,6 +71,7 @@
 </section>
 
 <section class="band field" id="check">
+  <div class="rain" id="rain" aria-hidden="true"></div>
   <div class="sec-head"><div><p class="label">Check it yourself</p><h2>Don't take our word for it. Check it yourself.</h2></div><p>These checks are for people who want proof. If you only want to know what happened, you can skip this part. Pick a case and press the button. Your own browser fetches that case from the public record and runs each check itself, one line at a time.</p></div>
   <div class="checkbox">
     <div class="card">
@@ -129,7 +126,7 @@
 <section class="band" id="under">
   <div class="sec-head"><div><p class="label court">Under the hood</p><h2>Under the hood: four courts</h2></div></div>
   <div class="nots">
-    <div><b>The first court</b><p>The first court has ruled 49 cases with test token. Nobody, including me, can change its rules. I sent it 18 lies on purpose and it caught every one. <a href="ledger.html">See all rounds</a></p><p class="fine-name">finalenc2.testnet</p></div>
+    <div><b>The first court</b><p>The first court has ruled 49 cases with test tokens. Nobody, including me, can change its rules. I sent it 18 lies on purpose and it caught every one. <a href="ledger.html">See all rounds</a></p><p class="fine-name">finalenc2.testnet</p></div>
     <div><b>The second court</b><p>The second court is where your sentences go now. It also checks, by itself, that each judge really gave its answer and really quoted the page. <a href="case.html?round=7&amp;c=tabbaci-court2.testnet">See a case from it</a></p><p class="fine-name">tabbaci-court2.testnet</p></div>
     <div><b>The third court</b><p>The third court runs on NEAR mainnet with real money. It has ruled 3 bonded cases. It still has one admin key, which is why I ask you to judge trust on the testnet court, which has none. <a href="https://nearblocks.io/address/5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e" target="_blank" rel="noopener">See it on the public record</a></p></div>
     <div><b>The private court</b><p>The fourth is the private court. It checks facts on pages only the owner can open, like a private GitHub project. Nobody, including me, sees the page. <a href="private-case.html?round=1">See a private case</a></p></div>
@@ -141,17 +138,17 @@
   <div class="sec-head"><div><p class="label">Honest limits</p><h2>What this is not</h2></div></div>
   <div class="nots">
     <div><b>Not a prediction market.</b><p>The number beside each sentence shows how sure the writer said they were, and how much money they put on it. Nobody trades it.</p></div>
-    <div><b>Real money is live on NEAR mainnet.</b><p>Three bonded cases ran on mainnet with real NEAR. That court still has one admin key, so I can fix it if something breaks. Every other case used test token on a test network, and each of those case pages says Testnet at the top.</p></div>
+    <div><b>Real money is live on NEAR mainnet.</b><p>Three bonded cases ran on mainnet with real NEAR. That court still has one admin key, so I can fix it if something breaks. Every other case used test tokens on a test network, and each of those case pages says Testnet at the top.</p></div>
     <div><b>Not open to any source.</b><p>The court only reads pages from an approved list of 11, and I control that list. One of them is my own test page, which leaves the list on 16 November.</p></div>
     <div><b>Not a swarm or a live market.</b><p>Both are on my roadmap. Neither is built, and nothing on this site claims them.</p></div>
   </div>
 </section>
 </main>
 <section class="closing" aria-labelledby="close-h">
-  <div class="rain" id="rain" aria-hidden="true"></div>
   <div class="wrap in">
-    <h2 id="close-h">Don't take our word for it.<br>Check it yourself.</h2>
-    <div class="cta"><a class="btn" href="#check">Check a case</a><a class="btn ghost" href="ledger.html">See all rounds</a></div>
+    <h2 id="close-h">Think you can fool the judges?</h2>
+    <p class="close-lead">Send one false sentence. It takes about 2 minutes and costs nothing. Then read the three rulings yourself.</p>
+    <div class="cta"><a class="btn" href="try.html">Try to lie, no wallet</a></div>
   </div>
 </section>
 <footer id="foot"></footer>
@@ -159,43 +156,41 @@
 <script>
   WikiLink.installBox(document.getElementById('wiki-install'));
 Site.chrome('home');
-(function () { // faint columns of 0 and 1 behind the closing line, fixed pattern so it never moves
+
+(function () { // faint columns of 0 and 1 behind the check heading, fixed pattern so it never moves
   const r = document.getElementById('rain'); if (!r) return;
   let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
   const cols = Math.min(70, Math.floor(innerWidth / 18));
   r.innerHTML = Array.from({ length: cols }, () => `<span data-t="${Array.from({ length: 34 }, () => (rnd() > 0.5 ? "1" : "0")).join("")}"></span>`).join("");
 })();
-Site.allRounds().then(({ rounds, live, savedAt }) => {
-  const ruled = rounds.filter((r) => r.status !== 'open');
-  const lies = rounds.filter(Site.isLie);
-  const through = lies.filter((r) => r.outcome === 'T');
-  const fines = rounds.flatMap((r) => (r.bonds || []).filter((b) => b.payout != null && BigInt(b.payout) < BigInt(b.stake)).map((b) => ({ r, lost: BigInt(b.stake) - BigInt(b.payout) })));
-  const fined = fines.reduce((a, x) => a + x.lost, 0n);
-  // Rounds 37 to 40 were my own tests of the no-wallet sender, so only later visitor rounds count.
-  const vis = rounds.filter((r) => (r.tag === 'visitor' || r.tag === 'wiki') && r.id > 40).length;
-  if (vis > 0) { $('h-vis').textContent = vis; $('h-vis-box').hidden = false; }
-  const ai = rounds.filter((r) => r.tag === 'agent').length;
-  if (ai > 0) { $('h-ai').textContent = ai; $('h-ai-box').hidden = false; }
-  $('h-rulings').textContent = ruled.length; $('h-lies').textContent = lies.length; $('h-fines').textContent = fines.length;
-  $('live-note').textContent = live ? 'Numbers from the first court, read just now from the public record. Test token only.' : 'The public record did not answer, so this is the saved copy from ' + (savedAt ? savedAt.slice(0, 10) : 'an earlier day') + '. Test token only.';
+// One set of numbers for both courts (the same sums the ledger and Pages use), plus a small line per court.
+Site.bothCourts().then(({ rounds: all, first, second, live, savedAt }) => {
+  const rounds = first; // the replay, the court files and the check box read the first court only
+  const t = Site.tallyRounds(all), t1 = Site.tallyRounds(first), t2 = Site.tallyRounds(second);
+  const through = t.through, fines = t.fines, fined = t.fined;
+  $('h-rulings').textContent = t.ruled; $('h-lies').textContent = t.lies; $('h-fines').textContent = fines.length;
+  $('h-vis').textContent = t.visitors; $('h-vis-box').hidden = t.visitors === 0;
+  $('h-ai').textContent = t.agents; $('h-ai-box').hidden = t.agents === 0;
+  const per = `First court: ${t1.ruled} ruled, ${t1.lies} lies, ${t1.fines.length} fines. Second court: ${t2.ruled} ruled, ${t2.lies} lies, ${t2.fines.length} fines.`;
+  $('live-note').textContent = per + (live ? ' Read just now from the public record. Test tokens only.' : ' The public record did not answer, so this is the saved copy from ' + (savedAt ? savedAt.slice(0, 10) : 'an earlier day') + '. Test tokens only.');
 
   Site.mountReplay($('replay'), rounds);
   document.getElementById('go-replay').addEventListener('click', () => { const b = $('rp-again'); if (b) setTimeout(() => b.click(), 350); });
 
-  $('latest').innerHTML = rounds.slice(0, 5).map(Site.latestItem).join('');
+  $('latest').innerHTML = all.slice(0, 5).map(Site.latestItem).join('');
 
   $('files-row').innerHTML = Site.CFG.featured.map((f, i) => {
     const r = rounds.find((x) => x.id === f.round); if (!r) return '';
     return `<a class="file ${Site.vKind(Site.letterOf(r))}" data-tab="File ${i + 1} · ${esc(f.title)}" href="case.html?round=${r.id}"><div><h3>Round ${r.id}</h3></div><p class="claim">${esc(r.claim)}</p>${Site.stamp(Site.letterOf(r))}<p class="line">${esc(f.line)}</p><span class="more">Open the court record</span></a>`;
   }).join('');
 
-  const acc = Site.CFG.accuracy; const ex = fines[0];
+  const acc = Site.CFG.accuracy;
   const rows = [
-    ['group', 'On the public record. Read live from the first court, test token only.'],
-    [ruled.length, 'rounds the court has ruled', `<a href="ledger.html">All rounds</a>, read from the first court <small>(${esc(Site.CFG.contract)})</small>`],
-    [lies.length, 'lies planted on purpose and sent to the court', `<a href="ledger.html?show=lies">All rounds, lies only</a>`],
-    [through.length, 'lies that got through, ruled TRUE', through.length ? `<a href="case.html?round=${through[0].id}">Round ${through[0].id}</a>` : `<a href="ledger.html?show=lies">All rounds, lies only</a>. Every one was stopped.`],
-    [fines.length, `writers who lost money, ${Site.near(fined)} test token in all`, ex ? `<a href="case.html?round=${ex.r.id}">Round ${ex.r.id}</a> is one of them` : ''],
+    ['group', 'On the public record. Read live from both courts, test tokens only.'],
+    [t.ruled, 'rounds the two courts have ruled', `<a href="ledger.html">All rounds</a>. First court ${t1.ruled}, second court ${t2.ruled}`],
+    [t.lies, 'lies planted on purpose and sent to the court', `<a href="ledger.html?show=lies">All rounds, lies only</a>. First court ${t1.lies}, second court ${t2.lies}`],
+    [through.length, 'lies that got through, ruled TRUE', through.length ? `<a href="case.html?round=${through[0].id}${through[0]._c ? '&amp;c=' + esc(through[0]._c) : ''}">Round ${through[0].id}</a>` : `<a href="ledger.html?show=lies">All rounds, lies only</a>. Every one was stopped.`],
+    [fines.length, `writers who lost money, ${Site.near(fined)} test tokens in all`, `First court ${t1.fines.length} (${Site.near(t1.fined)}), second court ${t2.fines.length} (${Site.near(t2.fined)}). <a href="case.html?round=20">Round 20</a> is one of them`],
     ['group', `Accuracy test. I ran it on my own computer on ${esc(acc.date)} with the same three judges, so these numbers are not on the public record.`],
     [`${acc.right} of ${acc.total}`, 'sentences ruled correctly, 100 true and 100 false', 'The accuracy tool in the code. The right answers come from Wikidata'],
     [acc.wrong, 'ruled wrongly, and ' + acc.noRuling + ' got no ruling', 'The same test'],

@@ -1,8 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Try to lie | Tabbaci</title>
-<meta name="description" content="Write a sentence, put test token on it and send it to the court. No wallet needed. The real court rules on it on the NEAR test network, usually within two minutes.">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="batch2.css"></head>
+<meta name="description" content="Write a sentence, put test tokens on it and send it to the court. No wallet needed. The real court rules on it on the NEAR test network, usually within two minutes.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Glegoo:wght@400;700&display=swap"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="batch2.css"><link rel="stylesheet" href="batch3.css"><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
 <body>
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top" id="top"></header>
@@ -10,7 +11,7 @@
 <section class="page-head">
   <p class="label">Try to lie</p>
   <h1>Write a sentence that sounds true but is not</h1>
-  <p class="lead">Pick a topic, write one sentence and press Send. You don't need a wallet. The site puts up the test token for you, and the real court rules on your sentence on the chain, usually within two minutes.</p>
+  <p class="lead">Pick a topic, write one sentence and press Send. You don't need a wallet. The site puts up the test tokens for you, so you never lose anything. The real court rules on your sentence, usually within two minutes.</p>
 </section>
 <div class="checkbox">
 <section class="card">
@@ -41,7 +42,7 @@
   <div class="pick" style="margin-top:8px"><button type="button" class="btn" id="send">Send it, no wallet</button><span class="mute" id="left" style="font-size:.88rem"></span></div>
   <ol class="checks" id="steps" aria-live="polite"></ol>
   <div id="out" aria-live="polite" style="margin-top:12px"></div>
-  <p class="mute" style="font-size:.88rem;margin-top:16px">How this works: the site's own test account, <code id="acct">tabbaci-visitors.testnet</code>, sends your sentence and bonds your word. So on the chain that account is the writer, not you. It's test token only, with up to 30 free sentences a day. Whatever you write goes on the public ledger for good, so don't put anything private in it.</p>
+  <p class="mute" style="font-size:.88rem;margin-top:16px">How this works: the site's own test account, <code id="acct">tabbaci-visitors.testnet</code>, sends your sentence and puts up the test tokens for it. So on the public record that account is the writer, not you, and you can never lose anything. They are test tokens on a test network, with up to 30 free sentences a day. Whatever you write goes on the public list of all rounds for good, so don't put anything private in it.</p>
 
   <details id="wiki" class="b2-wiki" style="margin-top:18px"><summary>The Wikipedia button: send a sentence straight from Wikipedia</summary><div id="wiki-install" style="margin-top:8px"></div></details>
 
@@ -131,7 +132,7 @@ loadLatest();
 let canSend = true;
 fetch(API).then((r) => r.json().then((j) => [r.ok, j])).then(([ok, j]) => {
   if (ok && j.contract) { vc = j.contract; build(); }
-  if (!ok) { canSend = false; $('left').textContent = j.error || 'Sending from the site is off right now. Use your own terminal below.'; $('send').disabled = true; return; }
+  if (!ok) { canSend = false; $('left').textContent = j.error || 'Sending from the site is off right now. Please try again later.'; $('send').disabled = true; return; }
   if (j.account) $('acct').textContent = j.account;
   $('left').textContent = j.left > 0 ? `${j.left} of ${j.cap} free sentences left today` : `Today's ${j.cap} free sentences are used up`;
   if (j.left <= 0) { canSend = false; $('send').disabled = true; }
@@ -202,7 +203,7 @@ openWiki(); window.addEventListener('hashchange', openWiki);
   if (fromWiki) wikiCheck();
 })();
 
-const STEPS = ['Find your topic on Wikipedia', 'Open a new case', 'Put 0.05 test token on your sentence', 'Start the locked court', 'The three judges are deciding'];
+const STEPS = ['Find your topic on Wikipedia', 'Open a new case', 'Put 0.05 test tokens on your sentence', 'Start the locked court', 'The three judges are deciding'];
 const stepState = STEPS.map(() => ['WAITING', '']);
 function drawSteps() {
   $('steps').innerHTML = STEPS.map((s, i) => { const [st, det] = stepState[i]; const cls = st === 'DONE' ? 'MATCH' : st === 'FAILED' ? 'MISMATCH' : 'NEEDS'; return `<li><span class="res ${cls}">${st}</span><span class="name">${esc(s)}</span>${det ? `<span class="det">${det}</span>` : ''}</li>`; }).join('');
@@ -217,13 +218,21 @@ async function post(body) {
   return [r.ok && !j.error, j];
 }
 
+// The result in plain words (section 3.4 of the plan). The visitor never puts in money: the site's test account does.
+// Returns [what the court ruled, the money part]. "You lost nothing" is shown on its own line, in bold.
 function moneyLine(r, w) {
-  const o = r.outcome; const [up, down] = WORD_MONEY[w] || ['', ''];
-  if (r.status === 'void') return 'The round was cancelled, so the bond comes back in full.';
-  if (w === 'disputed') return 'You said "disputed", so the bond comes back in full.';
-  if (o === 'T') return `You said "${w}" and the court says TRUE, so the bond grows by up to ${up} ${windowWord()}.`;
-  if (o === 'F') return `You said "${w}" and the court says FALSE, so ${down.slice(1)} of the bond is lost ${windowWord()}.`;
-  return 'The court could not settle it, so the bond comes back in full.';
+  const o = r.outcome; const [up, down] = WORD_COINS[w] || ['', ''];
+  const stake = 'The site\'s test account put up 0.05 test tokens for you.';
+  if (r.status === 'void') return ['The court could not decide, so the case was cancelled.', 'All 0.05 test tokens goes back to the site\'s test account. Nobody wins or loses anything.'];
+  const ruled = o === 'T' ? 'The court says TRUE.' : o === 'F' ? 'The court says FALSE.' : 'The court could not decide.';
+  if (w === 'disputed') return [ruled, 'You said you were not sure, so nothing is won or lost. All 0.05 test tokens goes back to the site\'s test account.'];
+  if (o === 'T') return [ruled, `${stake} It gets it back, plus up to ${up} as a reward, ${windowWord()}. A real writer who put real money on this sentence would win the same share.`];
+  if (o === 'F') return [ruled, `${stake} It loses ${down} of it ${windowWord()}. That is how a real writer is fined for a wrong sentence: with real money, ${down} of every 0.05 would be gone.`];
+  return [ruled, 'All 0.05 test tokens goes back to the site\'s test account. Nobody wins or loses anything.'];
+}
+function resultHtml(r, w) {
+  const [ruled, money] = moneyLine(r, w);
+  return `<div class="b3-result"><p class="b3-ruled">${esc(ruled)}</p><p class="b3-safe"><strong>You lost nothing.</strong> These are test tokens on a test network, not real money.</p><p class="b3-money">${esc(money)}</p></div>`;
 }
 
 let timer, retried = 0;
@@ -243,12 +252,12 @@ function watchRound(id, w, started) {
         retried = runs.length;
         post({ action: 'run', round: id }).then(([ok]) => set(3, ok ? 'DONE' : 'FAILED', ok ? `run ${runs.length + 1} of 3 started, the last one came back empty` : 'The next run did not start. The round stays open in the ledger.'));
       }
-      set(4, 'WAITING', secs > 300 ? 'Taking longer than usual. It will land here and in the ledger.' : `working, ${secs} s so far`);
+      set(4, 'WAITING', secs > 300 ? 'Taking longer than usual. It will land here and in the ledger.' : `Working, ${secs} seconds so far. This usually takes 1 to 2 minutes.`);
       return;
     }
     clearInterval(timer);
     set(4, 'DONE', `${(r.attempts || []).length} run(s)`);
-    $('out').innerHTML = `<div class="verdict-row">${Site.stamp(Site.letterOf(r), 'big')}<span class="mute">${esc(Site.plainOutcome(r))}</span></div><p>${esc(r.claim)}</p><p>${esc(w ? moneyLine(r, w) : '')}</p><p><a href="${caseLink(id)}">Open the court record for round ${id}</a>, with the pages it read, what each judge said and the checks you can run.</p>`;
+    $('out').innerHTML = `<div class="verdict-row">${Site.stamp(Site.letterOf(r), 'big')}<span class="mute">${esc(Site.plainOutcome(r))}</span></div><p>${esc(r.claim)}</p>${w ? resultHtml(r, w) : ''}<p><a href="${caseLink(id)}">Open the court record for round ${id}</a>, with the pages it read, what each judge said and the checks you can run.</p>`;
     $('send').disabled = !canSend;
     loadLatest();
   };
@@ -273,7 +282,7 @@ $('send').addEventListener('click', async () => {
   if (!ok2) { set(3, 'FAILED', 'The court did not start. The round stays open in the ledger.'); return fail(k.error || 'The court did not start just now.'); }
   set(3, 'DONE', k.tx ? txLink(k.tx) : 'already running');
   if (j.contract) vc = j.contract;
-  set(4, 'WAITING', 'usually one to two minutes');
+  set(4, 'WAITING', 'This usually takes 1 to 2 minutes.');
   watchRound(j.round, w);
 });
 

@@ -153,7 +153,7 @@ Claude's own closing words: "The court caught the planted false sentence and pas
 
 Round 49 is true in the world. But "former capital" appears only in the one-line Wikidata description, not in the Wikipedia summary, so the judges did not confirm it. The court rules on what it reads, not on what is true elsewhere.
 
-The AI holds no wallet and no key. The add-on calls the site's free sender, the same one behind the [Try to lie](https://tabbaci.vercel.app/try.html) page, and the site's own test account, `tabbaci-visitors.testnet`, bonds 0.05 test NEAR on the AI's behalf. It is test token on testnet only. On the chain these rounds carry the tag `agent`, and the site shows them as "sent by an AI agent": in the home page counter, in a "Sent by AI agents" filter on the ledger, and on the court record page. An AI can send 6 sentences an hour from one place, and all senders share the same 30 a day.
+The AI holds no wallet and no key. The add-on calls the site's free sender, the same one behind the [Try to lie](https://tabbaci.vercel.app/try.html) page, and the site's own test account, `tabbaci-visitors.testnet`, bonds 0.05 test NEAR on the AI's behalf. They are test tokens on testnet only. On the chain these rounds carry the tag `agent`, and the site shows them as "sent by an AI agent": in the home page counter, in a "Sent by AI agents" filter on the ledger, and on the court record page. An AI can send 6 sentences an hour from one place, and all senders share the same 30 a day.
 
 ## Court version 2
 
