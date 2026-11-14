@@ -54,6 +54,9 @@ test('an AI sender gets its own tag, anything else stays a visitor', () => {
   assert.equal(buildRound(base).tag, 'visitor');
   for (const f of [undefined, null, '', 'visitor', 'Agent', 'admin', 'lie', 42]) assert.equal(senderOf(f), 'visitor', String(f));
   assert.equal(senderOf('agent'), 'agent');
+  assert.equal(senderOf('wiki'), 'wiki');
+  assert.equal(buildRound({ ...base, from: 'wiki' }).tag, 'wiki');
+  for (const f of ['Wiki', 'wikipedia', 'WIKI']) assert.equal(senderOf(f), 'visitor', f);
 });
 
 test('AI senders get 6 an hour, kept apart from the visitor limit, under the same daily cap', () => {
