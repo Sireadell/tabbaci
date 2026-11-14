@@ -31,7 +31,7 @@ cargo-near.exe near build non-reproducible-wasm --locked --no-abi
 ```
 near.exe account create-account fund-myself court-private.sireadell.testnet 1.5NEAR autogenerate-new-keypair save-to-legacy-keychain sign-as sireadell.testnet network-config testnet sign-with-legacy-keychain send
 ```
-The deploy needs about 2.0 NEAR of balance for storage, so the account needs roughly 2.1 NEAR in total (1.5 was not enough).
+Storing the 336 KB contract costs 0.00001 NEAR per byte, so the account needs about 3.5 NEAR in total (1.5 and 2.1 were both not enough; the error message shows the shortfall, not the total).
 
 ## 4. Deploy with the init call
 ```
