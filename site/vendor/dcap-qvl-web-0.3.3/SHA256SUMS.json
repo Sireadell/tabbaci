@@ -1,0 +1,7 @@
+{
+  "package": "@phala/dcap-qvl-web 0.3.3 (https://github.com/Phala-Network/dcap-qvl, MIT)",
+  "files": {
+    "dcap-qvl-web.js": "3a61f9a0a8af2d07f1b69f884d747f14942dbf27670801e4f57ac272ee8aed63",
+    "dcap-qvl-web_bg.wasm": "0583364c30741259992dd12055e2439e006ca234f7d13be4c77b436f242a9dc1"
+  }
+}
