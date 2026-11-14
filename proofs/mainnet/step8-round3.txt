@@ -1,0 +1,20 @@
+MISMATCH      contract has no keys                                                               1 access key(s)
+MATCH         contract has no upgrade method                                                     28 exported methods, none can replace code, keys or owners
+MATCH         contract code fingerprint                                                          sha256 fb3eab3410a4bf5abbf0903db7e5acba6454087486c9cfb32a37af0b908e7e38
+MATCH         courtroom program matches its fingerprint                                          contract says 2c8e24a5fa6d..., file is 2c8e24a5fa6d...
+MATCH         stored request matches its hash                                                    ih zYm-w0GvuMe5...
+MATCH         sentence text matches the stored request                                           
+MATCH         attempt list is consistent                                                         1 attempt(s) published: #1 ok in 23 blocks; round is settled
+MATCH         bond payouts follow the rule                                                       is +2475bp
+MATCH         verdict belongs to this round and request                                          758 bytes, o=T
+MATCH         contract outcome equals the verdict                                                verdict T, contract T
+CANNOT VERIFY source 1 bytes match their fingerprint                                             no --archive folder given
+CANNOT VERIFY source 2 bytes match their fingerprint                                             no --archive folder given
+CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signed by the model's attested key  valid signature from 0xfe0071895500a9755c18044948ab4f4e1a7f337e; give --signer "deepseek-ai/DeepSeek-V4.1-Flash-1017=<attested address>" to compare
+CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signed by the model's attested key                      valid signature from 0x835ab53d20294ef795906dff21ae4c045336aa26; give --signer "Qwen/Qwen3.8-27B=<attested address>" to compare
+CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signed by the model's attested key              valid signature from 0xfdbd7952498b333206f360d71d97a1e0961e8ddf; give --signer "Qwen/Qwen3.6-35B-A3B-FP8=<attested address>" to compare
+CANNOT VERIFY outcome follows from the numbers and judges                                        needs the archived sources
+CANNOT VERIFY judge reply words match the answers                                                reply bytes are not published, only their fingerprint
+CANNOT VERIFY sealed-box attestation (outlayer-verify)                                           no saved proof at C:\Users\DELL\hackathons\near\enc-write\proofs\5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e\round-3.bundle.json; pass --tx <attempt transaction hash> (add --save-proof to keep it) and install outlayer-verify
+
+OVERALL: MISMATCH
