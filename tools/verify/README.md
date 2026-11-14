@@ -17,3 +17,5 @@ Saved sealed-box proofs: the proof for each round is kept in the repo at `proofs
 
 Tests: `node --test`.
 
+
+Private rounds (court program version 3, kind `private`): the page stays inside the sealed chip, so the checker prints the fingerprint the verdict recorded, whether the contract recorded the same one, each judge signature against the private question and against the contract record, and the outcome from the signed answers and the page bit. Whoever holds the page can add it to `--archive` (named by its sha256) to compare it with the fingerprint.
