@@ -14,3 +14,6 @@
 - `./build/reproduce-contract.sh` is the contract version of `reproduce.sh` (plain `cargo build --locked` for wasm32-unknown-unknown with the near cfg, symbols stripped). Two local Windows runs: identical (`53c5bd127b4d42f85217ea82dd19d2fb53ea2ce4725bab3bcf7ea43484938615`, testnet build, before wasm-opt).
 - Found while testing: the contract's function order depends on the name of the build folder, so the script always builds in the same folder name (`enc-repro-build` in the temp directory). Anyone comparing fingerprints should use the script, not their own folder.
 - These contract fingerprints are for this script only. The contracts deployed on testnet were built with `cargo near build`, so their code hashes are a different file.
+
+## Private court (program version 3)
+- `./build/reproduce-private.sh` and `./build/reproduce-contract-private.sh` are the same scripts for `programs/court-private` and `contracts/courtroom-private`. Two local Windows runs each, rustc 1.99.1, identical: program `d2d4d644f854bc7fe22047c43b6a6f8d9f757d731fd7b717999642aac83f9c88` (544575 bytes, real judges), stand-in build `317d527821e0d81a056f571d1439370cd79fdd49d1c7f0d1bbc1b78a52c0c62d`, contract `ca2b17b5df920381c0ab57d7b11799b465719b0088daab7e97f826a784f3318d`.
