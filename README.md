@@ -427,4 +427,4 @@ Services: NEAR testnet and mainnet, OutLayer, FastFS, NEAR AI Cloud.
 
 ## Contact
 
-I built Tabbaci on my own. Questions, or a problem you found: open an issue at https://github.com/Sireadell/tabbaci/issues or message me on X at @sireadell. If it's a security problem, please send it as a private message on X rather than a public issue.
+I built Tabbaci on my own. Questions, or a problem you found: open an issue at https://github.com/Sireadell/tabbaci/issues or message me on X at [@sireadell](https://x.com/Sireadell). The demo post is [here](https://x.com/Sireadell/status/2121733796496367647). If it's a security problem, please send it as a private message on X rather than a public issue.
