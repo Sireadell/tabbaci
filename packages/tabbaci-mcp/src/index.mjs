@@ -68,7 +68,7 @@ export function createClient(opts = {}) {
   return {
     contract, network, explorer, site,
     view,
-    bondSentence: (a) => bondSentence(writer, { site, explorer }, a),
+    bondSentence: (a) => bondSentence(writer, { site, explorer, contract }, a),
     readEvidence: (page) => readEvidence(page, { fetchImpl: opts.fetchImpl || globalThis.fetch }),
     waitForRuling: (round, o) => waitForRuling({ view, writer, ctx: { contract, network, explorer, site } }, round, { ...opts.wait, ...o }),
     getContractInfo: () => getContractInfo(view, contract, network),
@@ -234,6 +234,9 @@ export async function readEvidence(page, { fetchImpl = globalThis.fetch } = {}) 
   return { page: p.title, wikipedia_summary: p.extract || '', wikidata_description: typeof wikidata === 'string' ? wikidata : null, wikidata_id: p.wikibase_item || null };
 }
 
+// The case page reads the first court by default. Rounds on court version 2 need the contract in the address.
+export const recordUrl = (ctx, round) => `${ctx.site}/case.html?round=${round}${ctx.contract && ctx.contract !== 'finalenc2.testnet' ? '&c=' + ctx.contract : ''}`;
+
 // ---- sending a sentence (play money, testnet, through the site) ----
 
 // Talks to the site's free sender. Every round it opens is tagged 'agent', so it shows as sent by an AI.
@@ -266,7 +269,7 @@ export async function bondSentence(writer, ctx, { sentence, wikipedia_page, sure
   return {
     round: j.round, sentence: sentence.trim(), word: j.word, page: j.page, sources: j.sources || [],
     court_started: Boolean(run), court_error: run ? null : runError,
-    record_url: `${ctx.site}/case.html?round=${j.round}`,
+    record_url: recordUrl(ctx, j.round),
     open_tx_url: tx(j.tx && j.tx.open), bond_tx_url: tx(j.tx && j.tx.bond), run_tx_url: tx(run && run.tx),
     sent_by: j.account, free_left_today: j.left, cap: j.cap,
     expect: 'The ruling usually lands in about 4 minutes. Call wait_for_ruling with this round number.',
@@ -292,7 +295,7 @@ export async function waitForRuling({ view, writer, ctx }, round, { maxMs = 10 *
       try { await writer.run(n); } catch { /* the next poll shows whether it started */ }
     }
     if (now() - t0 >= maxMs) {
-      return { settled: false, round: n, outcome: 'open', waited_seconds: Math.round((now() - t0) / 1000), record_url: `${ctx.site}/case.html?round=${n}`,
+      return { settled: false, round: n, outcome: 'open', waited_seconds: Math.round((now() - t0) / 1000), record_url: recordUrl(ctx, n),
         note: 'No ruling yet. The round stays open on the chain. Call wait_for_ruling again later.' };
     }
     await sleep(everyMs);

@@ -161,3 +161,9 @@ test('the contract can be set with TABBACI_CONTRACT and defaults to the first co
   assert.equal(createClient({ rpc: async () => ({}) }).contract, 'other.testnet');
   delete process.env.TABBACI_CONTRACT;
 });
+
+test('record links name the contract only for court version 2', async () => {
+  const { recordUrl } = await import('../src/index.mjs');
+  assert.equal(recordUrl({ site: 'https://s', contract: 'finalenc2.testnet' }, 7), 'https://s/case.html?round=7');
+  assert.equal(recordUrl({ site: 'https://s', contract: 'tabbaci-court2.testnet' }, 7), 'https://s/case.html?round=7&c=tabbaci-court2.testnet');
+});
