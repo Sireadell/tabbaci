@@ -382,7 +382,7 @@ main.wrap{padding-bottom:48px}
 @keyframes wgp1{0%,50%{opacity:1}52%,100%{opacity:0}}
 @keyframes wgp2{0%,51%{opacity:0}53%,78%{opacity:1}80%,100%{opacity:0}}
 @keyframes wgp3{0%,79%{opacity:0}81%,95%{opacity:1}98%,100%{opacity:0}}
-@keyframes wghl1{0%,55%{transform:scaleX(0)}57%,100%{transform:scaleX(1)}}@keyframes wghl2{0%,57%{transform:scaleX(0)}60%,100%{transform:scaleX(1)}}@keyframes wghl3{0%,60%{transform:scaleX(0)}63%,100%{transform:scaleX(1)}}@keyframes wghl4{0%,63%{transform:scaleX(0)}66%,100%{transform:scaleX(1)}}@keyframes wga1{0%,51%{opacity:1}52%,79%{opacity:0}80%,100%{opacity:1}}}@keyframes wga2{0%,51%{opacity:0}53%,79%{opacity:1}80%,100%{opacity:0}}
+@keyframes wghl1{0%,55%{transform:scaleX(0)}57%,100%{transform:scaleX(1)}}@keyframes wghl2{0%,57%{transform:scaleX(0)}60%,100%{transform:scaleX(1)}}@keyframes wghl3{0%,60%{transform:scaleX(0)}63%,100%{transform:scaleX(1)}}@keyframes wghl4{0%,63%{transform:scaleX(0)}66%,100%{transform:scaleX(1)}}@keyframes wga1{0%,51%{opacity:1}52%,79%{opacity:0}80%,100%{opacity:1}}@keyframes wga2{0%,51%{opacity:0}53%,79%{opacity:1}80%,100%{opacity:0}}
 @keyframes wgcur{0%,14%{transform:translate(78%,70%)}30%,33%{transform:translate(120px,150px)}46%{transform:translate(40px,38px)}52%{transform:translate(40px,38px)}56%{transform:translate(231px,101px)}66%{transform:translate(286px,140px)}74%{transform:translate(40px,38px)}78%,100%{transform:translate(40px,38px)}}
 @keyframes wggh{0%,33%{opacity:0;transform:translate(110px,142px)}35%{opacity:1;transform:translate(110px,142px)}46%{opacity:1;transform:translate(32px,30px)}47%,100%{opacity:0;transform:translate(32px,30px)}}
 @keyframes wgc1{0%,13%{opacity:1}15%,100%{opacity:0}}
