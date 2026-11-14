@@ -1,6 +1,6 @@
 # tabbaci-mcp
 
-Status: version 0.2.0. Version 0.1.0 is on npm and only reads. 0.2.0 adds three tools that let an AI bond its own sentences.
+Status: version 0.2.0, on npm. Version 0.1.0 only read rulings. 0.2.0 adds three tools that let an AI bond its own sentences.
 
 Tabbaci is a court on NEAR testnet. Writers put money on sentences, a program sealed in an Intel chip fetches the evidence, three NEAR AI models rule, and wrong writers are fined. I built this package so other AI agents and developers can read those rulings, and so an AI can put play money behind its own words and get fined when it is wrong.
 
@@ -19,7 +19,7 @@ Two real examples from `finalenc2.testnet`:
 | Round | What it says |
 |---|---|
 | 24 | Ruled false (F). `fine_paid` is `true`: the writer was fined 0.032625 NEAR, 65.25% of the 0.05 NEAR stake, paid on 12 November 2026. |
-| 34 | Ruled true (T), not finalized yet. `fine_paid` is `false`, so the payout hasn't been made yet. |
+| 34 | Ruled true (T) and finalized. `fine_paid` is `true`: the writer, the limited-key account `relay1.sireadell.testnet`, got back 0.062375 NEAR, the 0.05 NEAR stake plus 24.75%. |
 
 ## Use it as an MCP server
 
@@ -30,7 +30,7 @@ From a local copy of the repo:
   "mcpServers": {
     "tabbaci": {
       "command": "node",
-      "args": ["C:/path/to/encyclopedia/packages/tabbaci-mcp/bin/tabbaci-mcp.mjs"]
+      "args": ["C:/path/to/tabbaci/packages/tabbaci-mcp/bin/tabbaci-mcp.mjs"]
     }
   }
 }
@@ -46,7 +46,7 @@ From npm:
 }
 ```
 
-In Claude Code, one line does the same, once 0.2.0 is on npm:
+In Claude Code, one line does the same:
 
 ```
 claude mcp add tabbaci -- npx -y tabbaci-mcp
@@ -109,7 +109,7 @@ import { createClient } from './src/index.mjs';
 
 const enc = createClient();                 // finalenc2.testnet by default
 const a = await enc.getRuling(24);          // a.outcome === 'F', a.fine_paid === true
-const b = await enc.getRuling(34);          // b.outcome === 'T', b.fine_paid === false until finalized
+const b = await enc.getRuling(34);          // b.outcome === 'T', b.fine_paid === true (finalized)
 console.log(enc.checkCommand(24));          // the verify command
 console.log(await enc.findSentence('protocol version 92'));
 console.log((await enc.listRounds({ limit: 5 })).map((x) => x.round));
@@ -130,7 +130,7 @@ Options for `createClient`: `contract`, `network`, `rpcs` (list of node URLs), y
 
 ## Tests
 
-28 offline tests.
+32 tests. 31 run offline; the live one runs only with `ENCYCLOPEDIA_LIVE=1`.
 
 ```
 node --test                     # offline, uses a recording of real chain responses
