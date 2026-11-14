@@ -239,7 +239,7 @@ async function runChecks(id, show, opts = {}) {
     } else add('Each judge signed its own answer', 'NEEDS', 'the signature code did not load. Run the command below.');
     await pause();
   }
-  add('The sealed box really ran the fingerprinted program', 'NEEDS', CFG.sealed[id] ? 'a saved proof exists for this round. Check it with the command below.' : 'needs the outlayer-verify tool. Run the command below.');
+  add('The sealed box really ran the fingerprinted program', 'NEEDS', sealedOf(id) ? 'a saved proof exists for this round. Check it with the command below.' : 'needs the outlayer-verify tool. Run the command below.');
   return out;
 }
 
@@ -294,8 +294,15 @@ function mountReplay(root, rounds, startId) {
 }
 
 // Point every read on this page at another court contract that the config lists (court version 2).
+// The saved sealed-run proof for a round of the contract this page reads, or null.
+function sealedOf(id) {
+  const v2 = CFG.contract === CFG.contractV2;
+  const s = (v2 ? CFG.sealedV2 : CFG.sealed || {})[id] || null;
+  return s ? { ...s, dir: v2 ? 'tabbaci-court2' : 'finalenc2', fp: v2 ? '129b36ec' : '2c8e24a5' } : null;
+}
+
 function useContract(c) {
   if (c && c === CFG.contractV2) { CFG.contract = c; CFG.savedFile = 'data/rounds-v2.json'; }
 }
 
-window.Site = { useContract, CFG, $, esc, rpc, view, allRounds, getRound, near, pct, parse, isLie, letterOf, stamp, plainOutcome, modelName, blocksOf, explorer, verifyCmd, fullCheckCmd, bondMoney, chrome, latestItem, runChecks, mountReplay, saved, WORDS };
+window.Site = { useContract, sealedOf, CFG, $, esc, rpc, view, allRounds, getRound, near, pct, parse, isLie, letterOf, stamp, plainOutcome, modelName, blocksOf, explorer, verifyCmd, fullCheckCmd, bondMoney, chrome, latestItem, runChecks, mountReplay, saved, WORDS };
