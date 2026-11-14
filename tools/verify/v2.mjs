@@ -97,7 +97,7 @@ export function checkV2({ r, input, v, bodies, attested }) {
     if (rec) add(mine && rec.sig_ok ? M : X, `${tag} signature checked by the contract`, mine ? 'signature re-checked here; the contract stored sig_ok = ' + rec.sig_ok : 'the signature does not verify here');
     else add(mine ? C : X, `${tag} signature checked by the contract`, mine ? 'valid here, but no contract record to compare' : 'the signature does not verify here');
     const keyHex = key.toString('hex');
-    const want = attested && attested[model.toLowerCase()];
+    const want = attested && Object.entries(attested).find(([m]) => m.toLowerCase() === model.toLowerCase())?.[1];
     if (want) add(want.map((x) => x.toLowerCase().replace(/^0x/, '')).includes(keyHex) ? M : X, `${tag} signed by a key Intel vouches for`, keyHex.slice(0, 16) + '...');
     else add(C, `${tag} signed by a key Intel vouches for`, `key ${keyHex.slice(0, 16)}...; run with --attested-judges to compare`);
     // what the judge actually said, read from its signed response
