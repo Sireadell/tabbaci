@@ -34,8 +34,8 @@ const ATTEMPT_TX = { 1: 'HUJxmAk3w3AiffX2SDS32HGRXq8NiQ79DaBAhFHBzV4i', 2: 'AtkF
 // Blocks left to plain time. One block is about one second.
 const aboutTime = (blocks) => {
   if (blocks < 90) return 'about 1 minute';
-  if (blocks < 3600) return `about ${Math.round(blocks / 60)} minutes`;
-  const h = Math.round(blocks / 3600); return `about ${h} ${h === 1 ? 'hour' : 'hours'}`;
+  if (blocks < 6200) return `about ${Math.max(1, Math.round(blocks / 103))} ${Math.round(blocks / 103) <= 1 ? "minute" : "minutes"}`;
+  const h = Math.round(blocks / 6200); return `about ${h} ${h === 1 ? 'hour' : 'hours'}`;
 };
 const OP_WORDS = { gt: 'more than', ge: 'at least', lt: 'fewer than', le: 'at most', eq: 'exactly' };
 
