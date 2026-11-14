@@ -357,20 +357,19 @@ main.wrap{padding-bottom:48px}
 /* Looping three-step picture for the Wikipedia bookmark install box. An illustration, not a screen recording. */
 .wg{margin:14px 0;max-width:520px}.wg-fit{width:100%;overflow:hidden}.wg-win{transform-origin:top left}
 .wg-win{position:relative;width:520px;height:325px;overflow:hidden;border:1px solid var(--line2);border-radius:8px;background:#16161a;font:12px/1.35 var(--sans);color:#e8e8ea}
-.wg-addr{position:absolute;left:0;right:0;top:0;height:9%;display:flex;align-items:center;padding:0 3%;background:#26262c}
-.wg-addr span{flex:1;padding:2px 10px;border-radius:99px;background:#101014;color:#b9b9c0;white-space:nowrap;overflow:hidden}
+.wg-addr{position:absolute;left:0;right:0;top:0;height:9%;display:flex;align-items:center;background:#26262c}.wg-a1{animation:wga1 18s infinite}.wg-a2{animation:wga2 18s infinite}
+.wg-addr span{position:absolute;left:3%;right:3%;opacity:0;padding:2px 10px;border-radius:99px;background:#101014;color:#b9b9c0;white-space:nowrap;overflow:hidden}
 .wg-bm{position:absolute;left:0;right:0;top:9%;height:7%;background:#1d1d22;border-bottom:1px solid var(--line);transform-origin:top;animation:wgbar 18s infinite}
 .wg-bmi{position:absolute;left:3%;top:12%;padding:0 8px;border-radius:4px;background:#34343c;white-space:nowrap;opacity:0;animation:wgitem 18s infinite}
 .wg-key{position:absolute;right:4%;top:20%;padding:2px 8px;border:1px solid var(--line2);border-radius:5px;background:#0e0e10;opacity:0;animation:wgkey 18s infinite}
 .wg-pg{position:absolute;left:0;right:0;top:16%;bottom:0;padding:5% 6%;background:#000;opacity:0}
 .wg-pg h4{margin:0 0 6px;font:700 15px var(--serif)}
 .wg-pg p{margin:0 0 6px;color:#c9c9cf}
-.wg-p1{animation:wgp1 18s infinite}.wg-p2{background:#fff;color:#202122;animation:wgp2 18s infinite}.wg-p3{animation:wgp3 18s infinite}
-.wg-p2 p{color:#202122}.wg-p2 h4{border-bottom:1px solid #a2a9b1;padding-bottom:3px}
+.wg-p1{animation:wgp1 18s infinite}.wg-p2{padding:0;background:#fff url(wiki-lagos.jpg) 0 0/100% 100% no-repeat;animation:wgp2 18s infinite}.wg-p3{animation:wgp3 18s infinite}
 .wg-btn{display:inline-block;margin-top:8px;padding:5px 12px;border-radius:4px;background:#fff;color:#0e0e10;font-weight:600}
-.wg-hl{background:linear-gradient(#a3c8ff,#a3c8ff) no-repeat left/0 100%;animation:wghl 18s infinite}
+.wg-hl{position:absolute;background:rgba(120,170,255,.45);transform:scaleX(0);transform-origin:left}.wg-h1{animation:wghl1 18s infinite}.wg-h2{animation:wghl2 18s infinite}.wg-h3{animation:wghl3 18s infinite}.wg-h4{animation:wghl4 18s infinite}
 .wg-sent{padding:6px 8px;border-left:3px solid #fff;background:#0e0e10}
-.wg-in{padding:5px 8px;border:1px solid var(--line2);border-radius:4px;background:#0a0a0c;margin-bottom:6px}
+.wg-in{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:5px 8px;border:1px solid var(--line2);border-radius:4px;background:#0a0a0c;margin-bottom:6px}
 .wg-cur{position:absolute;left:0;top:0;width:14px;height:14px;z-index:5;animation:wgcur 18s infinite;filter:drop-shadow(0 1px 2px #000)}
 .wg-cur::before{content:"";position:absolute;inset:0;background:#fff;clip-path:polygon(0 0,0 85%,25% 65%,45% 100%,60% 92%,42% 58%,75% 58%)}
 .wg-gh{position:absolute;left:0;top:0;padding:3px 10px;border-radius:4px;background:#fff;color:#0e0e10;font-weight:600;white-space:nowrap;opacity:0;z-index:4;animation:wggh 18s infinite}
@@ -383,10 +382,10 @@ main.wrap{padding-bottom:48px}
 @keyframes wgp1{0%,50%{opacity:1}52%,100%{opacity:0}}
 @keyframes wgp2{0%,51%{opacity:0}53%,78%{opacity:1}80%,100%{opacity:0}}
 @keyframes wgp3{0%,79%{opacity:0}81%,95%{opacity:1}98%,100%{opacity:0}}
-@keyframes wghl{0%,56%{background-size:0 100%}66%,100%{background-size:100% 100%}}
-@keyframes wgcur{0%,14%{transform:translate(78%,70%)}30%,33%{transform:translate(120px,150px)}46%{transform:translate(40px,38px)}52%{transform:translate(40px,38px)}56%{transform:translate(30px,98px)}66%{transform:translate(300px,98px)}74%{transform:translate(40px,38px)}78%,100%{transform:translate(40px,38px)}}
+@keyframes wghl1{0%,55%{transform:scaleX(0)}57%,100%{transform:scaleX(1)}}@keyframes wghl2{0%,57%{transform:scaleX(0)}60%,100%{transform:scaleX(1)}}@keyframes wghl3{0%,60%{transform:scaleX(0)}63%,100%{transform:scaleX(1)}}@keyframes wghl4{0%,63%{transform:scaleX(0)}66%,100%{transform:scaleX(1)}}@keyframes wga1{0%,51%{opacity:1}52%,79%{opacity:0}80%,100%{opacity:1}}}@keyframes wga2{0%,51%{opacity:0}53%,79%{opacity:1}80%,100%{opacity:0}}
+@keyframes wgcur{0%,14%{transform:translate(78%,70%)}30%,33%{transform:translate(120px,150px)}46%{transform:translate(40px,38px)}52%{transform:translate(40px,38px)}56%{transform:translate(231px,101px)}66%{transform:translate(286px,140px)}74%{transform:translate(40px,38px)}78%,100%{transform:translate(40px,38px)}}
 @keyframes wggh{0%,33%{opacity:0;transform:translate(110px,142px)}35%{opacity:1;transform:translate(110px,142px)}46%{opacity:1;transform:translate(32px,30px)}47%,100%{opacity:0;transform:translate(32px,30px)}}
 @keyframes wgc1{0%,13%{opacity:1}15%,100%{opacity:0}}
 @keyframes wgc2{0%,14%{opacity:0}16%,50%{opacity:1}52%,100%{opacity:0}}
 @keyframes wgc3{0%,51%{opacity:0}53%,96%{opacity:1}98%,100%{opacity:0}}
-@media (prefers-reduced-motion:reduce){.wg-win *,.wg-win{animation:none!important}.wg-bm{transform:none}.wg-bmi{opacity:1}.wg-p1,.wg-p2{opacity:0}.wg-p3{opacity:1}.wg-cur{display:none}.wg-cap span{opacity:1;position:static;display:block}.wg-cap{height:auto}}
+@media (prefers-reduced-motion:reduce){.wg-win *,.wg-win{animation:none!important}.wg-bm{transform:none}.wg-bmi{opacity:1}.wg-p1,.wg-p2{opacity:0}.wg-a1{opacity:1}.wg-hl{transform:none}.wg-p3{opacity:1}.wg-cur{display:none}.wg-cap span{opacity:1;position:static;display:block}.wg-cap{height:auto}}

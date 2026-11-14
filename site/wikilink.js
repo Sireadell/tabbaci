@@ -125,13 +125,16 @@
     const fig = mk('figure', 'wg'); fig.style.margin = '14px 0';
     fig.setAttribute('role', 'img'); fig.setAttribute('aria-label', TEXT.installLead);
     const win = mk('div', 'wg-win');
-    const addr = mk('div', 'wg-addr'); addr.appendChild(mk('span', '', 'tabbaci.vercel.app')); win.appendChild(addr);
+    const addr = mk('div', 'wg-addr'); addr.appendChild(mk('span', 'wg-a1', 'tabbaci.vercel.app')); addr.appendChild(mk('span', 'wg-a2', 'en.wikipedia.org/wiki/Lagos')); win.appendChild(addr);
     const bm = mk('div', 'wg-bm'); bm.appendChild(mk('span', 'wg-bmi', TEXT.installButtonLabel)); bm.appendChild(mk('span', 'wg-key', 'Ctrl+Shift+B')); win.appendChild(bm);
     const p1 = mk('div', 'wg-pg wg-p1'); p1.appendChild(mk('h4', '', TEXT.installTitle)); p1.appendChild(mk('span', 'wg-btn', TEXT.installButtonLabel)); win.appendChild(p1);
-    const p2 = mk('div', 'wg-pg wg-p2'); p2.appendChild(mk('h4', '', 'Lagos'));
-    const para = mk('p'); para.appendChild(mk('span', 'wg-hl', 'Lagos, or Lagos City, is a large metropolitan port city in southwestern Nigeria.')); p2.appendChild(para); win.appendChild(p2);
+    const p2 = mk('div', 'wg-pg wg-p2');
+    [[231, 45, 93, 9], [12, 58, 320, 9], [12, 71, 302, 9], [12, 84, 274, 9]].forEach((r, i) => {
+      const h = mk('span', 'wg-hl wg-h' + (i + 1)); h.style.cssText = 'left:' + r[0] + 'px;top:' + r[1] + 'px;width:' + r[2] + 'px;height:' + r[3] + 'px'; p2.appendChild(h);
+    });
+    win.appendChild(p2);
     const p3 = mk('div', 'wg-pg wg-p3'); const sent = mk('div', 'wg-sent'); sent.appendChild(mk('strong', '', TEXT.sentBarTitle)); p3.appendChild(sent);
-    p3.appendChild(mk('div', 'wg-in', 'Lagos')); p3.appendChild(mk('div', 'wg-in', 'Lagos is a large metropolitan port city in southwestern Nigeria.')); win.appendChild(p3);
+    p3.appendChild(mk('div', 'wg-in', 'Lagos')); p3.appendChild(mk('div', 'wg-in', "As of November 2025, the size of the city's population has been estimated to be between 17 and 21 million residents, making Lagos the largest city in Nigeria, the most populous urban area on the African continent, and one of the fastest-growing megacities in the world.")); win.appendChild(p3);
     win.appendChild(mk('span', 'wg-gh', TEXT.installButtonLabel)); win.appendChild(mk('span', 'wg-cur'));
     const fit = mk('div', 'wg-fit'); fit.appendChild(win); fig.appendChild(fit);
     const scale = () => { const w = fig.clientWidth || 520; const k = Math.min(1, w / 520); win.style.transform = 'scale(' + k + ')'; fit.style.height = Math.round(325 * k) + 'px'; };
