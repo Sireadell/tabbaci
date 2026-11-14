@@ -260,7 +260,8 @@ fn a_quote_in_the_page_but_outside_the_excerpt_does_not_count() {
         ("https://a.example/p", 200, &format!("The far away fact. {} Near Protocol launched its mainnet in 2020. {}", "x".repeat(800), "y".repeat(800))),
         ("https://b.example/q", 200, "history: the network launched in October 2020, said the report"),
     ]);
-    let far = format!("TRUE\n{}", "x".repeat(60));
+    let far = "TRUE
+The far away fact.".to_string();
     let v = go(&prose_input("NEAR mainnet launched in 2020."), &f, &[&far, &far, &far]);
     assert_eq!(v["o"], "U");
 }
