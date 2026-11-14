@@ -239,7 +239,9 @@ async function runChecks(id, show, opts = {}) {
     } else add('Each judge signed its own answer', 'NEEDS', 'the signature code did not load. Run the command below.');
     await pause();
   }
-  add('The sealed box really ran the fingerprinted program', 'NEEDS', sealedOf(id) ? 'a saved proof exists for this round. Check it with the command below.' : 'needs the outlayer-verify tool. Run the command below.');
+  if (window.IntelCheck) {
+    for (const x of await window.IntelCheck.runForRound(id, sealedOf(id), { view: (c, m, a) => view(m, a, c), contract: CFG.contract, round: r })) { add(x.name, x.status, x.detail); await pause(); }
+  } else add("Intel's report on the sealed box", 'NEEDS', 'the checking code did not load. Run the command below.');
   return out;
 }
 

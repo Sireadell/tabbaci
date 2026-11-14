@@ -17,6 +17,8 @@ window.SITE_CONFIG = {
     20: { tx: 'gwYoRaCAJan5xLzX6bXUKZ83TSAmSZt8JZj4WEz27fj', task: 64242 },
     25: { tx: '92jLEthC7ctF62yon8gL3DiSxkh3Anyk43p7FY3uW2ZZ', task: 72832 },
     33: { tx: 'Db3MShVkpnZqefBqvwUQay6rSZVeb5zqDPNkHNfoEKkm', task: 72986 },
+    35: { tx: '3MFEfvm227EhdX6GVBKwvLjKmgpcP4tL5KCacZSXvUtN', task: 87213 },
+    36: { tx: 'E5pHEpzBrZcDfVe1CD2qwGsDLRjPsCuHZJUjiC5rDMEi', task: 87217 },
   },
   // The same for court version 2 (proofs/tabbaci-court2/sealed-runs.md).
   sealedV2: {
