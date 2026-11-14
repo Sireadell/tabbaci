@@ -14,6 +14,7 @@ import { sha256, sha256hex, b64url, recoverAddress } from './crypto.mjs';
 import { net, settle, settleBatchCheck } from './payout.mjs';
 import { dataUser, proseUser, requestBody, requestBodyV1, canon, extract, windowOf, proseOutcome, dataOutcome } from './frames.mjs';
 import { checkV2 } from './v2.mjs';
+import { checkPrivate } from './private.mjs';
 
 const args = Object.fromEntries(
   process.argv.slice(2).reduce((acc, a, i, all) => (a.startsWith('--') ? [...acc, [a.slice(2), all[i + 1] && !all[i + 1].startsWith('--') ? all[i + 1] : 'true']] : acc), []),
@@ -140,13 +141,30 @@ async function main() {
   // 5. the verdict
   let v;
   try { v = JSON.parse(r.verdict); } catch { add(X, 'verdict is valid JSON'); return finish(); }
-  add(Buffer.byteLength(r.verdict) <= (v.v === 2 ? 7000 : 900) && (v.v === 1 || v.v === 2) && v.rd === round && v.ih === r.ih ? M : X, 'verdict belongs to this round and request', `${Buffer.byteLength(r.verdict)} bytes, o=${v.o}`);
+  add(Buffer.byteLength(r.verdict) <= (v.v >= 2 ? 7000 : 900) && (v.v === 1 || v.v === 2 || v.v === 3) && v.rd === round && v.ih === r.ih ? M : X, 'verdict belongs to this round and request', `${Buffer.byteLength(r.verdict)} bytes, o=${v.o}`);
   add(v.o === r.outcome || (v.o === 'V' && r.status === 'void') ? M : X, 'contract outcome equals the verdict', `verdict ${v.o}, contract ${r.outcome ?? r.void_reason}`);
 
   // 6. sources
   const archive = args.archive;
   const bodies = [];
-  for (let i = 0; i < (v.s || []).length; i++) {
+  const isPrivate = v.v === 3 && input.kind === 'private';
+  if (isPrivate) {
+    // the page never leaves the sealed chip; only whoever holds it can put it in --archive to compare
+    const s0 = (v.s || [])[0];
+    const file = archive && s0 && s0.h ? `${archive}/${Buffer.from(s0.h, 'base64url').toString('hex')}` : null;
+    const page = file && existsSync(file) ? readFileSync(file) : null;
+    let attested = null;
+    if (args['attested-judges']) {
+      const { execFileSync } = await import('node:child_process');
+      const script = new URL('../../privacy/tools/verify-judges.mjs', import.meta.url);
+      try { attested = JSON.parse(execFileSync(process.execPath, [fileURLToPath(script), '--algo', 'ed25519', '--signers', '--models', input.m.join(',')], { encoding: 'utf8', timeout: 240000, stdio: ['ignore', 'pipe', 'ignore'] })); }
+      catch (e) { add(C, 'judge keys vouched for by Intel', 'could not run privacy/tools/verify-judges.mjs: ' + String(e.message).slice(0, 80)); }
+    } else if (args['signers-json']) {
+      try { attested = JSON.parse(readFileSync(args['signers-json'], 'utf8')); } catch { /* falls back to CANNOT VERIFY lines */ }
+    }
+    for (const row of checkPrivate({ r, input, v, page, attested })) add(row.status, row.name, row.detail);
+  }
+  for (let i = 0; i < (isPrivate ? 0 : (v.s || []).length); i++) {
     const s = v.s[i];
     const file = archive ? `${archive}/${Buffer.from(s.h, 'base64url').toString('hex')}` : null;
     if (file && existsSync(file)) {
@@ -172,8 +190,10 @@ async function main() {
   }
 
   // 7. judges: rebuild each request, check each signature
-  if (v.v === 2) {
-    // court version 2: quotes against the saved page bytes, signatures against what the contract checked
+  if (isPrivate) {
+    // checked above
+  } else if (v.v === 2 || v.v === 3) {
+    // court version 2 (and the public rounds of version 3, which are the same): quotes against the saved page bytes, signatures against what the contract checked
     let attested = null;
     if (args['attested-judges']) {
       const { execFileSync } = await import('node:child_process');
