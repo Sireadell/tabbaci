@@ -1,0 +1,44 @@
+{
+  "name": "Tabbaci",
+  "what": "An encyclopedia on NEAR where the writer pays for being wrong. Three sealed AI judges rule on each sentence and anyone can re-check every ruling.",
+  "contract": "finalenc2.testnet",
+  "network": "testnet",
+  "rounds_on_chain": 50,
+  "access_keys_on_contract": 0,
+  "last_recheck": {
+    "checked": "2026-11-14T13:39:24.083Z",
+    "finished_rounds": 49,
+    "fully_match": 1,
+    "no_mismatch_but_some_lines_need_tools": 48,
+    "mismatch": 0,
+    "headline": "49 of 49 finished rounds: 0 mismatch"
+  },
+  "court_2": {
+    "contract": "tabbaci-court2.testnet",
+    "network": "testnet",
+    "program_fingerprint": "129b36ec",
+    "access_keys_on_contract": 0,
+    "rounds_on_chain": 9,
+    "settled_rounds": 6,
+    "last_settled_round": 7,
+    "adds": "The contract itself checks all three judges' signatures and that each judge's quote is really in the page.",
+    "latest_case": "https://tabbaci.vercel.app/case.html?round=7&c=tabbaci-court2.testnet"
+  },
+  "mainnet_pilot": {
+    "contract": "5c807510305d238f1cec81ba0544b08b8f388e807b2d20a514b36e1678ab801e",
+    "network": "mainnet",
+    "bonded_rounds": 3,
+    "access_keys_on_contract": 1,
+    "checker_output": "https://github.com/Sireadell/tabbaci/tree/main/proofs/mainnet"
+  },
+  "one_command": "node tools/verify/verify.mjs --contract finalenc2.testnet --round 25 --archive archive --network testnet --attested-judges --rpc https://test.rpc.fastnear.com",
+  "re_check_all": "node tools/recheck/recheck.mjs --all",
+  "links": {
+    "site": "https://tabbaci.vercel.app",
+    "repo": "https://github.com/Sireadell/tabbaci",
+    "judges_guide": "https://github.com/Sireadell/tabbaci/blob/main/JUDGES.md",
+    "llms": "https://tabbaci.vercel.app/llms.txt",
+    "nightly_status": "https://raw.githubusercontent.com/Sireadell/tabbaci/status/status.json",
+    "workflow": "https://github.com/Sireadell/tabbaci/actions/workflows/recheck.yml"
+  }
+}

@@ -1,0 +1,609 @@
+{
+  "checked": "2026-11-14T13:39:24.083Z",
+  "contract": "finalenc2.testnet",
+  "rounds_on_chain": 50,
+  "finished": 49,
+  "match": 1,
+  "open": 48,
+  "mismatch": 0,
+  "headline": "49 of 49 finished rounds: 0 mismatch (1 fully MATCH, 48 with lines this machine could not test)",
+  "results": [
+    {
+      "round": 2,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 13,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-2.bundle.json; pass --tx <atte"
+      ]
+    },
+    {
+      "round": 3,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 13,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-3.bundle.json; pass --tx <atte"
+      ]
+    },
+    {
+      "round": 4,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 16,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-4.bundle.json; pass --tx <atte"
+      ]
+    },
+    {
+      "round": 5,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 14,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 7 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-5.bundle.json; pass --tx <atte"
+      ]
+    },
+    {
+      "round": 6,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 14,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 7 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-6.bundle.json; pass --tx <atte"
+      ]
+    },
+    {
+      "round": 7,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 7 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-7.bundle.json; pass --tx <atte"
+      ]
+    },
+    {
+      "round": 8,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 18,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-8.bundle.json; pass --tx <atte"
+      ]
+    },
+    {
+      "round": 9,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 18,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-9.bundle.json; pass --tx <atte"
+      ]
+    },
+    {
+      "round": 10,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 16,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-10.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 11,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-11.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 12,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-12.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 13,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-13.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 14,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 14,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-14.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 15,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 14,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-15.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 16,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 14,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-16.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 17,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-17.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 18,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-18.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 19,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-19.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 20,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 14,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources"
+      ]
+    },
+    {
+      "round": 21,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 13,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-21.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 22,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 13,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-22.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 23,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 13,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-23.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 24,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 13,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-24.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 25,
+      "state": "MATCH",
+      "exit": 0,
+      "matched": 17,
+      "mismatches": [],
+      "open": []
+    },
+    {
+      "round": 26,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 16,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-26.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 27,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 16,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-27.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 28,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 16,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-28.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 29,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 16,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-29.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 30,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 13,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-30.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 31,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 16,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-31.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 32,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 13,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-32.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 33,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 13,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 10 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources"
+      ]
+    },
+    {
+      "round": 34,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 13,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 2 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 3 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY outcome follows from the numbers and judges needs the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-34.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 35,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 16,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-35.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 36,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 16,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-36.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 37,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-37.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 38,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-38.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 39,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 11,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 9 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-39.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 40,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 11,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY source 9 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-40.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 41,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-41.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 42,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-42.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 43,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-43.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 44,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-44.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 45,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 12,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY source 4 bytes match their fingerprint archived bytes missing",
+        "CANNOT VERIFY judge 0 (deepseek-ai/DeepSeek-V4.1-Flash-1017) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 1 (Qwen/Qwen3.8-27B) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY judge 2 (Qwen/Qwen3.6-35B-A3B-FP8) signature cannot rebuild the question without the archived sources",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-45.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 46,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 15,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY bond payouts follow the rule this contract did not record the reserve at settlement",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-46.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 47,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 15,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY bond payouts follow the rule this contract did not record the reserve at settlement",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-47.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 48,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 15,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY bond payouts follow the rule this contract did not record the reserve at settlement",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-48.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 49,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 16,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-49.bundle.json; pass --tx <att"
+      ]
+    },
+    {
+      "round": 50,
+      "state": "OPEN",
+      "exit": 2,
+      "matched": 15,
+      "mismatches": [],
+      "open": [
+        "CANNOT VERIFY bond payouts follow the rule this contract did not record the reserve at settlement",
+        "CANNOT VERIFY sealed-box attestation (outlayer-verify) no saved proof at /home/runner/work/tabbaci/tabbaci/proofs/finalenc2/round-50.bundle.json; pass --tx <att"
+      ]
+    }
+  ]
+}
