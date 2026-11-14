@@ -26,8 +26,9 @@
 </section>
 </main>
 <footer id="foot"></footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script><script src="judgesig.js"></script><script src="config.js"></script><script src="app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script><script src="judgesig.js"></script><script src="v2checks.js"></script><script src="config.js"></script><script src="app.js"></script>
 <script>
+Site.useContract(new URLSearchParams(location.search).get('c'));
 Site.chrome('ledger');
 const id = Number(new URLSearchParams(location.search).get('round'));
 const rec = $('record');
@@ -65,7 +66,14 @@ async function show() {
     return `<div><span class="mono">${esc(s.u)}</span><br><span class="mute">${got ? (got.x !== undefined && got.x !== '' ? 'the sealed run read <b>' + esc(got.x) + '</b>' : 'fetched, HTTP ' + esc(got.c)) : 'not fetched yet'}${got ? ', fingerprint <span class="mono">' + esc(got.h.slice(0, 10)) + '</span>' : ''}</span>${sv && sv.excerpt ? `<div class="excerpt">${oneLine(sv.excerpt)}</div>` : ''}</div>`;
   }).join('') || '<span class="mute">None recorded.</span>';
 
-  const judges = v && v.j && v.j.length ? `<ul class="jl">${v.j.map((j) => { const a = j.a === 'T' ? 'TRUE' : j.a === 'F' ? 'FALSE' : 'UNSURE'; return `<li>${Site.stamp(a, 'small')}<span>${esc(Site.modelName(models[j.m]) || 'judge ' + j.m)}${j.g ? ', reply signed' : ', no signed reply, counted as unsure'}</span></li>`; }).join('')}</ul>${isData ? `<p class="mute" style="margin:6px 0 0;font-size:.9rem">This sentence is about a number, so the numbers the sources returned decide it. The judges only confirm that the sentence states that number${input.cv ? ' (' + esc(input.cv) + ')' : ''}.</p>` : ''}` : '<span class="mute">No judge answers yet.</span>';
+  const quoteHtml = (j) => {
+    if (!v || v.v !== 2 || !window.V2 || j.a === 'X' || input.kind !== 'prose') return '';
+    const [word, quote] = window.V2.parseReply(window.V2.contentOf(window.V2.unb64(j.r)) || '');
+    if (word !== 'TRUE' && word !== 'FALSE') return '<div class="jq mute">Unsure, so no quote.</div>';
+    const ctx = window.V2.highlight(v.ex || '', quote, esc);
+    return `<div class="jq"><b>${esc(word)}</b>, relying on: ${ctx ? `<span class="mono">${ctx}</span>` : `<mark>${esc(quote)}</mark>`}${j.qx ? '<br><span class="neg">This quote is not on the page, so the court counted this judge as unsure.</span>' : ''}</div>`;
+  };
+  const judges = v && v.j && v.j.length ? `<ul class="jl">${v.j.map((j) => { const a = j.a === 'T' ? 'TRUE' : j.a === 'F' ? 'FALSE' : 'UNSURE'; return `<li>${Site.stamp(a, 'small')}<span>${esc(Site.modelName(models[j.m]) || 'judge ' + j.m)}${j.g ? ', reply signed' : ', no signed reply, counted as unsure'}</span>${quoteHtml(j)}</li>`; }).join('')}</ul>${isData ? `<p class="mute" style="margin:6px 0 0;font-size:.9rem">This sentence is about a number, so the numbers the sources returned decide it. The judges only confirm that the sentence states that number${input.cv ? ' (' + esc(input.cv) + ')' : ''}.</p>` : ''}` : '<span class="mute">No judge answers yet.</span>';
 
   const bonds = (r.bonds || []).length ? `<ul class="jl">${r.bonds.map((b) => `<li><span class="mono">${esc(b.writer)}</span> put <b>${Site.near(b.stake)} NEAR</b> on the word <b>${esc(b.word)}</b></li>`).join('')}</ul><p class="mute" style="margin:6px 0 0;font-size:.9rem">The bond-backed confidence of this sentence is ${(Site.WORDS[r.bonds[0].word] / 100).toFixed(0)} in 100. It comes from the word the writer chose and the money behind it. Nobody trades it.</p>` : '<span class="mute">No money behind this sentence.</span>';
   const money = (r.bonds || []).length ? `<ul class="jl">${r.bonds.map((b) => { const m = Site.bondMoney(b); return `<li><span class="${m.kind === 'fine' ? 'neg' : m.kind === 'gain' ? 'pos' : ''}">${esc(m.text)}</span></li>`; }).join('')}</ul>` : '<span class="mute">Nothing to pay.</span>';

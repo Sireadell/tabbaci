@@ -36,12 +36,13 @@ function moneyCell(r) {
 }
 function draw() {
   const list = rounds.filter((r) => cur === 'all' ? true : cur === 'lies' ? Site.isLie(r) : cur === 'visitors' ? r.tag === 'visitor' : Site.letterOf(r) === cur || (cur === 'UNSURE' && ['SPLIT', 'VOID'].includes(Site.letterOf(r))));
-  $('rows').innerHTML = list.map((r) => `<tr><td class="rid"><a href="case.html?round=${r.id}">No. ${r.id}</a></td><td class="c">${esc(r.claim)}${Site.isLie(r) ? ' <span class="mute" style="font:.78rem var(--sans)">(a lie, tried on purpose)</span>' : r.tag === 'visitor' ? ' <span class="mute" style="font:.78rem var(--sans)">(sent by a visitor from the try page)</span>' : ''}</td><td>Testnet</td><td class="num">${bondCell(r)}</td><td>${Site.stamp(Site.letterOf(r), 'small')}</td><td class="num">${moneyCell(r)}</td></tr>`).join('') || '<tr><td colspan="6" class="mute">Nothing in this view.</td></tr>';
+  $('rows').innerHTML = list.map((r) => `<tr><td class="rid"><a href="case.html?round=${r.id}${r._c ? '&c=' + r._c : ''}">No. ${r.id}${r._c ? ' (v2)' : ''}</a></td><td class="c">${esc(r.claim)}${Site.isLie(r) ? ' <span class="mute" style="font:.78rem var(--sans)">(a lie, tried on purpose)</span>' : r.tag === 'visitor' ? ' <span class="mute" style="font:.78rem var(--sans)">(sent by a visitor from the try page)</span>' : ''}</td><td>Testnet</td><td class="num">${bondCell(r)}</td><td>${Site.stamp(Site.letterOf(r), 'small')}</td><td class="num">${moneyCell(r)}</td></tr>`).join('') || '<tr><td colspan="6" class="mute">Nothing in this view.</td></tr>';
   document.querySelectorAll('#filters button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.f === cur)));
 }
 $('filters').innerHTML = FILTERS.map(([k, t]) => `<button type="button" class="chip" data-f="${k}" aria-pressed="false">${t}</button>`).join('');
 $('filters').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; cur = b.dataset.f; draw(); });
-Site.allRounds().then(({ rounds: rs, live, savedAt }) => {
+Promise.all([Site.allRounds(), Site.CFG.contractV2 ? Site.allRounds(Site.CFG.contractV2, 'data/rounds-v2.json') : Promise.resolve({ rounds: [] })]).then(([old, v2]) => {
+  const { live, savedAt } = old; const rs = [...v2.rounds, ...old.rounds];
   rounds = rs; draw();
   $('live-note').textContent = (live ? 'Read from the chain just now' : 'The chain did not answer, so this is the saved copy from ' + (savedAt ? savedAt.slice(0, 10) : 'an earlier day')) + '. ' + rs.length + ' rounds on ' + Site.CFG.contract + ', NEAR test network.';
 });

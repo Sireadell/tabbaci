@@ -3,6 +3,8 @@ window.SITE_CONFIG = {
   rpc: 'https://rpc.testnet.near.org',
   rpcs: ['https://test.rpc.fastnear.com', 'https://rpc.testnet.near.org'],
   contract: 'finalenc2.testnet',
+  // Court version 2 contract (judges' quotes and signatures checked on chain). null until it is deployed.
+  contractV2: null,
   plantedLies: [3, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 35, 36],
   // The three court files on the home page, and the replay cases.
   featured: [

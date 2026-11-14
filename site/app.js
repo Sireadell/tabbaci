@@ -24,36 +24,37 @@ async function rpc(method, params) {
   }
   throw new Error('no node answered');
 }
-async function view(method, args = {}) {
-  const res = await rpc('query', { request_type: 'call_function', finality: 'final', account_id: CFG.contract, method_name: method, args_base64: btoa(JSON.stringify(args)) });
+async function view(method, args = {}, contract = CFG.contract) {
+  const res = await rpc('query', { request_type: 'call_function', finality: 'final', account_id: contract, method_name: method, args_base64: btoa(JSON.stringify(args)) });
   if (res.error) throw new Error(res.error);
   return JSON.parse(new TextDecoder().decode(new Uint8Array(res.result)));
 }
 
 // ---------- saved copy ----------
-let savedP;
-function saved() {
-  if (!savedP) savedP = fetch('data/rounds.json').then((r) => (r.ok ? r.json() : null)).catch(() => null);
-  return savedP;
+const savedPs = {};
+function saved(file = CFG.savedFile || 'data/rounds.json') {
+  if (!savedPs[file]) savedPs[file] = fetch(file).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  return savedPs[file];
 }
 // Returns { rounds (newest first), live, savedAt }. Final rounds come from the saved copy, anything open,
 // unpaid or newer than the copy is asked from the chain.
-async function allRounds() {
-  const sv = await saved();
+async function allRounds(contract = CFG.contract, file) {
+  const sv = await saved(file);
   const have = new Map(((sv && sv.rounds) || []).map((r) => [r.id, r]));
   let live = false;
   try {
-    const n = await view('round_count'); live = true;
+    const n = await view('round_count', {}, contract); live = true;
     const todo = [];
     for (let i = 1; i <= n; i++) {
       const r = have.get(i);
       if (!r || r.status === 'open' || (r.bonds || []).some((b) => b.payout == null)) todo.push(i);
     }
     for (let k = 0; k < todo.length; k += 4) {
-      await Promise.all(todo.slice(k, k + 4).map((i) => view('get_round', { round: i }).then((r) => { if (r) have.set(i, { ...(have.get(i) || {}), id: i, ...r }); })));
+      await Promise.all(todo.slice(k, k + 4).map((i) => view('get_round', { round: i }, contract).then((r) => { if (r) have.set(i, { ...(have.get(i) || {}), id: i, ...r }); })));
     }
   } catch (e) { /* keep the saved copy */ }
-  return { rounds: [...have.values()].sort((a, b) => b.id - a.id), live, savedAt: sv && sv.saved };
+  const tag = contract === CFG.contractV2 ? { _c: contract } : {};
+  return { rounds: [...have.values()].map((r) => ({ ...r, ...tag })).sort((a, b) => b.id - a.id), live, savedAt: sv && sv.saved };
 }
 async function getRound(id) {
   const sv = await saved(); const old = sv && sv.rounds.find((x) => x.id === id);
@@ -104,7 +105,7 @@ function chrome(active) {
 // ---------- ruling rows ----------
 function latestItem(r) {
   const b = blocksOf(r);
-  return `<li><a class="lrow" href="case.html?round=${r.id}"><span class="rid">No. ${r.id}</span><span class="claim">${esc(r.claim)}</span>${stamp(letterOf(r), 'small')}<span class="meta">${isLie(r) ? 'a lie, tried on purpose' : r.tag === 'visitor' ? 'sent by a visitor, no wallet' : 'a page sentence'}${b.length ? ` · ruled in ${b[b.length - 1]} blocks` : ''}</span></a></li>`;
+  return `<li><a class="lrow" href="case.html?round=${r.id}${r._c ? '&c=' + r._c : ''}"><span class="rid">No. ${r.id}</span><span class="claim">${esc(r.claim)}</span>${stamp(letterOf(r), 'small')}<span class="meta">${isLie(r) ? 'a lie, tried on purpose' : r.tag === 'visitor' ? 'sent by a visitor, no wallet' : 'a page sentence'}${b.length ? ` · ruled in ${b[b.length - 1]} blocks` : ''}</span></a></li>`;
 }
 
 // ---------- the checks that run in the browser ----------
@@ -197,7 +198,7 @@ async function runChecks(id, show, opts = {}) {
   if (r.status === 'open') { add('The ruling', 'NEEDS', 'the round is still open, nothing to check yet'); return out; }
   const v = parse(r.verdict);
   if (!v) { add('The ruling is present', r.status === 'void' ? 'MATCH' : 'MISMATCH', r.status === 'void' ? 'cancelled round, no ruling expected' : 'a settled round has no ruling'); return out; }
-  add('The ruling belongs to this round and request', v.v === 1 && v.rd === id && v.ih === r.ih ? 'MATCH' : 'MISMATCH', `the sealed program wrote outcome ${v.o}`); await pause();
+  add('The ruling belongs to this round and request', (v.v === 1 || v.v === 2) && v.rd === id && v.ih === r.ih ? 'MATCH' : 'MISMATCH', `the sealed program wrote outcome ${v.o}`); await pause();
   add('The contract outcome equals the ruling', v.o === r.outcome || (v.o === 'V' && r.status === 'void') ? 'MATCH' : 'MISMATCH', `ruling ${v.o}, contract ${r.outcome ?? r.void_reason}`); await pause();
   const sv = await saved(); const old = sv && sv.rounds.find((x) => x.id === id);
   const sources = v.s || [];
@@ -222,7 +223,11 @@ async function runChecks(id, show, opts = {}) {
       else { const [o, w] = dataOutcome(answers, Math.abs(nums[0] - Number(input.cv)) <= tol); add('The outcome follows from the numbers and the judges', agree && o === v.o && !!w === !!v.w ? 'MATCH' : 'MISMATCH', `sources read ${sources.map((s) => s.x).join(' and ')}, the sentence says ${input.cv}, judge answers ${answers.join(' ')}`); }
     }
     await pause();
-    if (window.JudgeSig) {
+    if (v.v === 2 && window.V2) {
+      const pages = [];
+      for (const x of sources) { const f = old && old._saved && old._saved[x.i]; try { pages.push(f ? new Uint8Array(await (await fetch('data/archive/' + f.file)).arrayBuffer()) : null); } catch { pages.push(null); } }
+      for (const row of await window.V2.check(input, v, r, pages)) add(row.name, row.status, row.detail);
+    } else if (window.JudgeSig) {
       let bytes = [];
       if (input.kind !== 'data') {
         for (const x of sources) { const f = old && old._saved && old._saved[x.i]; try { bytes.push(f ? new Uint8Array(await (await fetch('data/archive/' + f.file)).arrayBuffer()) : null); } catch { bytes.push(null); } }
@@ -288,4 +293,9 @@ function mountReplay(root, rounds, startId) {
   play();
 }
 
-window.Site = { CFG, $, esc, rpc, view, allRounds, getRound, near, pct, parse, isLie, letterOf, stamp, plainOutcome, modelName, blocksOf, explorer, verifyCmd, fullCheckCmd, bondMoney, chrome, latestItem, runChecks, mountReplay, saved, WORDS };
+// Point every read on this page at another court contract that the config lists (court version 2).
+function useContract(c) {
+  if (c && c === CFG.contractV2) { CFG.contract = c; CFG.savedFile = 'data/rounds-v2.json'; }
+}
+
+window.Site = { useContract, CFG, $, esc, rpc, view, allRounds, getRound, near, pct, parse, isLie, letterOf, stamp, plainOutcome, modelName, blocksOf, explorer, verifyCmd, fullCheckCmd, bondMoney, chrome, latestItem, runChecks, mountReplay, saved, WORDS };

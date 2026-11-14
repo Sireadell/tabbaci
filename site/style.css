@@ -349,3 +349,6 @@ main.wrap{padding-bottom:48px}
 /* reserve room for the parts that fill in from the chain, so the page does not jump */
 .rp{min-height:560px}.latest{min-height:340px}.files{min-height:250px}
 @media (max-width:900px){.rp{min-height:0}}
+
+.jq{flex-basis:100%;font-size:.9rem;padding:2px 0 6px 0;line-height:1.5}
+.jq mark{padding:0 2px}
